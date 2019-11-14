@@ -9,7 +9,7 @@ App abilities:
 3. Request help from others on social network.
 4. View help requests.
 5. Filter help requests according to location, pet types, help types, time and more.
-6. view help requests on a map.
+6. view help requests on a map. (API remover for safety, so option is disabled untill entering your API)
 7. select a help request and offer your help.
 8. get a message when someone is interested in your help request. his contact details will only then be shown.
 9. rate the helper.
