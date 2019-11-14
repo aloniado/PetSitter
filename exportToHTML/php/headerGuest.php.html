@@ -1,0 +1,58 @@
+<html>
+<head>
+<title>headerGuest.php</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #000000;}
+.s1 { color: #000000;}
+.s2 { color: #000080; font-weight: bold;}
+.s3 { color: #0000ff; font-weight: bold;}
+.s4 { color: #008000; font-weight: bold;}
+.s5 { color: #000080; font-weight: bold;}
+.s6 { color: #000000;}
+.s7 { color: #660000;}
+.s8 { color: #008000; font-weight: bold;}
+</style>
+</head>
+<body bgcolor="#ffffff">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#c0c0c0" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+headerGuest.php</font>
+</center></td></tr></table>
+<pre>
+&lt;<span class="s2">header</span>&gt;
+    &lt;<span class="s2">div </span><span class="s3">class=</span><span class="s4">&quot;fixed-top&quot;</span>&gt;
+
+        &lt;<span class="s2">nav </span><span class="s3">class=</span><span class="s4">&quot;navbar navbar-expand-lg navbar-dark bg-dark&quot;</span>&gt;
+            &lt;<span class="s2">div </span><span class="s3">class=</span><span class="s4">&quot;navbar-brand&quot; </span><span class="s3">href=</span><span class="s4">&quot;#&quot;</span>&gt;petSitter&lt;/<span class="s2">div</span>&gt;
+            &lt;<span class="s2">button </span><span class="s3">class=</span><span class="s4">&quot;navbar-toggler&quot; </span><span class="s3">type=</span><span class="s4">&quot;button&quot; </span><span class="s3">data-toggle=</span><span class="s4">&quot;collapse&quot; </span><span class="s3">data-target=</span><span class="s4">&quot;#navbarNavDropdown&quot; </span><span class="s3">aria-controls=</span><span class="s4">&quot;navbarNavDropdown&quot; </span><span class="s3">aria-expanded=</span><span class="s4">&quot;false&quot; </span><span class="s3">aria-label=</span><span class="s4">&quot;Toggle navigation&quot;</span>&gt;
+                &lt;<span class="s2">span </span><span class="s3">class=</span><span class="s4">&quot;navbar-toggler-icon&quot;</span>&gt;&lt;/<span class="s2">span</span>&gt;
+            &lt;/<span class="s2">button</span>&gt;
+            &lt;<span class="s2">div </span><span class="s3">class=</span><span class="s4">&quot;collapse navbar-collapse&quot; </span><span class="s3">id=</span><span class="s4">&quot;navbarNavDropdown&quot;</span>&gt;
+                &lt;<span class="s2">ul </span><span class="s3">class=</span><span class="s4">&quot;navbar-nav mr-auto&quot;</span>&gt;
+                    &lt;<span class="s2">li </span><span class="s3">class=</span><span class="s4">&quot;nav-item&quot;</span>&gt;
+                        &lt;<span class="s2">a </span><span class="s3">class=</span><span class="s4">&quot;nav-link&quot; </span><span class="s3">href=</span><span class="s4">&quot;?contactUs&quot;</span>&gt;Contact us&lt;/<span class="s2">a</span>&gt;
+                    &lt;/<span class="s2">li</span>&gt;
+
+                &lt;/<span class="s2">ul</span>&gt;
+                &lt;<span class="s2">span </span><span class="s3">class=</span><span class="s4">&quot;navbar-text&quot;</span>&gt;
+                  <span class="s5">&lt;?php</span>
+                  if (<span class="s5">isset</span>(<span class="s7">$_SESSION</span>[<span class="s8">'user'</span>]))
+                      <span class="s5">echo </span><span class="s8">&quot;signed in as &quot;</span>.<span class="s7">$_SESSION</span>[<span class="s8">'user'</span>];
+                  <span class="s5">else</span>
+                      echo <span class="s8">&quot;Not signed in&quot;</span>;
+                  <span class="s5">?&gt;</span>
+                &lt;/<span class="s2">span</span>&gt;
+            &lt;/<span class="s2">div</span>&gt;
+        &lt;/<span class="s2">nav</span>&gt;
+    &lt;/<span class="s2">div</span>&gt;
+&lt;/<span class="s2">header</span>&gt;
+
+
+
+
+
+</pre>
+</body>
+</html>

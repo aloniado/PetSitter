@@ -1,0 +1,149 @@
+<html>
+<head>
+<title>contactus.php</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #000080; font-weight: bold;}
+.s1 { color: #000000;}
+.s2 { color: #000000;}
+.s3 { color: #008000; font-weight: bold;}
+.s4 { color: #808080; font-style: italic;}
+.s5 { color: #660000;}
+.s6 { color: #000000;}
+.s7 { color: #000000;}
+.s8 { color: #000080; font-weight: bold;}
+.s9 { color: #0000ff; font-weight: bold;}
+.s10 { color: #008000; font-weight: bold;}
+.s11 { color: #808080; font-style: italic;}
+</style>
+</head>
+<body bgcolor="#ffffff">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#c0c0c0" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+contactus.php</font>
+</center></td></tr></table>
+<pre><span class="s0">&lt;?php</span>
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
+<span class="s0">require_once </span><span class="s3">&quot;classes/dbClass.php&quot;</span>;
+<span class="s0">require_once </span><span class="s3">&quot;classes/User.php&quot;</span>;
+<span class="s0">require_once </span><span class="s3">&quot;classes/dbClassUserFunctions.php&quot;</span>;
+
+<span class="s4">//filling forms automatically of signed in users:</span>
+<span class="s5">$name </span>= <span class="s3">&quot;&quot;</span>;
+<span class="s5">$email </span>= <span class="s3">&quot;&quot;</span>;
+
+<span class="s0">if </span>(<span class="s0">isset</span>(<span class="s5">$_SESSION</span>[<span class="s3">'user'</span>])){
+
+    <span class="s5">$dbu </span>= <span class="s0">new </span>dbClassUserFunctions();
+    <span class="s5">$user </span>= <span class="s5">$dbu</span>-&gt;getUserByID(<span class="s5">$_SESSION</span>[<span class="s3">'user'</span>]);
+    <span class="s5">$name </span>= <span class="s5">$user</span>-&gt;getUserFName().<span class="s3">&quot; &quot;</span>.<span class="s5">$user</span>-&gt;getUserLName();
+    <span class="s5">$email </span>= <span class="s5">$user</span>-&gt;getUserEmail();
+}
+
+
+<span class="s4">//-----------------form sent handling:</span>
+<span class="s0">if </span>(<span class="s0">isset</span>(<span class="s5">$_POST</span>[<span class="s3">'contact_form_sent'</span>]))
+{
+
+    <span class="s0">if </span>(<span class="s0">isset</span>(<span class="s5">$_SESSION</span>[<span class="s3">'user'</span>])){
+        <span class="s5">$details </span>= <span class="s3">&quot;user was signed in when sending this message. signed in user's ID: &quot;</span>.<span class="s5">$_SESSION</span>[<span class="s3">'user'</span>].<span class="s3">&quot;</span><span class="s0">\n</span><span class="s3">&quot;</span>;
+    }
+    <span class="s0">else </span>{
+        <span class="s5">$details </span>= <span class="s3">&quot;user wasn't signed in when sending message.</span><span class="s0">\n</span><span class="s3">&quot;</span>;
+    }
+
+    <span class="s5">$dbu </span>= <span class="s0">new </span>dbClassUserFunctions();
+    <span class="s5">$user </span>= <span class="s5">$dbu</span>-&gt;getUserByEmail(<span class="s5">$_POST</span>[<span class="s3">'email'</span>]);
+    <span class="s0">if </span>(<span class="s5">$user </span>!= null){ <span class="s4">//email in form corresponds with existing user</span>
+        <span class="s5">$details </span>.= <span class="s3">&quot;email filled out by user matches existing user. ID: &quot;</span>.<span class="s5">$user</span>-&gt;getUserID();
+    }
+    <span class="s0">else </span>{
+        <span class="s5">$details </span>.= <span class="s3">&quot;email filled out by user doesn't match an existing user.&quot;</span>;
+    }
+
+    <span class="s4">//sending an email to site admin:</span>
+    <span class="s5">$db </span>= <span class="s0">new </span>dbClass();
+    <span class="s5">$db</span>-&gt;sendMail_ContactUs(<span class="s3">&quot;contactUsMail&quot;</span>, <span class="s5">$_POST</span>[<span class="s3">'title'</span>], <span class="s5">$_POST</span>[<span class="s3">'message'</span>], <span class="s5">$_POST</span>[<span class="s3">'name'</span>], <span class="s5">$_POST</span>[<span class="s3">'email'</span>], <span class="s5">$details</span>);    <span class="s4">//sending an email with user filled details</span>
+
+
+    <span class="s5">$_SESSION</span>[<span class="s3">'userMessage'</span>]=<span class="s3">&quot;Message sent. we'll contact you at &lt;b&gt;&quot;</span>.<span class="s5">$_POST</span>[<span class="s3">'email'</span>].<span class="s3">&quot;&lt;/b&gt; soon.&quot;</span>;
+    header(<span class="s3">&quot;Location: main.php&quot;</span>);
+    <span class="s0">die</span>();
+}
+
+<span class="s0">?&gt;</span>
+&lt;<span class="s8">div </span><span class="s9">class=</span><span class="s10">&quot;d-flex justify-content-center&quot;</span>&gt;
+    &lt;<span class="s8">div </span><span class="s9">class=</span><span class="s10">&quot;card&quot;</span>&gt;
+        &lt;<span class="s8">h5 </span><span class="s9">class=</span><span class="s10">&quot;card-header&quot;</span>&gt;Contact us&lt;/<span class="s8">h5</span>&gt;
+        &lt;<span class="s8">div </span><span class="s9">class=</span><span class="s10">&quot;card-body&quot;</span>&gt;
+
+    &lt;<span class="s8">form </span><span class="s9">action=</span><span class="s10">&quot;contactus.php&quot; </span><span class="s9">method=</span><span class="s10">&quot;post&quot; </span><span class="s9">enctype=</span><span class="s10">&quot;multipart/form-data&quot;</span>&gt;
+
+        &lt;<span class="s8">div </span><span class="s9">class=</span><span class="s10">&quot;form-group&quot;</span>&gt;
+            &lt;<span class="s8">div </span><span class="s9">class=</span><span class="s10">&quot;form-row&quot;</span>&gt;
+                &lt;<span class="s8">div </span><span class="s9">class=</span><span class="s10">&quot;col&quot;</span>&gt;
+                    &lt;<span class="s8">label</span>&gt;Title:&lt;/<span class="s8">label</span>&gt;
+                &lt;/<span class="s8">div</span>&gt;
+            &lt;/<span class="s8">div</span>&gt;
+            &lt;<span class="s8">div </span><span class="s9">class=</span><span class="s10">&quot;form-row&quot;</span>&gt;
+                &lt;<span class="s8">div </span><span class="s9">class=</span><span class="s10">&quot;col&quot;</span>&gt;
+                    &lt;<span class="s8">input </span><span class="s9">type=</span><span class="s10">&quot;text&quot; </span><span class="s9">class=</span><span class="s10">&quot;form-control form-control-lg&quot; </span><span class="s9">name=</span><span class="s10">&quot;title&quot; </span><span class="s9">pattern=</span><span class="s10">&quot;[A-Za-z0-9 -']{2,30}&quot; </span><span class="s9">title=</span><span class="s10">&quot;Only letters and numbers, at least 2&quot; </span><span class="s9">required=</span><span class="s10">&quot;required&quot;</span>&gt;
+                &lt;/<span class="s8">div</span>&gt;
+            &lt;/<span class="s8">div</span>&gt;
+        &lt;/<span class="s8">div</span>&gt;
+        &lt;<span class="s8">div </span><span class="s9">class=</span><span class="s10">&quot;form-group&quot;</span>&gt;
+            &lt;<span class="s8">div </span><span class="s9">class=</span><span class="s10">&quot;form-row&quot;</span>&gt;
+                &lt;<span class="s8">div </span><span class="s9">class=</span><span class="s10">&quot;col&quot;</span>&gt;
+                    &lt;<span class="s8">label</span>&gt;Message:&lt;/<span class="s8">label</span>&gt;
+                &lt;/<span class="s8">div</span>&gt;
+            &lt;/<span class="s8">div</span>&gt;
+            &lt;<span class="s8">div </span><span class="s9">class=</span><span class="s10">&quot;form-row&quot;</span>&gt;
+                &lt;<span class="s8">div </span><span class="s9">class=</span><span class="s10">&quot;col&quot;</span>&gt;
+                    &lt;<span class="s8">textarea </span><span class="s9">rows=</span><span class="s10">&quot;5&quot; </span><span class="s9">cols=</span><span class="s10">&quot;50&quot; </span><span class="s9">type=</span><span class="s10">&quot;text&quot; </span><span class="s9">class=</span><span class="s10">&quot;form-control&quot; </span><span class="s9">name=</span><span class="s10">&quot;message&quot; </span><span class="s9">required=</span><span class="s10">&quot;required&quot;</span>&gt;&lt;/<span class="s8">textarea</span>&gt;
+                &lt;/<span class="s8">div</span>&gt;
+            &lt;/<span class="s8">div</span>&gt;
+        &lt;/<span class="s8">div</span>&gt;
+        <span class="s11">&lt;!-------&gt;</span>
+        &lt;<span class="s8">div </span><span class="s9">class=</span><span class="s10">&quot;form-group&quot;</span>&gt;
+            &lt;<span class="s8">div </span><span class="s9">class=</span><span class="s10">&quot;form-row&quot;</span>&gt;
+                &lt;<span class="s8">div </span><span class="s9">class=</span><span class="s10">&quot;col&quot;</span>&gt;
+                    &lt;<span class="s8">label</span>&gt;Name:&lt;/<span class="s8">label</span>&gt;
+                &lt;/<span class="s8">div</span>&gt;
+            &lt;/<span class="s8">div</span>&gt;
+            &lt;<span class="s8">div </span><span class="s9">class=</span><span class="s10">&quot;form-row&quot;</span>&gt;
+                &lt;<span class="s8">div </span><span class="s9">class=</span><span class="s10">&quot;col&quot;</span>&gt;
+                    &lt;<span class="s8">input </span><span class="s9">type=</span><span class="s10">&quot;text&quot; </span><span class="s9">class=</span><span class="s10">&quot;form-control&quot; </span><span class="s9">placeholder=</span><span class="s10">&quot;Your name&quot; </span><span class="s9">name=</span><span class="s10">&quot;name&quot; </span><span class="s9">pattern=</span><span class="s10">&quot;[A-Za-z \- ']{2,50}&quot; </span><span class="s9">title=</span><span class="s10">&quot;Only letters, at least 2&quot; </span><span class="s9">required=</span><span class="s10">&quot;required&quot; </span><span class="s9">value=</span><span class="s10">&quot;</span><span class="s0">&lt;?php echo </span><span class="s5">$name</span><span class="s0">?&gt;</span><span class="s10">&quot;</span>&gt;
+                &lt;/<span class="s8">div</span>&gt;
+            &lt;/<span class="s8">div</span>&gt;
+        &lt;/<span class="s8">div</span>&gt;
+        &lt;<span class="s8">div </span><span class="s9">class=</span><span class="s10">&quot;form-group&quot;</span>&gt;
+            &lt;<span class="s8">div </span><span class="s9">class=</span><span class="s10">&quot;form-row&quot;</span>&gt;
+                &lt;<span class="s8">div </span><span class="s9">class=</span><span class="s10">&quot;col&quot;</span>&gt;
+                    &lt;<span class="s8">label</span>&gt;Email:&lt;/<span class="s8">label</span>&gt;
+                &lt;/<span class="s8">div</span>&gt;
+            &lt;/<span class="s8">div</span>&gt;
+            &lt;<span class="s8">div </span><span class="s9">class=</span><span class="s10">&quot;form-row&quot;</span>&gt;
+                &lt;<span class="s8">div </span><span class="s9">class=</span><span class="s10">&quot;col&quot;</span>&gt;
+                    &lt;<span class="s8">input </span><span class="s9">type=</span><span class="s10">&quot;text&quot; </span><span class="s9">class=</span><span class="s10">&quot;form-control&quot; </span><span class="s9">placeholder=</span><span class="s10">&quot;Your email address&quot; </span><span class="s9">name=</span><span class="s10">&quot;email&quot; </span><span class="s9">pattern=</span><span class="s10">&quot;[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,3}$&quot; </span><span class="s9">required=</span><span class="s10">&quot;required&quot; </span><span class="s9">value=</span><span class="s10">&quot;</span><span class="s0">&lt;?php echo </span><span class="s5">$email</span><span class="s0">?&gt;</span><span class="s10">&quot;</span>&gt;
+                &lt;/<span class="s8">div</span>&gt;
+            &lt;/<span class="s8">div</span>&gt;
+        &lt;/<span class="s8">div</span>&gt;
+        <span class="s11">&lt;!------&gt;</span>
+
+
+
+
+        &lt;<span class="s8">button </span><span class="s9">type=</span><span class="s10">&quot;submit&quot; </span><span class="s9">class=</span><span class="s10">&quot;btn btn-primary&quot; </span><span class="s9">name=</span><span class="s10">&quot;contact_form_sent&quot;</span>&gt;Send&lt;/<span class="s8">button</span>&gt;
+    &lt;/<span class="s8">form</span>&gt;
+&lt;/<span class="s8">div</span>&gt;
+    &lt;/<span class="s8">div</span>&gt;
+&lt;/<span class="s8">div</span>&gt;
+
+
+
+</pre>
+</body>
+</html>

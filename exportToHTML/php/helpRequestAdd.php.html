@@ -1,0 +1,396 @@
+<html>
+<head>
+<title>helpRequestAdd.php</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #000080; font-weight: bold;}
+.s1 { color: #000000;}
+.s2 { color: #000000;}
+.s3 { color: #008000; font-weight: bold;}
+.s4 { color: #660000;}
+.s5 { color: #808080; font-style: italic;}
+.s6 { color: #0000ff;}
+.s7 { color: #000000;}
+.s8 { color: #808080; font-style: italic;}
+.s9 { color: #000000;}
+.s10 { color: #000080; font-weight: bold;}
+.s11 { color: #000080; font-weight: bold;}
+.s12 { color: #008000; font-weight: bold;}
+.s13 { color: #808080; font-weight: bold; font-style: italic;}
+.s14 { color: #0000ff;}
+.s15 { color: #0000ff; font-weight: bold;}
+.s16 { color: #008000; font-weight: bold;}
+</style>
+</head>
+<body bgcolor="#ffffff">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#c0c0c0" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+helpRequestAdd.php</font>
+</center></td></tr></table>
+<pre><span class="s0">&lt;?php</span>
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
+<span class="s0">require_once </span><span class="s3">&quot;classes/dbClass.php&quot;</span>;
+<span class="s0">require_once </span><span class="s3">&quot;classes/dbClassHelpRequestFunctions.php&quot;</span>;
+<span class="s0">require_once </span><span class="s3">&quot;classes/Pet.php&quot;</span>;
+<span class="s0">require_once </span><span class="s3">&quot;classes/HelpRequest.php&quot;</span>;
+<span class="s4">$db </span>= <span class="s0">new </span>dbClass();
+<span class="s4">$dbhr </span>= <span class="s0">new </span>dbClassHelpRequestFunctions();
+<span class="s4">$signedInUser</span>=<span class="s4">$db</span>-&gt;getSignedInUserData();
+
+<span class="s4">$type </span>= <span class="s3">&quot;hidden&quot;</span>;                         <span class="s5">//&quot;hidden&quot; or &quot;text&quot; : for location form fields (debugging)</span>
+
+
+//date and time:
+<span class="s4">$today </span>= date(<span class="s3">&quot;Y-m-d H:i:s&quot;</span>);
+<span class="s4">$today </span>= substr(<span class="s4">$today</span>, <span class="s6">0</span>, <span class="s6">10</span>);
+<span class="s4">$oneyearfromnow </span>= (string)((int)substr(<span class="s4">$today</span>, <span class="s6">0</span>, <span class="s6">4</span>)+<span class="s6">1</span>).substr(<span class="s4">$today</span>, <span class="s6">4</span>, <span class="s6">6</span>);
+<span class="s5">//echo &quot;&lt;br&gt;&quot;.$oneyearfromnow;</span>
+
+//-----------------------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------if form information sent:
+<span class="s0">if </span>(<span class="s0">isset</span>(<span class="s4">$_POST</span>[<span class="s3">'helpRequestSent'</span>]))
+{
+
+    <span class="s0">echo </span><span class="s3">&quot;_POST:&lt;br&gt;&quot;</span>;
+    <span class="s0">echo </span><span class="s3">&quot;&lt;pre&gt;&quot;</span>;
+    var_dump(<span class="s4">$_POST</span>);
+    <span class="s0">echo </span><span class="s3">&quot;&lt;/pre&gt;&quot;</span>;
+
+
+    <span class="s4">$lnglat </span>= <span class="s4">$_POST</span>[<span class="s3">'addrGPS'</span>];
+    <span class="s4">$lat </span>= substr(<span class="s4">$lnglat</span>,<span class="s6">1</span>,strpos(<span class="s4">$lnglat</span>,<span class="s3">&quot;,&quot;</span>)-<span class="s6">1</span>);
+    <span class="s4">$lnglat </span>= substr(<span class="s4">$lnglat</span>,strlen(<span class="s4">$lat</span>)+<span class="s6">2</span>);
+    <span class="s4">$lng </span>= substr(<span class="s4">$lnglat</span>,strpos(<span class="s4">$lnglat</span>,<span class="s3">&quot;,&quot;</span>)+<span class="s6">1</span>, strlen(<span class="s4">$lnglat</span>)-<span class="s6">2</span>);
+    <span class="s4">$lng</span>=round( <span class="s4">$lng</span>, <span class="s6">6</span>);
+    <span class="s4">$lat</span>=round( <span class="s4">$lat</span>, <span class="s6">6</span>);
+
+    <span class="s0">if </span>(<span class="s0">isset</span>(<span class="s4">$_POST</span>[<span class="s3">'payment'</span>]))
+        <span class="s4">$pay</span>=<span class="s4">$_POST</span>[<span class="s3">'paym'</span>];
+    <span class="s0">else</span>
+        <span class="s4">$pay</span>=<span class="s6">0</span>;
+
+    <span class="s4">$help_data </span>= <span class="s0">array</span>(
+        <span class="s3">'helpID' </span>=&gt; NULL,
+        <span class="s3">'userID' </span>=&gt; <span class="s4">$_SESSION</span>[<span class="s3">'user'</span>],
+        <span class="s3">'helpLocLat' </span>=&gt; <span class="s4">$lat</span>,
+        <span class="s3">'helpLocLng' </span>=&gt; <span class="s4">$lng</span>,
+        <span class="s3">'helpLocCity' </span>=&gt; <span class="s4">$_POST</span>[<span class="s3">'addrCity'</span>],
+        <span class="s3">'helpLocStreet' </span>=&gt; <span class="s4">$_POST</span>[<span class="s3">'addrStreet'</span>],
+        <span class="s3">'helpLocNum' </span>=&gt; <span class="s4">$_POST</span>[<span class="s3">'addrNum'</span>],
+        <span class="s3">'helpLocCountry' </span>=&gt; <span class="s4">$_POST</span>[<span class="s3">'addrCountry'</span>],
+        <span class="s3">'helpRegisterTime' </span>=&gt; date(<span class="s3">&quot;Y-m-d H:i:s&quot;</span>),
+        <span class="s3">'helpStartTime' </span>=&gt; <span class="s4">$_POST</span>[<span class="s3">'startdate'</span>].<span class="s3">&quot; &quot;</span>.<span class="s4">$_POST</span>[<span class="s3">'starttime'</span>],
+        <span class="s3">'helpEndTime' </span>=&gt; <span class="s4">$_POST</span>[<span class="s3">'enddate'</span>].<span class="s3">&quot; &quot;</span>.<span class="s4">$_POST</span>[<span class="s3">'endtime'</span>],
+        <span class="s3">'helpPayment' </span>=&gt; <span class="s4">$pay</span>,
+        <span class="s3">'helpAbout' </span>=&gt; <span class="s4">$_POST</span>[<span class="s3">'helpAbout'</span>],
+        <span class="s3">'helpType' </span>=&gt; <span class="s4">$_POST</span>[<span class="s3">'type'</span>],
+        <span class="s3">'userPhone' </span>=&gt; <span class="s4">$_POST</span>[<span class="s3">'phone'</span>],
+        <span class="s3">'helpStatus' </span>=&gt; <span class="s6">1</span>
+    );
+    <span class="s5">//$db-&gt;insertLine(&quot;helprequests&quot;,$help_data);</span>
+    <span class="s4">$dbhr</span>-&gt;insertHelpRequest(<span class="s4">$help_data</span>);
+
+    <span class="s4">$userLastHelp </span>= <span class="s4">$db</span>-&gt;getObjectsGeneral(<span class="s3">&quot;helprequests&quot;</span>, <span class="s3">&quot; WHERE `userID`='&quot;</span>.<span class="s4">$_SESSION</span>[<span class="s3">'user'</span>].<span class="s3">&quot;'ORDER  BY `helpRegisterTime` DESC LIMIT  1&quot;</span>, <span class="s3">&quot;HelpRequest&quot;</span>);
+
+    <span class="s0">echo </span><span class="s3">&quot;&lt;br&gt;ID= &quot;</span>.<span class="s4">$userLastHelp</span>[<span class="s6">0</span>]-&gt;getHelpID().<span class="s3">&quot;&lt;br&gt;&quot;</span>;
+    <span class="s0">echo </span><span class="s3">&quot;&lt;pre&gt;&quot;</span>;
+    var_dump(<span class="s4">$userLastHelp</span>);
+    <span class="s0">echo </span><span class="s3">&quot;&lt;/pre&gt;&quot;</span>;
+
+<span class="s5">//-------------------------------</span>
+
+    <span class="s4">$petsArr </span>= <span class="s0">Array</span>();             <span class="s5">//will hold pet's IDs</span>
+    <span class="s0">foreach </span>(<span class="s4">$_POST</span>[<span class="s3">'pet'</span>] <span class="s0">as </span><span class="s4">$k </span>=&gt; <span class="s4">$v</span>){
+            <span class="s4">$petID </span>= (int)<span class="s4">$v</span>;
+            <span class="s4">$petsArr</span>[] = <span class="s4">$petID</span>;
+            <span class="s4">$pet_helpRequest </span>= <span class="s0">Array</span>(
+                <span class="s3">'petID' </span>=&gt; <span class="s4">$petID</span>,
+                <span class="s3">'helpID' </span>=&gt; <span class="s4">$userLastHelp</span>[<span class="s6">0</span>]-&gt;getHelpID(),
+                <span class="s3">'userID' </span>=&gt; <span class="s4">$_SESSION</span>[<span class="s3">'user'</span>],
+                <span class="s3">'recordRegisterTime' </span>=&gt; date(<span class="s3">&quot;Y-m-d H:i:s&quot;</span>)
+            );
+            <span class="s4">$db</span>-&gt;insertLine(<span class="s3">&quot;pets_helprequests&quot;</span>, <span class="s4">$pet_helpRequest</span>);
+        <span class="s5">//}</span>
+    }
+    <span class="s4">$_SESSION</span>[<span class="s3">'userMessage'</span>]=<span class="s3">&quot;Help request added successfully.&quot;</span>;
+    <span class="s4">$_SESSION</span>[<span class="s3">'nextPage'</span>]=<span class="s3">&quot;myHelpRequests.php&quot;</span>;
+    header(<span class="s3">&quot;Location: main.php&quot;</span>);
+    <span class="s0">die</span>();
+
+}
+
+<span class="s0">?&gt;</span>
+
+
+
+<span class="s8">&lt;!--</span>
+&lt;script src=&quot;https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js&quot;&gt;&lt;/script&gt;    &lt;!-- jquery --&gt;
+
+&lt;!-- google maps script:    --&gt;
+&lt;<span class="s10">script</span>&gt;
+    <span class="s8">//checkbox field add:</span>
+    jQuery(document).ready(<span class="s11">function</span>() {
+
+        jQuery(<span class="s12">'#paymentOffer'</span>).change(<span class="s11">function</span>() {
+            <span class="s11">if </span>($(<span class="s11">this</span>).prop(<span class="s12">'checked'</span>)) {
+                <span class="s8">//$('&lt;p&gt;Text&lt;/p&gt;').appendTo('#paymentAmount');</span>
+                //alert(&quot;You have elected to show your checkout history.&quot;); //checked
+                $(<span class="s12">'#paymentAmount'</span>).append(<span class="s12">'&lt;input type=&quot;number&quot; min=&quot;0&quot; class=&quot;form-control&quot; placeholder=&quot;Payment amount (optional)&quot; name=&quot;paym&quot;&gt;'</span>);
+            }
+            <span class="s11">else </span>{
+                $(<span class="s12">'#paymentAmount'</span>).text(<span class="s12">''</span>);
+            }
+        });
+
+    });
+
+
+
+    <span class="s8">// This example displays an address form, using the autocomplete feature</span>
+    // of the Google Places API to help users fill in the information.
+
+    // This example requires the Places library. Include the libraries=places
+    // parameter when you first load the API. For example:
+    // &lt;script src=&quot;https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&amp;libraries=places&quot;&gt;
+
+    <span class="s11">var </span>placeSearch, autocomplete;
+    <span class="s11">var </span>componentForm = {
+        street_number: <span class="s12">'short_name'</span>,
+        route: <span class="s12">'long_name'</span>,
+        locality: <span class="s12">'long_name'</span>,
+        administrative_area_level_1: <span class="s12">'short_name'</span>,
+        country: <span class="s12">'long_name'</span>,
+        postal_code: <span class="s12">'short_name'</span>
+    };
+
+    <span class="s11">function </span>initAutocomplete() {
+        <span class="s8">// Create the autocomplete object, restricting the search to geographical</span>
+        // location types.
+        autocomplete = <span class="s11">new </span>google.maps.places.Autocomplete(
+            <span class="s8">/** </span><span class="s13">@type </span><span class="s8">{!HTMLInputElement} */</span>(document.getElementById(<span class="s12">'autocomplete'</span>)),
+            {types: [<span class="s12">'geocode'</span>]});
+
+        <span class="s8">// When the user selects an address from the dropdown, populate the address</span>
+        // fields in the form.
+        autocomplete.addListener(<span class="s12">'place_changed'</span>, fillInAddress);
+    }
+
+    <span class="s11">function </span>fillInAddress() {
+        <span class="s8">// Get the place details from the autocomplete object.</span>
+        <span class="s11">var </span>place = autocomplete.getPlace();
+
+        <span class="s11">for </span>(<span class="s11">var </span>component <span class="s11">in </span>componentForm) {
+            document.getElementById(component).value = <span class="s12">''</span>;
+            document.getElementById(component).disabled = <span class="s11">false</span>;
+        }
+
+        <span class="s8">// Get each component of the address from the place details</span>
+        // and fill the corresponding field on the form.
+        <span class="s11">for </span>(<span class="s11">var </span>i = <span class="s14">0</span>; i &lt; place.address_components.length; i++) {
+            <span class="s11">var </span>addressType = place.address_components[i].types[<span class="s14">0</span>];
+            <span class="s11">if </span>(componentForm[addressType]) {
+                <span class="s11">var </span>val = place.address_components[i][componentForm[addressType]];
+                document.getElementById(addressType).value = val;
+            }
+        }
+        <span class="s8">//alert('(sendLocation function) loc var = ' + place.geometry.location);      //alert</span>
+        $(<span class="s12">&quot;#newHelpForm input[name=addrGPS]&quot;</span>).val(place.geometry.location);
+
+    }
+
+    <span class="s8">// Bias the autocomplete object to the user's geographical location,</span>
+    // as supplied by the browser's 'navigator.geolocation' object.
+    <span class="s11">function </span>geolocate() {
+        <span class="s11">if </span>(navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(<span class="s11">function</span>(position) {
+                <span class="s11">var </span>geolocation = {
+                    lat: position.coords.latitude,
+                    lng: position.coords.longitude
+                };
+                <span class="s11">var </span>circle = <span class="s11">new </span>google.maps.Circle({
+                    center: geolocation,
+                    radius: position.coords.accuracy
+                });
+                autocomplete.setBounds(circle.getBounds());
+            });
+        }
+    }
+
+
+
+&lt;/<span class="s10">script</span>&gt;
+&lt;<span class="s10">script </span><span class="s15">src=</span><span class="s16">&quot;https://maps.googleapis.com/maps/api/js?key=AIzaSyDWfRbSTsQxwFkIlX2BuvQCgUglN8Hun-U&amp;libraries=places&amp;callback=initAutocomplete&quot;</span>
+        <span class="s15">async defer</span>&gt;&lt;/<span class="s10">script</span>&gt;
+
+
+&lt;<span class="s10">script</span>&gt;    <span class="s8">&lt;!-- </span>form validation --&gt;
+    <span class="s11">function </span>validateForm() {
+    <span class="s11">var </span>errorMsg = <span class="s12">&quot;&quot;</span>;
+        <span class="s8">//--------------------------------------------address validation:</span>
+        <span class="s11">if </span>(document.forms[<span class="s12">&quot;addHRform&quot;</span>][<span class="s12">&quot;addrGPS&quot;</span>].value === <span class="s12">&quot;&quot;</span>) {
+            errorMsg += <span class="s12">&quot;Could not find location.</span><span class="s11">\n</span><span class="s12">Start entering an address and select from dropdown</span><span class="s11">\n</span><span class="s12">&quot;</span>;
+        }
+        <span class="s11">else if </span>(document.forms[<span class="s12">&quot;addHRform&quot;</span>][<span class="s12">&quot;addrCountry&quot;</span>].value === <span class="s12">&quot;&quot; </span>|| document.forms[<span class="s12">&quot;addHRform&quot;</span>][<span class="s12">&quot;addrCountry&quot;</span>].value !== <span class="s12">&quot;Israel&quot;</span>) {
+            errorMsg += <span class="s12">&quot;Address must be in Israel</span><span class="s11">\n</span><span class="s12">&quot;</span>;
+        }
+        <span class="s11">else if </span>(document.forms[<span class="s12">&quot;addHRform&quot;</span>][<span class="s12">&quot;addrCity&quot;</span>].value === <span class="s12">&quot;&quot;</span>) {
+            errorMsg += <span class="s12">&quot;Address must contain a city</span><span class="s11">\n</span><span class="s12">&quot;</span>;
+        }
+
+        <span class="s8">//--------------------------------------------pets selection:</span>
+        <span class="s11">var </span>pets = document.getElementsByName(<span class="s12">'pet[]'</span>), count = <span class="s14">0</span>;
+        <span class="s11">for </span>(<span class="s11">var </span>i=<span class="s14">0</span>; i&lt;pets.length; i++)
+            <span class="s11">if </span>(pets[i].checked)
+                count++;
+        <span class="s11">if </span>(count&lt;<span class="s14">1</span>)
+            errorMsg += <span class="s12">&quot;You must select at least one pet</span><span class="s11">\n</span><span class="s12">&quot;</span>;
+
+        <span class="s8">//--------------------------------------------dates:</span>
+        d1 = <span class="s11">new </span>Date(document.getElementById(<span class="s12">&quot;datestart&quot;</span>).value);
+        d2 = <span class="s11">new </span>Date(document.getElementById(<span class="s12">&quot;dateend&quot;</span>).value);
+        <span class="s11">if </span>(d2&lt;d1)
+            errorMsg += <span class="s12">&quot;End date must be left empty, or be after start date.</span><span class="s11">\n</span><span class="s12">&quot;</span>;
+
+        <span class="s8">//--------------------------------------------error message:</span>
+        <span class="s11">if </span>(errorMsg !== <span class="s12">&quot;&quot;</span>){
+            alert(errorMsg);
+            <span class="s11">return false</span>;
+        }
+    }
+&lt;/<span class="s10">script</span>&gt;
+
+
+<span class="s8">&lt;!------------------------------------------------------------------------------&gt;</span>
+&lt;<span class="s10">div </span><span class="s15">class=</span><span class="s16">&quot;d-flex justify-content-center&quot;</span>&gt;
+&lt;<span class="s10">div </span><span class="s15">class=</span><span class="s16">&quot;card&quot;</span>&gt;
+    &lt;<span class="s10">h5 </span><span class="s15">class=</span><span class="s16">&quot;card-header&quot;</span>&gt;New help request:&lt;/<span class="s10">h5</span>&gt;
+    &lt;<span class="s10">div </span><span class="s15">class=</span><span class="s16">&quot;card-body&quot;</span>&gt;
+    &lt;<span class="s10">form </span><span class="s15">action=</span><span class="s16">&quot;helpRequestAdd.php&quot; </span><span class="s15">onsubmit=</span><span class="s16">&quot;</span><span class="s11">return </span>validateForm()<span class="s16">&quot; </span><span class="s15">method=</span><span class="s16">post </span><span class="s15">id=</span><span class="s16">&quot;newHelpForm&quot; </span><span class="s15">name=</span><span class="s16">&quot;addHRform&quot;</span>&gt;
+    &lt;<span class="s10">label</span>&gt;Select one or more pets:&lt;/<span class="s10">label</span>&gt;
+    <span class="s0">&lt;?php</span>
+    <span class="s4">$myPetsArray </span>= <span class="s4">$db</span>-&gt;getPetsByUserID(<span class="s4">$_SESSION</span>[<span class="s3">'user'</span>]);
+    <span class="s0">if </span>(<span class="s4">$myPetsArray </span>== null)
+        <span class="s0">echo </span><span class="s3">&quot;no pets found in DB.&quot;</span>;
+    <span class="s0">else</span>
+    {
+
+        <span class="s5">/* 
+        $petstr=&quot;&lt;table width='100%'&gt;&lt;tr&gt;&quot;; 
+ 
+        foreach ($myPetsArray as $p){ 
+            $petstr.=&quot;&lt;td align='center'&gt;&quot;; 
+            $petstr.=$p-&gt;getPetName().&quot;&lt;br&gt;&quot;; 
+            $petstr.=$db-&gt;getPetImageString($p).&quot;&lt;br&gt;&quot;; 
+            $petstr.=&quot;&lt;input type='checkbox' name='&quot;.&quot;pet&quot;.$p-&gt;getPetID().&quot;' id='petsInHelp'&gt;&lt;/td&gt;&quot;; 
+        } 
+        $petstr.=&quot;&lt;/tr&gt;&lt;/table&gt;&quot;; 
+        echo $petstr; 
+        */</span>
+
+        <span class="s4">$petsStr</span>=<span class="s3">&quot;&lt;br&gt;&lt;div class='card-deck'&gt;&quot;</span>;
+        <span class="s0">foreach </span>(<span class="s4">$myPetsArray </span><span class="s0">as </span><span class="s4">$p</span>) <span class="s5">//each $p is a Pet object</span>
+        {
+            <span class="s4">$petsStr</span>.=<span class="s3">&quot;&lt;div id='petCardinProfile' class='mt-lg-auto'&gt;&quot;</span>;
+            <span class="s4">$petsStr</span>.=<span class="s3">&quot;&lt;img class='card-img-top' src='&quot;</span>.<span class="s4">$db</span>-&gt;getPetImageLocation(<span class="s4">$p</span>).<span class="s3">&quot;' alt='&quot;</span>.<span class="s4">$p</span>-&gt;getPetName().<span class="s3">&quot;'&gt;&quot;</span>;
+            <span class="s4">$petsStr</span>.=<span class="s3">&quot;&lt;div class='card-footer'&gt;&lt;small class='text-muted'&gt;&quot;</span>.<span class="s4">$p</span>-&gt;getPetName().<span class="s3">&quot;&lt;/small&gt;&lt;br&gt;&quot;</span>;
+            <span class="s4">$petsStr</span>.=<span class="s3">&quot;&lt;input type='checkbox' name='pet[]' id='petsInHelp' value='&quot;</span>.<span class="s4">$p</span>-&gt;getPetID().<span class="s3">&quot;'&gt;&quot;</span>;
+            <span class="s4">$petsStr</span>.=<span class="s3">&quot;&lt;/div&gt;&lt;/div&gt;&quot;</span>;
+
+        }
+        <span class="s4">$petsStr</span>.=<span class="s3">&quot;&lt;/div&gt;&quot;</span>;
+        <span class="s0">echo </span><span class="s4">$petsStr</span>;
+    }
+    <span class="s0">?&gt;</span>
+    <span class="s8">&lt;!--address google search --&gt;</span>
+    &lt;<span class="s10">div </span><span class="s15">class=</span><span class="s16">&quot;form-group&quot;</span>&gt;
+        &lt;<span class="s10">label</span>&gt;Search address, Area or location:&lt;/<span class="s10">label</span>&gt;
+        &lt;<span class="s10">div </span><span class="s15">class=</span><span class="s16">&quot;form-row&quot;</span>&gt;
+            &lt;<span class="s10">div </span><span class="s15">class=</span><span class="s16">&quot;col&quot;</span>&gt;
+                &lt;<span class="s10">input </span><span class="s15">class=</span><span class="s16">&quot;form-control&quot; </span><span class="s15">id=</span><span class="s16">&quot;autocomplete&quot; </span><span class="s15">placeholder=</span><span class="s16">&quot;Help address&quot; </span><span class="s15">onFocus=</span><span class="s16">&quot;</span>geolocate()<span class="s16">&quot; </span><span class="s15">type=</span><span class="s16">&quot;text&quot;</span>&gt;
+                &lt;<span class="s10">small </span><span class="s15">id=</span><span class="s16">&quot;emailHelp&quot; </span><span class="s15">class=</span><span class="s16">&quot;form-text text-muted&quot;</span>&gt;Search address, Area or location, and Select address from dropdown.&lt;/<span class="s10">small</span>&gt;
+            &lt;/<span class="s10">div</span>&gt;
+        &lt;/<span class="s10">div</span>&gt;
+    &lt;/<span class="s10">div</span>&gt;
+    <span class="s8">&lt;!--address autofill --&gt;</span>
+    &lt;<span class="s10">div </span><span class="s15">class=</span><span class="s16">&quot;form-group&quot;</span>&gt;
+        &lt;<span class="s10">input </span><span class="s15">name=</span><span class="s16">&quot;addrNum&quot; </span><span class="s15">class=</span><span class="s16">&quot;field&quot; </span><span class="s15">id=</span><span class="s16">&quot;street_number&quot; </span><span class="s15">placeholder=</span><span class="s16">&quot;Number&quot; </span><span class="s15">type=</span><span class="s16">&quot;</span><span class="s0">&lt;?php echo </span><span class="s4">$type </span><span class="s0">?&gt;</span><span class="s16">&quot;</span>&gt;
+        &lt;<span class="s10">input </span><span class="s15">name=</span><span class="s16">&quot;addrStreet&quot; </span><span class="s15">class=</span><span class="s16">&quot;field&quot; </span><span class="s15">id=</span><span class="s16">&quot;route&quot; </span><span class="s15">placeholder=</span><span class="s16">&quot;Street&quot; </span><span class="s15">type=</span><span class="s16">&quot;</span><span class="s0">&lt;?php echo </span><span class="s4">$type </span><span class="s0">?&gt;</span><span class="s16">&quot;</span>&gt;
+        &lt;<span class="s10">input </span><span class="s15">name=</span><span class="s16">&quot;addrCity&quot; </span><span class="s15">class=</span><span class="s16">&quot;field&quot; </span><span class="s15">id=</span><span class="s16">&quot;locality&quot; </span><span class="s15">placeholder=</span><span class="s16">&quot;City&quot; </span><span class="s15">type=</span><span class="s16">&quot;</span><span class="s0">&lt;?php echo </span><span class="s4">$type </span><span class="s0">?&gt;</span><span class="s16">&quot;</span>&gt;
+        &lt;<span class="s10">input </span><span class="s15">name=</span><span class="s16">&quot;addrArea&quot; </span><span class="s15">class=</span><span class="s16">&quot;field&quot; </span><span class="s15">id=</span><span class="s16">&quot;administrative_area_level_1&quot; </span><span class="s15">placeholder=</span><span class="s16">&quot;Area&quot; </span><span class="s15">type=</span><span class="s16">&quot;</span><span class="s0">&lt;?php echo </span><span class="s4">$type </span><span class="s0">?&gt;</span><span class="s16">&quot;</span>&gt;
+        &lt;<span class="s10">input </span><span class="s15">name=</span><span class="s16">&quot;addrZip&quot; </span><span class="s15">class=</span><span class="s16">&quot;field&quot; </span><span class="s15">id=</span><span class="s16">&quot;postal_code&quot; </span><span class="s15">placeholder=</span><span class="s16">&quot;zip code&quot; </span><span class="s15">type=</span><span class="s16">&quot;</span><span class="s0">&lt;?php echo </span><span class="s4">$type </span><span class="s0">?&gt;</span><span class="s16">&quot;</span>&gt;
+        &lt;<span class="s10">input </span><span class="s15">name=</span><span class="s16">&quot;addrCountry&quot; </span><span class="s15">class=</span><span class="s16">&quot;field&quot; </span><span class="s15">id=</span><span class="s16">&quot;country&quot; </span><span class="s15">placeholder=</span><span class="s16">&quot;Country&quot; </span><span class="s15">type=</span><span class="s16">&quot;</span><span class="s0">&lt;?php echo </span><span class="s4">$type </span><span class="s0">?&gt;</span><span class="s16">&quot;</span>&gt;
+        &lt;<span class="s10">input </span><span class="s15">name=</span><span class="s16">&quot;addrGPS&quot; </span><span class="s15">placeholder=</span><span class="s16">&quot;GPS&quot; </span><span class="s15">id=</span><span class="s16">&quot;gpss&quot; </span><span class="s15">type=</span><span class="s16">&quot;</span><span class="s0">&lt;?php echo </span><span class="s4">$type </span><span class="s0">?&gt;</span><span class="s16">&quot;</span>&gt;
+    &lt;/<span class="s10">div</span>&gt;
+    <span class="s8">&lt;!--more fields --&gt;</span>
+
+    &lt;<span class="s10">div </span><span class="s15">class=</span><span class="s16">&quot;form-group&quot;</span>&gt;
+        &lt;<span class="s10">div </span><span class="s15">class=</span><span class="s16">&quot;form-row&quot;</span>&gt;
+            &lt;<span class="s10">div </span><span class="s15">class=</span><span class="s16">&quot;col&quot;</span>&gt;
+                &lt;<span class="s10">label</span>&gt;Help type:&lt;/<span class="s10">label</span>&gt;
+                &lt;<span class="s10">select </span><span class="s15">class=</span><span class="s16">&quot;form-control&quot; </span><span class="s15">name=</span><span class="s16">&quot;type&quot;</span>&gt;
+                    &lt;<span class="s10">option </span><span class="s15">value=</span><span class="s16">&quot;Feeding&quot;</span>&gt;Feeding&lt;/<span class="s10">option</span>&gt;
+                    &lt;<span class="s10">option </span><span class="s15">value=</span><span class="s16">&quot;Walk&quot;</span>&gt;Walk&lt;/<span class="s10">option</span>&gt;
+                    &lt;<span class="s10">option </span><span class="s15">value=</span><span class="s16">&quot;House Sitting&quot;</span>&gt;House Sitting&lt;/<span class="s10">option</span>&gt;
+                    &lt;<span class="s10">option </span><span class="s15">value=</span><span class="s16">&quot;Other&quot;</span>&gt;Other&lt;/<span class="s10">option</span>&gt;
+                &lt;/<span class="s10">select</span>&gt;
+            &lt;/<span class="s10">div</span>&gt;
+        &lt;/<span class="s10">div</span>&gt;
+    &lt;/<span class="s10">div</span>&gt;
+
+    &lt;<span class="s10">div </span><span class="s15">class=</span><span class="s16">&quot;form-group&quot;</span>&gt;
+
+        &lt;<span class="s10">div </span><span class="s15">class=</span><span class="s16">&quot;row&quot;</span>&gt;
+            &lt;<span class="s10">div </span><span class="s15">class=</span><span class="s16">&quot;col&quot;</span>&gt;
+                &lt;<span class="s10">label</span>&gt;Help start date:&lt;/<span class="s10">label</span>&gt;
+                &lt;<span class="s10">input </span><span class="s15">type=</span><span class="s16">&quot;date&quot; </span><span class="s15">class=</span><span class="s16">&quot;form-control&quot; </span><span class="s15">id=</span><span class="s16">&quot;datestart&quot; </span><span class="s15">placeholder=</span><span class="s16">&quot;Start date&quot; </span><span class="s15">name=</span><span class="s16">&quot;startdate&quot; </span><span class="s15">min=</span><span class="s16">'</span><span class="s0">&lt;?php echo </span><span class="s4">$today</span>;<span class="s0">?&gt;</span><span class="s16">' </span><span class="s15">max=</span><span class="s16">&quot;</span><span class="s0">&lt;?php echo </span><span class="s4">$oneyearfromnow</span><span class="s0">?&gt;</span><span class="s16">&quot; </span><span class="s15">required</span>&gt;
+            &lt;/<span class="s10">div</span>&gt;
+            &lt;<span class="s10">div </span><span class="s15">class=</span><span class="s16">&quot;col&quot;</span>&gt;
+                &lt;<span class="s10">label</span>&gt;Help end date:&lt;/<span class="s10">label</span>&gt;
+                &lt;<span class="s10">input </span><span class="s15">type=</span><span class="s16">&quot;date&quot; </span><span class="s15">class=</span><span class="s16">&quot;form-control&quot; </span><span class="s15">id=</span><span class="s16">&quot;dateend&quot; </span><span class="s15">placeholder=</span><span class="s16">&quot;End date date&quot; </span><span class="s15">name=</span><span class="s16">&quot;enddate&quot; </span><span class="s15">min=</span><span class="s16">'</span><span class="s0">&lt;?php echo </span><span class="s4">$today</span>;<span class="s0">?&gt;</span><span class="s16">' </span><span class="s15">max=</span><span class="s16">&quot;</span><span class="s0">&lt;?php echo </span><span class="s4">$oneyearfromnow</span><span class="s0">?&gt;</span><span class="s16">&quot;</span>&gt;
+                &lt;<span class="s10">input </span><span class="s15">type=</span><span class="s16">&quot;time&quot; </span><span class="s15">class=</span><span class="s16">&quot;form-control&quot; </span><span class="s15">placeholder=</span><span class="s16">&quot;Start time&quot; </span><span class="s15">name=</span><span class="s16">&quot;starttime&quot; </span><span class="s15">hidden</span>&gt;
+            &lt;/<span class="s10">div</span>&gt;
+        &lt;/<span class="s10">div</span>&gt;
+    &lt;/<span class="s10">div</span>&gt;
+
+        <span class="s8">&lt;!--</span>
+            &lt;div id=&quot;enddates&quot;&gt;&lt;/div&gt; 
+            &lt;div class=&quot;form-group&quot;&gt; 
+                &lt;label&gt;Help end time:&lt;/label&gt; 
+        &lt;div class=&quot;row&quot;&gt; 
+            &lt;div class=&quot;col&quot;&gt; 
+ 
+            &lt;/div&gt; 
+            &lt;div class=&quot;col&quot;&gt; 
+                &lt;input type=&quot;time&quot; class=&quot;form-control&quot; placeholder=&quot;End time&quot; name=&quot;endtime&quot; hidden&gt; 
+            &lt;/div&gt; 
+        &lt;/div&gt; 
+    &lt;/div&gt; 
+--&gt;
+    &lt;<span class="s10">div </span><span class="s15">class=</span><span class="s16">&quot;form-group&quot;</span>&gt;
+        &lt;<span class="s10">input </span><span class="s15">type=</span><span class="s16">&quot;checkbox&quot; </span><span class="s15">name=</span><span class="s16">&quot;payment&quot; </span><span class="s15">value=</span><span class="s16">&quot;yes&quot; </span><span class="s15">id=</span><span class="s16">&quot;paymentOffer&quot;</span>&gt; offering payment&lt;<span class="s10">br</span>&gt;
+        &lt;<span class="s10">div </span><span class="s15">id=</span><span class="s16">&quot;paymentAmount&quot;</span>&gt;&lt;/<span class="s10">div</span>&gt;
+    &lt;/<span class="s10">div</span>&gt;
+    &lt;<span class="s10">div </span><span class="s15">class=</span><span class="s16">&quot;form-group&quot;</span>&gt;
+        &lt;<span class="s10">label</span>&gt;Help description:&lt;/<span class="s10">label</span>&gt;
+        &lt;<span class="s10">textarea </span><span class="s15">class=</span><span class="s16">&quot;form-control&quot; </span><span class="s15">id=</span><span class="s16">&quot;exampleFormControlTextarea1&quot; </span><span class="s15">name=</span><span class="s16">&quot;helpAbout&quot; </span><span class="s15">rows=</span><span class="s16">&quot;3&quot; </span><span class="s15">required</span>&gt;&lt;/<span class="s10">textarea</span>&gt;
+    &lt;/<span class="s10">div</span>&gt;
+    &lt;<span class="s10">div </span><span class="s15">class=</span><span class="s16">&quot;form-group&quot;</span>&gt;
+        &lt;<span class="s10">label</span>&gt;Phone number for contact:&lt;/<span class="s10">label</span>&gt;
+        &lt;<span class="s10">div </span><span class="s15">class=</span><span class="s16">&quot;form-group&quot;</span>&gt;
+            &lt;<span class="s10">input </span><span class="s15">type=</span><span class="s16">&quot;tel&quot; </span><span class="s15">class=</span><span class="s16">&quot;form-control&quot; </span><span class="s15">id=</span><span class="s16">&quot;exampleInputPhone1&quot; </span><span class="s15">aria-describedby=</span><span class="s16">&quot;emailHelp&quot; </span><span class="s15">placeholder=</span><span class="s16">&quot;Enter Phone Number&quot;  </span><span class="s15">name=</span><span class="s16">&quot;phone&quot; </span><span class="s15">value=</span><span class="s16">&quot;</span><span class="s0">&lt;?php echo </span><span class="s4">$signedInUser</span>-&gt;getUserPhone()<span class="s0">?&gt;</span><span class="s16">&quot; </span><span class="s15">pattern=</span><span class="s16">&quot;[0-9]{9,10}&quot; </span><span class="s15">title=</span><span class="s16">&quot;please enter a valid phone number&quot; </span><span class="s15">required</span>&gt;
+        &lt;/<span class="s10">div</span>&gt;
+    &lt;/<span class="s10">div</span>&gt;
+
+    &lt;<span class="s10">button </span><span class="s15">type=</span><span class="s16">&quot;submit&quot; </span><span class="s15">class=</span><span class="s16">&quot;btn btn-primary&quot; </span><span class="s15">name=</span><span class="s16">&quot;helpRequestSent&quot;</span>&gt;Publish new help request&lt;/<span class="s10">button</span>&gt;
+&lt;/<span class="s10">form</span>&gt;
+    &lt;/<span class="s10">div</span>&gt;
+
+&lt;/<span class="s10">div</span>&gt;
+&lt;/<span class="s10">div</span>&gt;
+&lt;/<span class="s10">div</span>&gt;
+</pre>
+</body>
+</html>

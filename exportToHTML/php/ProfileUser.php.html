@@ -1,0 +1,204 @@
+<html>
+<head>
+<title>ProfileUser.php</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #000080; font-weight: bold;}
+.s1 { color: #000000;}
+.s2 { color: #000000;}
+.s3 { color: #008000; font-weight: bold;}
+.s4 { color: #660000;}
+.s5 { color: #808080; font-style: italic;}
+.s6 { color: #0000ff;}
+.s7 { color: #000000;}
+.s8 { color: #000000;}
+.s9 { color: #000080; font-weight: bold;}
+.s10 { color: #808080; font-style: italic;}
+.s11 { color: #000080; font-weight: bold;}
+.s12 { color: #008000; font-weight: bold;}
+</style>
+</head>
+<body bgcolor="#ffffff">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#c0c0c0" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+ProfileUser.php</font>
+</center></td></tr></table>
+<pre><span class="s0">&lt;?php</span>
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
+<span class="s0">require_once </span><span class="s3">&quot;classes/dbClass.php&quot;</span>;
+<span class="s0">require_once </span><span class="s3">&quot;classes/User.php&quot;</span>;
+<span class="s0">require_once </span><span class="s3">&quot;classes/Pet.php&quot;</span>;
+<span class="s0">require_once </span><span class="s3">&quot;classes/dbClassRankingFunctions.php&quot;</span>;
+<span class="s0">require_once </span><span class="s3">&quot;classes/dbClassUserFunctions.php&quot;</span>;
+
+
+<span class="s4">$db </span>= <span class="s0">new </span>dbClass();
+<span class="s4">$dbr </span>= <span class="s0">new </span>dbClassRankingFunctions();
+<span class="s4">$signedInUser</span>=<span class="s4">$db</span>-&gt;getSignedInUserData();
+<span class="s5">//-----------------------------------------------------------------------------------------------------------------</span>
+//----------------------------------------------------------------------------------------if form information sent:
+<span class="s0">if </span>(<span class="s0">isset</span>(<span class="s4">$_POST</span>[<span class="s3">'editP'</span>])){
+    <span class="s4">$_SESSION</span>[<span class="s3">'nextPage'</span>]=<span class="s3">&quot;editProfile.php&quot;</span>;
+    header(<span class="s3">&quot;Location: main.php&quot;</span>);
+    <span class="s0">die</span>();
+}
+<span class="s0">else if </span>(<span class="s0">isset</span>(<span class="s4">$_POST</span>[<span class="s3">'PasswordChangeDataSent'</span>])){
+    <span class="s4">$dbu </span>= <span class="s0">new </span>dbClassUserFunctions();
+    <span class="s0">if </span>(<span class="s4">$dbu</span>-&gt;verifyPassword(<span class="s4">$_POST</span>[<span class="s3">'pass_old'</span>], <span class="s4">$_SESSION</span>[<span class="s3">'user'</span>])==<span class="s6">1</span>)
+    {
+        <span class="s0">if </span>(<span class="s4">$_POST</span>[<span class="s3">'pass'</span>]==<span class="s4">$_POST</span>[<span class="s3">'passconf'</span>]) <span class="s5">//changing password:</span>
+        {
+            <span class="s4">$data_arr </span>= <span class="s0">array</span>(
+                <span class="s3">'userPassword' </span>=&gt; password_hash(<span class="s4">$_POST</span>[<span class="s3">'pass'</span>],PASSWORD_DEFAULT)
+            );
+            <span class="s4">$db</span>-&gt;updateLine(<span class="s3">'users'</span>, <span class="s3">'userID'</span>, <span class="s4">$_SESSION</span>[<span class="s3">'user'</span>], <span class="s4">$data_arr</span>);
+            <span class="s4">$_SESSION</span>[<span class="s3">'userMessage'</span>]=<span class="s3">&quot;Password changed!&quot;</span>;
+        }
+        <span class="s0">else</span>
+            <span class="s4">$_SESSION</span>[<span class="s3">'userMessage'</span>]=<span class="s3">&quot;ERROR. New passwords didn't match. Password wasn't changed.&quot;</span>;
+    }
+    <span class="s0">else</span>
+    {
+        <span class="s4">$_SESSION</span>[<span class="s3">'userMessage'</span>]=<span class="s3">&quot;ERROR. Wrong password. Password wasn't changed.&quot;</span>;
+    }
+
+    <span class="s4">$_SESSION</span>[<span class="s3">'nextPage'</span>]=<span class="s3">&quot;ProfileUser.php&quot;</span>;
+    <span class="s4">$_SESSION</span>[<span class="s3">'UserProfileToShow'</span>]=<span class="s4">$_SESSION</span>[<span class="s3">'user'</span>];
+    header(<span class="s3">&quot;Location: main.php&quot;</span>);
+    <span class="s0">die</span>();
+
+}
+
+<span class="s5">//getting user:</span>
+<span class="s4">$u </span>= <span class="s4">$db</span>-&gt;getObjectsGeneral(<span class="s3">&quot;users&quot;</span>, <span class="s3">&quot; WHERE `userID`='&quot;</span>.<span class="s4">$_SESSION</span>[<span class="s3">'UserProfileToShow'</span>].<span class="s3">&quot;'&quot;</span>, <span class="s3">&quot;User&quot;</span>)[<span class="s6">0</span>];
+<span class="s0">unset</span>(<span class="s4">$_SESSION</span>[<span class="s3">'UserProfileToShow'</span>]);
+
+<span class="s5">//getting User's Pets:</span>
+<span class="s4">$petsArray </span>= <span class="s4">$db</span>-&gt;getObjectsGeneral(<span class="s3">&quot;pets&quot;</span>, <span class="s3">&quot; WHERE `userID`='&quot;</span>.<span class="s4">$u</span>-&gt;getUserID().<span class="s3">&quot;'&quot;</span>, <span class="s3">&quot;Pet&quot;</span>);
+
+<span class="s5">//-------------------------------building pets string:</span>
+<span class="s0">if </span>(<span class="s4">$petsArray </span>== null){
+    <span class="s4">$petsStr</span>=<span class="s3">&quot;&lt;br&gt;&lt;b&gt;&quot;</span>.<span class="s4">$u</span>-&gt;getUserFName().<span class="s3">&quot; &quot;</span>.<span class="s4">$u</span>-&gt;getUserLName().<span class="s3">&quot; doesn't have any pets&lt;/b&gt;&quot;</span>;
+}
+<span class="s0">else </span>{
+    <span class="s4">$petsStr</span>=<span class="s3">&quot;&lt;br&gt;&lt;div class='card-deck'&gt;&lt;b&gt;Pets:&lt;/b&gt;&quot;</span>;
+
+    <span class="s0">foreach </span>(<span class="s4">$petsArray </span><span class="s0">as </span><span class="s4">$p</span>) <span class="s5">//each $p is a Pet object</span>
+    {
+        <span class="s4">$petsStr</span>.=<span class="s3">&quot;&lt;div id='petCardinProfile' class='mt-lg-auto'&gt;&quot;</span>;
+        <span class="s4">$petsStr</span>.=<span class="s3">&quot;&lt;img class='card-img-top' src='&quot;</span>.<span class="s4">$db</span>-&gt;getPetImageLocation(<span class="s4">$p</span>).<span class="s3">&quot;' alt='&quot;</span>.<span class="s4">$p</span>-&gt;getPetName().<span class="s3">&quot;'&gt;&quot;</span>;
+        <span class="s5">//$petsStr.=&quot;&lt;div class='card-body'&gt;&quot;;</span>
+        <span class="s4">$petsStr</span>.=<span class="s3">&quot;&lt;div class='card-footer'&gt;&lt;small class='text-muted'&gt;&quot;</span>.<span class="s4">$p</span>-&gt;getPetName().<span class="s3">&quot;&lt;/small&gt;&lt;/div&gt;&quot;</span>;
+        <span class="s4">$petsStr</span>.=<span class="s3">&quot;&lt;/div&gt;&quot;</span>;
+    }
+    <span class="s4">$petsStr</span>.=<span class="s3">&quot;&lt;/div&gt;&quot;</span>;
+    <span class="s5">//echo $petsStr;</span>
+}
+<span class="s5">//-----------------------------------------------profile string:</span>
+<span class="s4">$str</span>=<span class="s3">&quot;&quot;</span>;
+<span class="s4">$str</span>.=<span class="s3">&quot;&quot;</span>;
+<span class="s4">$str</span>.=<span class="s3">&quot;&lt;div class='card'  id='userProfileCard'&gt;&quot;</span>;
+  <span class="s4">$str</span>.=<span class="s3">&quot;&lt;h5 class='card-header'&gt;&quot;</span>;
+<span class="s0">if </span>(<span class="s4">$u</span>-&gt;getUserID() == <span class="s4">$_SESSION</span>[<span class="s3">'user'</span>]){
+    <span class="s4">$str</span>.= <span class="s3">&quot;My Profile&quot;</span>;
+}
+<span class="s0">else</span>
+    <span class="s4">$str</span>.=<span class="s4">$u</span>-&gt;getUserFName().<span class="s3">&quot; &quot;</span>.<span class="s4">$u</span>-&gt;getUserLName().<span class="s3">&quot;'s Profile&quot;</span>;
+
+  <span class="s4">$str</span>.=<span class="s3">&quot;&lt;/h5&gt;&quot;</span>;
+  <span class="s4">$str</span>.=<span class="s3">&quot;&lt;div class='card-body'&gt;&quot;</span>;
+    <span class="s5">//$str.=&quot;&lt;h5 class='card-title'&gt;Special title treatment&lt;/h5&gt;&quot;;</span>
+    <span class="s4">$str</span>.=<span class="s3">&quot;&lt;p class='card-text'&gt;&quot;</span>;
+    <span class="s4">$str</span>.=<span class="s3">&quot;&lt;b&gt;Name: &lt;/b&gt;&quot;</span>.<span class="s4">$u</span>-&gt;getUserFName().<span class="s3">&quot; &quot;</span>.<span class="s4">$u</span>-&gt;getUserLName().<span class="s3">&quot;&lt;br&gt;&quot;</span>;
+    <span class="s4">$str</span>.=<span class="s3">&quot;&lt;b&gt;Birthday: &lt;/b&gt;&quot;</span>.<span class="s4">$u</span>-&gt;getUserBirthday().<span class="s3">&quot;&lt;br&gt;&quot;</span>;
+
+    <span class="s5">//rating:</span>
+    <span class="s4">$userRank </span>= <span class="s4">$dbr</span>-&gt;getUserRankByID(<span class="s4">$u</span>-&gt;getUserID());
+    <span class="s0">if </span>(<span class="s4">$userRank </span>== null)
+        <span class="s4">$userRankStr </span>= <span class="s3">&quot;No rating yet&quot;</span>;
+    <span class="s0">else</span>
+        <span class="s4">$userRankStr </span>= <span class="s4">$userRank</span>;
+
+    <span class="s4">$str</span>.=<span class="s3">&quot;&lt;b&gt;Rating: &lt;/b&gt;&quot;</span>.number_format((float)<span class="s4">$userRankStr</span>, <span class="s6">2</span>, <span class="s3">'.'</span>, <span class="s3">''</span>).<span class="s3">&quot;&lt;br&gt;&quot;</span>;
+    <span class="s4">$str</span>.=<span class="s3">&quot;&lt;b&gt;About: &lt;/b&gt;&quot;</span>.<span class="s4">$u</span>-&gt;getUserAbout().<span class="s3">&quot;&lt;br&gt;&quot;</span>;
+
+
+
+    <span class="s0">if </span>(<span class="s4">$u</span>-&gt;getUserID() == <span class="s4">$_SESSION</span>[<span class="s3">'user'</span>]){
+
+        <span class="s4">$str</span>.=<span class="s3">&quot;&lt;br&gt;&lt;b&gt;Private information only visible to you:&lt;/b&gt;&lt;br&gt;&quot;</span>;
+        <span class="s4">$str</span>.=<span class="s3">&quot;&lt;b&gt;Email: &lt;/b&gt;&quot;</span>.<span class="s4">$u</span>-&gt;getUserEmail().<span class="s3">&quot;&lt;br&gt;&quot;</span>;
+        <span class="s4">$str</span>.=<span class="s3">&quot;&lt;b&gt;Phone number: &lt;/b&gt;&quot;</span>.<span class="s4">$u</span>-&gt;getUserPhone().<span class="s3">&quot;&lt;br&gt;&quot;</span>;
+        <span class="s4">$str</span>.=<span class="s3">&quot;&lt;div id='changePasswordDiv'&gt;&lt;button type='submit' class='btn btn-primary' id='changePasswordButton'&gt;Change password&lt;/button&gt;&lt;/div&gt;&quot;</span>;
+    }
+    <span class="s4">$str</span>.=<span class="s3">&quot;&lt;/p&gt;&quot;</span>;
+
+    <span class="s0">if </span>(<span class="s4">$u</span>-&gt;getUserID() == <span class="s4">$_SESSION</span>[<span class="s3">'user'</span>]) {
+        <span class="s4">$str</span>.=<span class="s3">&quot;&lt;form action='ProfileUser.php' method=post&gt;&lt;button type='submit' class='btn btn-primary' name='editP'&gt;Edit Profile&lt;/button&gt;&lt;/form&gt;&quot;</span>;
+    }
+    <span class="s4">$str</span>.=<span class="s4">$petsStr</span>;
+  <span class="s4">$str</span>.=<span class="s3">&quot;&lt;/div&gt;&quot;</span>;
+<span class="s4">$str</span>.=<span class="s3">&quot;&lt;/div&gt;&quot;</span>;
+
+<span class="s0">echo </span><span class="s3">&quot;&lt;div class='d-flex justify-content-center'&gt;&quot;</span>;
+<span class="s0">echo </span><span class="s4">$str</span>;      <span class="s5">//profile card</span>
+<span class="s0">echo </span><span class="s3">&quot;&lt;/div&gt;&quot;</span>;
+
+<span class="s5">//-----------------------------------------------------------------------reviews:</span>
+<span class="s4">$str</span>=<span class="s3">&quot;Reviews:&lt;br&gt;&quot;</span>;
+<span class="s4">$ranksArr </span>= <span class="s4">$db</span>-&gt;getObjectsGeneral(<span class="s3">&quot;rankings&quot;</span>, <span class="s3">&quot; WHERE `rankedUserID` = '&quot;</span>.<span class="s4">$u</span>-&gt;getUserID().<span class="s3">&quot;'&quot;</span>, <span class="s3">&quot;Ranking&quot;</span>);
+<span class="s0">if </span>(!<span class="s0">empty</span>(<span class="s4">$ranksArr</span>)){
+        <span class="s0">foreach </span>(<span class="s4">$ranksArr </span><span class="s0">as </span><span class="s4">$k</span>=&gt;<span class="s4">$v</span>) {
+            <span class="s4">$str</span>.=<span class="s3">&quot;&lt;div class='d-flex justify-content-center'&gt;&quot;</span>;
+            <span class="s4">$str </span>.= <span class="s3">&quot;&lt;div class='card' id='userReviewCard'&gt;&quot;</span>;
+            <span class="s4">$str </span>.= <span class="s3">&quot;&lt;div class='card-header'&gt;&lt;b&gt;&quot;</span>;
+            <span class="s4">$dbu </span>= <span class="s0">new </span>dbClassUserFunctions();
+            <span class="s4">$ReviewingUser </span>= <span class="s4">$dbu</span>-&gt;getUserByID(<span class="s4">$v</span>-&gt;getRankingUserID());
+            <span class="s4">$str </span>.= <span class="s3">&quot;Rated &quot;</span>.<span class="s4">$v</span>-&gt;getRankRank().<span class="s3">&quot; By &quot;</span>.<span class="s4">$ReviewingUser</span>-&gt;getUserFName().<span class="s3">&quot; &quot;</span>.<span class="s4">$ReviewingUser</span>-&gt;getUserLName();
+            <span class="s4">$str </span>.= <span class="s3">&quot;&lt;/b&gt;&lt;/div&gt;&quot;</span>;
+            <span class="s4">$str </span>.= <span class="s3">&quot;&lt;div class='card-body'&gt;&quot;</span>;
+            <span class="s5">//$str .= &quot;&lt;h5 class='card-title'&gt;Special title treatment&lt;/h5&gt;&quot;;</span>
+            <span class="s4">$str </span>.= <span class="s3">&quot;&lt;p class='card-text'&gt;&quot;</span>;
+
+            <span class="s4">$str</span>.=<span class="s4">$v</span>-&gt;getRankAbout();
+
+            <span class="s4">$str</span>.=<span class="s3">&quot;&lt;/p&gt;&quot;</span>;
+            <span class="s4">$str </span>.= <span class="s3">&quot;&lt;/div&gt;&quot;</span>;
+            <span class="s4">$str </span>.= <span class="s3">&quot;&lt;/div&gt;&lt;br&gt;&quot;</span>;
+
+
+            <span class="s4">$str</span>.=<span class="s3">&quot;&lt;/div&gt;&quot;</span>;
+        }
+    <span class="s0">echo </span><span class="s4">$str</span>;      <span class="s5">//reviews</span>
+}
+
+
+
+<span class="s0">echo </span><span class="s3">&quot;&lt;/div&gt;&quot;</span>;
+
+<span class="s0">?&gt;</span>
+&lt;<span class="s9">script</span>&gt;    <span class="s10">&lt;!--</span>change password form--&gt;
+    $(document).ready(<span class="s11">function</span>() {
+        $(<span class="s12">'#changePasswordButton'</span>).click(<span class="s11">function</span>(){
+            $(<span class="s12">&quot;#changePasswordDiv&quot;</span>).html(<span class="s12">&quot;&quot;</span>);
+            $(<span class="s12">'#changePasswordDiv'</span>).append(<span class="s12">'' </span>+
+                <span class="s12">'&lt;form action=&quot;ProfileUser.php&quot; method=post class=&quot;form-signin&quot; &gt;'</span>+
+                <span class="s12">'&lt;input type=&quot;password&quot; class=&quot;form-control&quot; placeholder=&quot;Your current password&quot; required name=&quot;pass_old&quot;&gt;'</span>+
+                <span class="s12">'&lt;input type=&quot;password&quot; class=&quot;form-control&quot; placeholder=&quot;A new and improved password&quot; required name=&quot;pass&quot; id=&quot;pass&quot; pattern=&quot;[a-zA-Z0-9]{4,30}&quot; title=&quot;at least 4 letters or numbers&quot;&gt;'</span>+
+                <span class="s12">'&lt;input type=&quot;password&quot; class=&quot;form-control&quot; placeholder=&quot;New password again&quot; required name=&quot;passconf&quot; pattern=&quot;[a-zA-Z0-9]{4,30}&quot; title=&quot;at least 4 letters or numbers&quot;&gt;'</span>+
+                <span class="s12">'&lt;button class=&quot;btn btn-lg btn-primary btn-block&quot; type=&quot;submit&quot; name=&quot;PasswordChangeDataSent&quot; id=&quot;PasswordChangeDataSent&quot;&gt;Change!&lt;/button&gt;'</span>+
+                <span class="s12">'&lt;/form&gt;'</span>+
+                <span class="s12">''</span>);
+        });
+    });
+&lt;/<span class="s9">script</span>&gt;
+
+
+
+
+</pre>
+</body>
+</html>

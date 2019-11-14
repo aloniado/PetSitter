@@ -1,0 +1,140 @@
+<html>
+<head>
+<title>main.php</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #000080; font-weight: bold;}
+.s1 { color: #000000;}
+.s2 { color: #808080; font-style: italic;}
+.s3 { color: #000000;}
+.s4 { color: #660000;}
+.s5 { color: #0000ff;}
+.s6 { color: #008000; font-weight: bold;}
+</style>
+</head>
+<body bgcolor="#ffffff">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#c0c0c0" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+main.php</font>
+</center></td></tr></table>
+<pre><span class="s0">&lt;?php</span>
+<span class="s2">//unset($_SESSION);</span>
+<span class="s0">if </span>(session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
+
+<span class="s2">//  -------------------------------------------------------------------Debugging:</span>
+
+<span class="s4">$show_nav_help </span>= <span class="s5">0</span>;     <span class="s2">//0 or 1</span>
+<span class="s0">if </span>(<span class="s4">$show_nav_help</span>){
+    <span class="s0">echo </span><span class="s6">&quot;_POST:&lt;br&gt;&quot;</span>;
+    <span class="s0">echo </span><span class="s6">&quot;&lt;pre&gt;&quot;</span>;
+    var_dump(<span class="s4">$_POST</span>);
+    <span class="s0">echo </span><span class="s6">&quot;&lt;/pre&gt;&quot;</span>;
+
+    <span class="s0">echo </span><span class="s6">&quot;_SESSION:&lt;br&gt;&quot;</span>;
+    <span class="s0">echo </span><span class="s6">&quot;&lt;pre&gt;&quot;</span>;
+    var_dump(<span class="s4">$_SESSION</span>);
+    <span class="s0">echo </span><span class="s6">&quot;&lt;/pre&gt;&quot;</span>;
+
+    <span class="s0">echo </span><span class="s6">&quot;_GET:&lt;br&gt;&quot;</span>;
+    <span class="s0">echo </span><span class="s6">&quot;&lt;pre&gt;&quot;</span>;
+    var_dump(<span class="s4">$_GET</span>);
+    <span class="s0">echo </span><span class="s6">&quot;&lt;/pre&gt;&quot;</span>;
+}
+<span class="s2">//---------------------------------------------------------------------TOP OF PAGE</span>
+<span class="s0">include_once </span><span class="s6">&quot;headerTop.php&quot;</span>;
+
+<span class="s2">//  -------------------------------------------------------------------SIGNED IN USER</span>
+<span class="s0">if </span>(<span class="s0">isset</span>(<span class="s4">$_SESSION</span>) &amp;&amp; <span class="s0">isset</span>(<span class="s4">$_SESSION</span>[<span class="s6">'user'</span>]))
+{
+    <span class="s2">//------------------------------header loading:</span>
+    <span class="s0">include_once </span><span class="s6">&quot;headerUser.php&quot;</span>;
+
+
+    <span class="s2">//------------------------------message loading:</span>
+    <span class="s0">if </span>(<span class="s0">isset</span>(<span class="s4">$_SESSION</span>[<span class="s6">'userMessage'</span>])){
+        <span class="s0">echo </span><span class="s6">&quot;&lt;div class='userMessage'&gt;&quot;</span>.<span class="s4">$_SESSION</span>[<span class="s6">'userMessage'</span>].<span class="s6">&quot;&lt;/div&gt;&quot;</span>;
+        <span class="s0">unset</span>(<span class="s4">$_SESSION</span>[<span class="s6">'userMessage'</span>]);
+    }
+
+    <span class="s2">//------------------------------page loading:</span>
+    <span class="s0">if </span>(<span class="s0">isset</span>(<span class="s4">$_GET</span>[<span class="s6">'myProfile'</span>])){
+        <span class="s4">$_SESSION</span>[<span class="s6">'UserProfileToShow'</span>]=<span class="s4">$_SESSION</span>[<span class="s6">'user'</span>];
+        <span class="s0">include_once </span><span class="s6">&quot;ProfileUser.php&quot;</span>;
+    }
+    <span class="s0">else if </span>(<span class="s0">isset</span>(<span class="s4">$_GET</span>[<span class="s6">'myPets'</span>])){
+        <span class="s0">include_once </span><span class="s6">&quot;myPets.php&quot;</span>;
+    }
+    <span class="s0">else if </span>(<span class="s0">isset</span>(<span class="s4">$_GET</span>[<span class="s6">'helpRequestsAll'</span>])){
+        <span class="s0">include_once </span><span class="s6">&quot;HelpRequestsAll.php&quot;</span>;
+    }
+    <span class="s0">else if </span>(<span class="s0">isset</span>(<span class="s4">$_GET</span>[<span class="s6">'myHelpRequests'</span>])){
+        <span class="s0">include_once </span><span class="s6">&quot;myHelpRequests.php&quot;</span>;
+    }
+    <span class="s0">else if </span>(<span class="s0">isset</span>(<span class="s4">$_GET</span>[<span class="s6">'helpRequestAdd'</span>])){
+        <span class="s0">include_once </span><span class="s6">&quot;helpRequestAdd.php&quot;</span>;
+    }
+    <span class="s0">else if </span>(<span class="s0">isset</span>(<span class="s4">$_GET</span>[<span class="s6">'admin'</span>])){
+        <span class="s0">include_once </span><span class="s6">&quot;admin.php&quot;</span>;
+    }
+    <span class="s0">else if </span>(<span class="s0">isset</span>(<span class="s4">$_GET</span>[<span class="s6">'contactUs'</span>])){
+        <span class="s0">include_once </span><span class="s6">&quot;contactus.php&quot;</span>;
+    }
+    <span class="s0">else if </span>(<span class="s0">isset</span>(<span class="s4">$_GET</span>[<span class="s6">'signOut'</span>])){
+        <span class="s0">include_once </span><span class="s6">&quot;signout.php&quot;</span>;
+
+    }
+    <span class="s0">else if </span>(<span class="s0">isset</span>(<span class="s4">$_SESSION</span>[<span class="s6">'nextPage'</span>]) &amp;&amp; <span class="s4">$_SESSION</span>[<span class="s6">'nextPage'</span>]!=<span class="s6">&quot;&quot;</span>){
+        <span class="s0">include_once </span><span class="s4">$_SESSION</span>[<span class="s6">'nextPage'</span>];
+    }
+    <span class="s0">else</span>
+        include_once <span class="s6">&quot;HelpRequestsAll.php&quot;</span>;
+
+}
+
+<span class="s0">else</span>
+{
+    <span class="s2">//  -------------------------------------------------------------------NOT SIGNED IN</span>
+    //------------------------------header loading:
+    <span class="s0">include_once </span><span class="s6">&quot;headerGuest.php&quot;</span>;
+
+
+    <span class="s2">//------------------------------message loading:</span>
+    <span class="s0">if </span>(<span class="s0">isset</span>(<span class="s4">$_SESSION</span>[<span class="s6">'userMessage'</span>])){
+        <span class="s0">echo </span><span class="s6">&quot;&lt;div class='userMessage'&gt;&quot;</span>.<span class="s4">$_SESSION</span>[<span class="s6">'userMessage'</span>].<span class="s6">&quot;&lt;/div&gt;&quot;</span>;
+        <span class="s0">unset</span>(<span class="s4">$_SESSION</span>[<span class="s6">'userMessage'</span>]);
+    }
+    <span class="s2">//------------------------------page loading:</span>
+    <span class="s0">if </span>(<span class="s0">isset</span>(<span class="s4">$_GET</span>[<span class="s6">'signUp'</span>])){
+        <span class="s0">include_once </span><span class="s6">&quot;signup.php&quot;</span>;
+    }
+    <span class="s0">else if </span>(<span class="s0">isset</span>(<span class="s4">$_GET</span>[<span class="s6">'contactUs'</span>])){
+        <span class="s0">include_once </span><span class="s6">&quot;contactus.php&quot;</span>;
+    }
+    <span class="s0">else </span>{
+        <span class="s0">include_once </span><span class="s6">&quot;signin.php&quot;</span>;
+    }
+}
+
+
+
+
+
+<span class="s4">$_SESSION</span>[<span class="s6">'nextPage'</span>]=<span class="s6">&quot;&quot;</span>;
+
+
+
+
+<span class="s0">include_once </span><span class="s6">&quot;footer.php&quot;</span>;
+
+
+
+
+
+
+
+</pre>
+</body>
+</html>

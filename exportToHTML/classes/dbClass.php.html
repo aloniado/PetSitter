@@ -1,0 +1,413 @@
+<html>
+<head>
+<title>dbClass.php</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #000080; font-weight: bold;}
+.s1 { color: #000000;}
+.s2 { color: #008000; font-weight: bold;}
+.s3 { color: #808080; font-style: italic;}
+.s4 { color: #000000;}
+.s5 { color: #660000;}
+.s6 { color: #0000ff;}
+.ls0 { height: 1px; border-width: 0; color: #c0c0c0; background-color:#c0c0c0}
+</style>
+</head>
+<body bgcolor="#ffffff">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#c0c0c0" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+dbClass.php</font>
+</center></td></tr></table>
+<pre><span class="s0">&lt;?php</span>
+require_once <span class="s2">&quot;User.php&quot;</span>;
+<span class="s0">require_once </span><span class="s2">&quot;Interested.php&quot;</span>;
+<span class="s0">require_once </span><span class="s2">&quot;Ranking.php&quot;</span>;
+
+<span class="s3">//class connects to data base and performs basic activities like inserting or deleting records</span>
+<span class="s0">class </span>dbClass
+{
+    <span class="s0">private </span><span class="s5">$host</span>;
+    <span class="s0">private </span><span class="s5">$db</span>;
+    <span class="s0">private </span><span class="s5">$charset</span>;
+    <span class="s0">private </span><span class="s5">$user</span>;
+    <span class="s0">private </span><span class="s5">$pass</span>;
+    <span class="s0">private </span><span class="s5">$opt </span>= <span class="s0">array</span>(
+        PDO::ATTR_ERRMODE =&gt; PDO::ERRMODE_EXCEPTION,
+        PDO::ATTR_DEFAULT_FETCH_MODE =&gt; PDO::FETCH_ASSOC
+    );
+    <span class="s0">private </span><span class="s5">$connection</span>;    <span class="s3">//PDO object</span>
+
+    <span class="s0">public function </span>__construct(string <span class="s5">$host </span>= <span class="s2">&quot;localhost&quot;</span>, string <span class="s5">$db </span>= <span class="s2">&quot;petsitterdb&quot;</span>, string <span class="s5">$charset </span>= <span class="s2">&quot;utf8&quot;</span>, string <span class="s5">$user </span>= <span class="s2">&quot;root&quot;</span>, string <span class="s5">$pass </span>= <span class="s2">&quot;&quot;</span>)
+    {
+        <span class="s5">$this</span>-&gt;host = <span class="s5">$host</span>;
+        <span class="s5">$this</span>-&gt;db = <span class="s5">$db</span>;
+        <span class="s5">$this</span>-&gt;charset = <span class="s5">$charset</span>;
+        <span class="s5">$this</span>-&gt;user = <span class="s5">$user</span>;
+        <span class="s5">$this</span>-&gt;pass = <span class="s5">$pass</span>;
+    }
+
+    <span class="s0">public function </span>connect()
+    {
+        <span class="s5">$dsn </span>= <span class="s2">&quot;mysql:host=</span><span class="s5">$this</span>-&gt;host<span class="s2">;dbname=</span><span class="s5">$this</span>-&gt;db<span class="s2">;charset=</span><span class="s5">$this</span>-&gt;charset<span class="s2">&quot;</span>;
+        <span class="s5">$this</span>-&gt;connection = <span class="s0">new </span>PDO(<span class="s5">$dsn</span>, <span class="s5">$this</span>-&gt;user, <span class="s5">$this</span>-&gt;pass, <span class="s5">$this</span>-&gt;opt);
+    }
+
+    <span class="s0">public function </span>disconnect(){
+        <span class="s5">$this</span>-&gt;connection = null;
+    }
+
+    <span class="s3">//-------------------------------------------------------------------------General DB functions:</span>
+    <span class="s0">public function </span>insertLine(<span class="s5">$table_name</span>, <span class="s5">$form_data</span>){
+        <span class="s3">//function inserts new line to table in DB</span>
+        <span class="s5">$this</span>-&gt;connect();
+
+        <span class="s3">// retrieve the keys of the array (column titles)</span>
+        <span class="s5">$fields </span>= array_keys(<span class="s5">$form_data</span>);
+
+        <span class="s3">// build the query</span>
+        //todo: may need to update to CURRENT_TIMESTAMP
+        <span class="s5">$sql </span>= <span class="s2">&quot;INSERT INTO &quot;</span>.<span class="s5">$table_name</span>.<span class="s2">&quot;(`&quot;</span>.implode(<span class="s2">'`,`'</span>, <span class="s5">$fields</span>).<span class="s2">&quot;`)VALUES('&quot;</span>.implode(<span class="s2">&quot;','&quot;</span>, <span class="s5">$form_data</span>).<span class="s2">&quot;')&quot;</span>;
+        <span class="s3">//echo &quot;&lt;br&gt;$sql&lt;br&gt;&quot;;</span>
+        <span class="s5">$this</span>-&gt;connection-&gt;query(<span class="s5">$sql</span>);
+
+        <span class="s5">$this</span>-&gt;disconnect();
+    }
+
+    <span class="s0">function </span>deleteLine(<span class="s5">$table_name</span>, <span class="s5">$field_name</span>, <span class="s5">$field_value</span>){
+        <span class="s5">$this</span>-&gt;connect();
+        <span class="s5">$sql </span>= <span class="s2">&quot;DELETE FROM `&quot;</span>.<span class="s5">$table_name</span>.<span class="s2">&quot;` WHERE `&quot;</span>.<span class="s5">$field_name</span>.<span class="s2">&quot;`='&quot;</span>.<span class="s5">$field_value</span>.<span class="s2">&quot;'&quot;</span>;
+        <span class="s5">$this</span>-&gt;connection-&gt;query(<span class="s5">$sql</span>);
+        <span class="s5">$this</span>-&gt;disconnect();
+    }
+
+    <span class="s0">function </span>deleteLineGeneral(<span class="s5">$table_name</span>, <span class="s5">$condition</span>){
+        <span class="s5">$this</span>-&gt;connect();
+        <span class="s5">$sql </span>= <span class="s2">&quot;DELETE FROM `&quot;</span>.<span class="s5">$table_name</span>.<span class="s2">&quot;` &quot;</span>.<span class="s5">$condition</span>;
+        <span class="s5">$this</span>-&gt;connection-&gt;query(<span class="s5">$sql</span>);
+        <span class="s5">$this</span>-&gt;disconnect();
+    }
+
+    <span class="s0">function </span>updateLine(<span class="s5">$table_name</span>, <span class="s5">$field_name</span>, <span class="s5">$field_value</span>, <span class="s5">$form_data</span>){
+        <span class="s5">$this</span>-&gt;connect();
+
+        <span class="s5">$sql </span>= <span class="s2">&quot;UPDATE `&quot;</span>.<span class="s5">$table_name</span>.<span class="s2">&quot;` SET &quot;</span>;
+        <span class="s5">$sets </span>= <span class="s0">array</span>();
+        <span class="s0">foreach</span>(<span class="s5">$form_data </span><span class="s0">as </span><span class="s5">$column </span>=&gt; <span class="s5">$value</span>) {
+            <span class="s5">$sets</span>[] = <span class="s2">&quot;`&quot;</span>.<span class="s5">$column</span>.<span class="s2">&quot;` = '&quot;</span>.<span class="s5">$value</span>.<span class="s2">&quot;'&quot;</span>;
+        }
+        <span class="s5">$sql </span>.= implode(<span class="s2">', '</span>, <span class="s5">$sets</span>);
+        <span class="s5">$sql </span>.= <span class="s2">&quot; WHERE &quot;</span>.<span class="s5">$field_name</span>.<span class="s2">&quot;='&quot;</span>.<span class="s5">$field_value</span>.<span class="s2">&quot;'&quot;</span>;
+
+
+        <span class="s0">echo </span><span class="s5">$sql</span>;
+        <span class="s5">$this</span>-&gt;connection-&gt;query(<span class="s5">$sql</span>);
+
+        <span class="s5">$this</span>-&gt;disconnect();
+    }
+    <span class="s3">/* <hr class="ls0">        public function getObject($table_name, $field_name, $field_value, $objectToFetch){ 
+            //function checks if object) exists in table and returns it, or NULL 
+            $this-&gt;connect(); 
+ 
+            $sql=&quot;SELECT * FROM `&quot;.$table_name.&quot;` WHERE `&quot;.$field_name.&quot;`='&quot;.$field_value.&quot;'&quot;; 
+            $result = $this-&gt;connection-&gt;query($sql); 
+            $obj = $result-&gt;fetchObject($objectToFetch); 
+            echo $sql.&quot;&lt;br&gt;&quot;; 
+            $this-&gt;disconnect(); 
+            return $obj; 
+        } 
+    */</span>
+    <span class="s0">public function </span>getObjects(<span class="s5">$table_name</span>, <span class="s5">$field_name</span>, <span class="s5">$field_value</span>, <span class="s5">$objectToFetch</span>){
+        <span class="s3">//function checks if objects exists in table and returns ARRAY(!) of objects, or NULL</span>
+        <span class="s5">$this</span>-&gt;connect();
+        <span class="s5">$objArray </span>= <span class="s0">Array</span>();
+
+        <span class="s5">$sql</span>=<span class="s2">&quot;SELECT * FROM `&quot;</span>.<span class="s5">$table_name</span>.<span class="s2">&quot;` WHERE `&quot;</span>.<span class="s5">$field_name</span>.<span class="s2">&quot;`='&quot;</span>.<span class="s5">$field_value</span>.<span class="s2">&quot;'&quot;</span>;
+        <span class="s5">$result </span>= <span class="s5">$this</span>-&gt;connection-&gt;query(<span class="s5">$sql</span>);
+        <span class="s0">while </span>(<span class="s5">$row </span>= <span class="s5">$result</span>-&gt;fetchObject(<span class="s5">$objectToFetch</span>)){
+            <span class="s5">$objArray</span>[] = <span class="s5">$row</span>;
+        }
+        <span class="s5">$this</span>-&gt;disconnect();
+        <span class="s0">return </span><span class="s5">$objArray</span>;
+    }
+
+    <span class="s0">public function </span>getObjectsGeneral(<span class="s5">$table_name</span>, <span class="s5">$condition</span>, <span class="s5">$objectToFetch</span>){
+        <span class="s3">//function checks if objects exists in table and returns ARRAY(!) of objects, or NULL</span>
+        <span class="s5">$this</span>-&gt;connect();
+        <span class="s5">$objArray </span>= <span class="s0">Array</span>();
+
+        <span class="s5">$sql</span>=<span class="s2">&quot;SELECT * FROM `&quot;</span>.<span class="s5">$table_name</span>.<span class="s2">&quot;`&quot;</span>.<span class="s5">$condition</span>;
+        <span class="s3">//echo &quot;&lt;br&gt;&quot;.$sql.&quot;&lt;br&gt;&quot;;                                         //print object</span>
+
+        <span class="s5">$result </span>= <span class="s5">$this</span>-&gt;connection-&gt;query(<span class="s5">$sql</span>);
+        <span class="s0">while </span>(<span class="s5">$row </span>= <span class="s5">$result</span>-&gt;fetchObject(<span class="s5">$objectToFetch</span>)){
+            <span class="s5">$objArray</span>[] = <span class="s5">$row</span>;
+        }
+
+        <span class="s5">$this</span>-&gt;disconnect();
+        <span class="s0">return </span><span class="s5">$objArray</span>;
+    }
+
+    <span class="s0">public function </span>getObjectsDistinct(<span class="s5">$table_name</span>, <span class="s5">$columns</span>, <span class="s5">$objectToFetch</span>){
+        <span class="s3">//SELECT columns FROM table;</span>
+        <span class="s5">$this</span>-&gt;connect();
+        <span class="s5">$objArray </span>= <span class="s0">Array</span>();
+
+        <span class="s5">$sql</span>=<span class="s2">&quot;SELECT DISTINCT &quot;</span>.<span class="s5">$columns</span>.<span class="s2">&quot; FROM `&quot;</span>.<span class="s5">$table_name</span>.<span class="s2">&quot;`&quot;</span>;
+        <span class="s3">//echo $sql.&quot;&lt;br&gt;&quot;;                                         //print object</span>
+
+        <span class="s5">$result </span>= <span class="s5">$this</span>-&gt;connection-&gt;query(<span class="s5">$sql</span>);
+        <span class="s0">while </span>(<span class="s5">$row </span>= <span class="s5">$result</span>-&gt;fetchObject(<span class="s5">$objectToFetch</span>)){
+            <span class="s5">$objArray</span>[] = <span class="s5">$row</span>;
+        }
+        <span class="s3">/* 
+        echo &quot;&lt;pre&gt;&quot;; 
+        var_dump($objArray); 
+        echo&quot;&lt;/pre&gt;&quot;; 
+        */</span>
+        <span class="s5">$this</span>-&gt;disconnect();
+        <span class="s0">return </span><span class="s5">$objArray</span>;
+    }
+
+    <span class="s0">function </span>deleteObjectsGeneral(<span class="s5">$table_name</span>, <span class="s5">$condition</span>){
+        <span class="s5">$this</span>-&gt;connect();
+        <span class="s5">$sql </span>= <span class="s2">&quot;DELETE FROM `&quot;</span>.<span class="s5">$table_name</span>.<span class="s2">&quot;`&quot;</span>.<span class="s5">$condition</span>;
+        <span class="s5">$this</span>-&gt;connection-&gt;query(<span class="s5">$sql</span>);
+        <span class="s5">$this</span>-&gt;disconnect();
+    }
+
+    <span class="s3">//-------------------------------------------------------------------------Additional (required here):</span>
+    <span class="s0">function </span>stringToXml(<span class="s5">$htmlStr</span>)
+    {
+        <span class="s5">$xmlStr </span>= str_replace(<span class="s2">'&lt;'</span>, <span class="s2">'&amp;lt;'</span>, <span class="s5">$htmlStr</span>);
+        <span class="s5">$xmlStr </span>= str_replace(<span class="s2">'&gt;'</span>, <span class="s2">'&amp;gt;'</span>, <span class="s5">$xmlStr</span>);
+        <span class="s5">$xmlStr </span>= str_replace(<span class="s2">'&quot;'</span>, <span class="s2">'&amp;quot;'</span>, <span class="s5">$xmlStr</span>);
+        <span class="s5">$xmlStr </span>= str_replace(<span class="s2">&quot;'&quot;</span>, <span class="s2">&quot;&amp;#39;&quot;</span>, <span class="s5">$xmlStr</span>);
+        <span class="s5">$xmlStr </span>= str_replace(<span class="s2">&quot;&amp;&quot;</span>, <span class="s2">'&amp;amp;'</span>, <span class="s5">$xmlStr</span>);
+        <span class="s0">return </span><span class="s5">$xmlStr</span>;
+    }
+    <span class="s0">function </span>xmlToString(<span class="s5">$htmlStr</span>)
+    {
+        <span class="s5">$xmlStr</span>=str_replace(<span class="s2">'&amp;lt;'</span>,<span class="s2">'&lt;'</span>,<span class="s5">$htmlStr</span>);
+        <span class="s5">$xmlStr</span>=str_replace(<span class="s2">'&amp;gt;'</span>,<span class="s2">'&gt;'</span>,<span class="s5">$xmlStr</span>);
+        <span class="s5">$xmlStr</span>=str_replace(<span class="s2">'&amp;quot;'</span>,<span class="s2">'&quot;'</span>,<span class="s5">$xmlStr</span>);
+        <span class="s5">$xmlStr</span>=str_replace(<span class="s2">&quot;&amp;#39;&quot;</span>,<span class="s2">&quot;'&quot;</span>,<span class="s5">$xmlStr</span>);
+        <span class="s5">$xmlStr</span>=str_replace(<span class="s2">'&amp;amp;'</span>,<span class="s2">&quot;&amp;&quot;</span>,<span class="s5">$xmlStr</span>);
+        <span class="s0">return </span><span class="s5">$xmlStr</span>;
+    }
+
+    <span class="s3">//-------------------------------------------------------------------------users:</span>
+    <span class="s0">public function </span>signinUser(string <span class="s5">$signinMail</span>, string <span class="s5">$signinPass</span>){
+        <span class="s5">$this</span>-&gt;connect();
+
+        <span class="s3">//checking if user exists:</span>
+        <span class="s5">$statement </span>= <span class="s5">$this</span>-&gt;connection-&gt;prepare(<span class="s2">&quot;SELECT * FROM users WHERE userEmail=:signinMail&quot;</span>);
+        <span class="s5">$statement</span>-&gt;execute([<span class="s2">':signinMail'</span>=&gt;<span class="s5">$signinMail</span>]);
+        <span class="s5">$userFromDB</span>=<span class="s5">$statement</span>-&gt;fetchObject(<span class="s2">'User'</span>);
+
+        <span class="s0">if </span>(<span class="s5">$userFromDB </span>== null)    <span class="s3">//user not found:</span>
+        {
+            <span class="s5">$ans </span>= <span class="s2">&quot;User not found.&quot;</span>;
+        }
+        <span class="s0">else                        </span><span class="s3">//user found:</span>
+        {
+            <span class="s3">//verifying password:</span>
+            <span class="s5">$realPassword </span>= <span class="s5">$userFromDB</span>-&gt;getUserPassword();
+            <span class="s5">$verify</span>=password_verify(<span class="s5">$signinPass</span>,<span class="s5">$realPassword</span>);
+
+            <span class="s0">if </span>(<span class="s5">$verify</span>)
+            {
+                <span class="s5">$_SESSION</span>[<span class="s2">'user'</span>]= <span class="s5">$userFromDB</span>-&gt;getUserID();                     <span class="s3">//saving user's ID in $_SESSION</span>
+                <span class="s5">$ans </span>= <span class="s6">1</span>;
+            }
+            <span class="s0">else</span>
+            {
+                <span class="s5">$ans </span>= <span class="s2">&quot;Password is incorrect.&quot;</span>;
+            }
+        }
+        <span class="s5">$this</span>-&gt;disconnect();
+        <span class="s0">return </span><span class="s5">$ans</span>;
+    }
+
+
+
+    <span class="s0">public function </span>getSignedInUserData()
+    {
+        <span class="s0">if </span>(<span class="s0">isset</span>(<span class="s5">$_SESSION</span>[<span class="s2">'user'</span>])) {
+
+            <span class="s5">$this</span>-&gt;connect();
+
+            <span class="s5">$statement </span>= <span class="s5">$this</span>-&gt;connection-&gt;prepare(<span class="s2">&quot;SELECT * FROM users WHERE userID=:id&quot;</span>);
+            <span class="s5">$statement</span>-&gt;execute([<span class="s2">':id'</span>=&gt;<span class="s5">$_SESSION</span>[<span class="s2">'user'</span>]]);
+            <span class="s5">$userFromDB</span>=<span class="s5">$statement</span>-&gt;fetchObject(<span class="s2">'User'</span>);
+            <span class="s5">$userFromDB</span>-&gt;setUserPassword(<span class="s2">&quot;Hi there!&quot;</span>);
+
+            <span class="s5">$this</span>-&gt;disconnect();
+
+            <span class="s0">return </span><span class="s5">$userFromDB</span>;
+        }
+    }
+
+    <span class="s0">public function </span>editUserData(User <span class="s5">$u</span>){
+
+        <span class="s5">$this</span>-&gt;connect();
+        <span class="s3">//var_dump($u);</span>
+
+        <span class="s5">$fname </span>= <span class="s5">$u</span>-&gt;getUserFName();
+        <span class="s5">$lname </span>= <span class="s5">$u</span>-&gt;getUserLName();
+        <span class="s5">$mail </span>= <span class="s5">$u</span>-&gt;getUserEmail();
+        <span class="s3">//$pass = $u-&gt;getUserPassword();</span>
+        <span class="s5">$phone </span>= <span class="s5">$u</span>-&gt;getUserPhone();
+        <span class="s5">$birth </span>= <span class="s5">$u</span>-&gt;getUserBirthday();
+        <span class="s5">$about </span>= <span class="s5">$u</span>-&gt;getUserAbout();
+        <span class="s5">$status </span>= <span class="s6">1</span>;
+
+        <span class="s3">//Check if user already exists:</span>
+        <span class="s5">$sql </span>= <span class="s2">&quot;SELECT * FROM users WHERE userEmail='</span><span class="s5">$mail</span><span class="s2">'&quot;</span>;
+        <span class="s5">$statement </span>= <span class="s5">$this</span>-&gt;connection-&gt;prepare(<span class="s5">$sql</span>);
+        <span class="s5">$statement</span>-&gt;execute();
+
+        <span class="s5">$result</span>=<span class="s5">$statement</span>-&gt;fetchObject(<span class="s2">'User'</span>);
+        <span class="s0">if </span>(<span class="s5">$result </span>== null){
+            <span class="s0">echo </span><span class="s2">&quot;Problem updating data&lt;br&gt;&quot;</span>;
+        }
+        <span class="s0">else</span>
+        {
+            <span class="s5">$sql </span>= <span class="s2">&quot;UPDATE `users` SET `userFName`='</span><span class="s5">$fname</span><span class="s2">',`userLName`='</span><span class="s5">$lname</span><span class="s2">',`userPhone`='</span><span class="s5">$phone</span><span class="s2">',`userBirthday`='</span><span class="s5">$birth</span><span class="s2">',`userAbout`='</span><span class="s5">$about</span><span class="s2">' WHERE userEmail='</span><span class="s5">$mail</span><span class="s2">'&quot;</span>;
+            <span class="s5">$statement </span>= <span class="s5">$this</span>-&gt;connection-&gt;prepare(<span class="s5">$sql</span>);
+            <span class="s5">$statement</span>-&gt;execute();
+        }
+
+        <span class="s5">$this</span>-&gt;disconnect();
+    }
+<span class="s3">//-------------------------------------------------------------------------pets:</span>
+    <span class="s0">public function </span>printPetBasic(Pet <span class="s5">$p</span>)
+    {
+        <span class="s5">$this</span>-&gt;connect();
+        <span class="s3">//echo &quot;&lt;tr&gt;&lt;td&gt;&quot;.$p-&gt;getPetName().&quot;&lt;/td&gt;&lt;td&gt;&quot;.$p-&gt;getPetType().&quot;&lt;/td&gt;&lt;td&gt;&quot;.$p-&gt;getPetBirthday().&quot;&lt;/td&gt;&lt;td&gt;&quot;.$p-&gt;getPetSex().&quot;&lt;/td&gt;&lt;td&gt;edit&lt;/td&gt;&lt;td&gt;delete&lt;/td&gt;&quot;;</span>
+        <span class="s5">$str</span>=<span class="s2">&quot;&quot;</span>;
+
+        <span class="s3">//$str.=&quot;ID: &quot;.$p-&gt;getPetID().&quot;&lt;br&gt;&quot;;</span>
+        <span class="s5">$str</span>.=<span class="s2">&quot;Name: &quot;</span>.<span class="s5">$p</span>-&gt;getPetName().<span class="s2">&quot;&lt;br&gt;&quot;</span>;
+        <span class="s5">$str</span>.=<span class="s2">&quot;Type: &quot;</span>.<span class="s5">$p</span>-&gt;getPetType().<span class="s2">&quot;&lt;br&gt;&quot;</span>;
+        <span class="s5">$str</span>.=<span class="s2">&quot;Sex: &quot;</span>.<span class="s5">$p</span>-&gt;getPetSex().<span class="s2">&quot;&lt;br&gt;&quot;</span>;
+        <span class="s5">$str</span>.=<span class="s2">&quot;Birthday: &quot;</span>.<span class="s5">$p</span>-&gt;getPetBirthday().<span class="s2">&quot;&lt;br&gt;&quot;</span>;
+        <span class="s5">$this</span>-&gt;disconnect();
+        <span class="s0">return </span><span class="s5">$str</span>;
+    }
+    <span class="s0">public function </span>printPetExtra(Pet <span class="s5">$p</span>)
+    {
+        <span class="s5">$this</span>-&gt;connect();
+        <span class="s3">//echo &quot;&lt;tr&gt;&lt;td&gt;&quot;.$p-&gt;getPetName().&quot;&lt;/td&gt;&lt;td&gt;&quot;.$p-&gt;getPetType().&quot;&lt;/td&gt;&lt;td&gt;&quot;.$p-&gt;getPetBirthday().&quot;&lt;/td&gt;&lt;td&gt;&quot;.$p-&gt;getPetSex().&quot;&lt;/td&gt;&lt;td&gt;edit&lt;/td&gt;&lt;td&gt;delete&lt;/td&gt;&quot;;</span>
+        <span class="s5">$str</span>=<span class="s2">&quot;&quot;</span>;
+        <span class="s5">$str</span>.=<span class="s2">&quot;Food Habbits: &quot;</span>.<span class="s5">$p</span>-&gt;getPetFood().<span class="s2">&quot;&lt;br&gt;&quot;</span>;
+        <span class="s5">$str</span>.=<span class="s2">&quot;Temper: &quot;</span>.<span class="s5">$p</span>-&gt;getPetTemper().<span class="s2">&quot;&lt;br&gt;&quot;</span>;
+        <span class="s5">$str</span>.=<span class="s2">&quot;About: &quot;</span>.<span class="s5">$p</span>-&gt;getPetAbout().<span class="s2">&quot;&lt;br&gt;&quot;</span>;
+        <span class="s5">$this</span>-&gt;disconnect();
+        <span class="s0">return </span><span class="s5">$str</span>;
+    }
+
+    <span class="s0">public function </span>getPetsByUserID(<span class="s5">$id</span>)
+    {
+        <span class="s5">$this</span>-&gt;connect();
+        <span class="s5">$petsArray </span>= <span class="s0">Array</span>();
+        <span class="s5">$result </span>= <span class="s5">$this</span>-&gt;connection-&gt;query(<span class="s2">&quot;SELECT * FROM `pets` WHERE userID='</span><span class="s5">$id</span><span class="s2">'&quot;</span>);
+
+        <span class="s0">while </span>(<span class="s5">$row </span>= <span class="s5">$result</span>-&gt;fetchObject(<span class="s2">'Pet'</span>)) {
+            <span class="s5">$petsArray</span>[] = <span class="s5">$row</span>;
+        }
+        <span class="s5">$this</span>-&gt;disconnect();
+        <span class="s3">/* 
+        echo &quot;&lt;pre&gt;&quot;; 
+        print_r($personsArray); 
+        echo &quot;&lt;/pre&gt;&quot;; 
+        */</span>
+        <span class="s0">return </span><span class="s5">$petsArray</span>;
+    }
+
+    <span class="s0">public function </span>getPetByID(<span class="s5">$id</span>)
+    {
+        <span class="s5">$this</span>-&gt;connect();
+        <span class="s5">$result </span>= <span class="s5">$this</span>-&gt;connection-&gt;query(<span class="s2">&quot;SELECT * FROM `pets` WHERE petID='</span><span class="s5">$id</span><span class="s2">'&quot;</span>);
+        <span class="s5">$row </span>= <span class="s5">$result</span>-&gt;fetchObject(<span class="s2">'Pet'</span>);
+        <span class="s5">$this</span>-&gt;disconnect();
+        <span class="s0">return </span><span class="s5">$row</span>;
+    }
+
+
+    <span class="s3">//delete function:</span>
+    <span class="s0">public function </span>getPetImageString(Pet <span class="s5">$p</span>)
+    {
+        <span class="s5">$this</span>-&gt;connect();
+        <span class="s5">$location </span>= <span class="s2">&quot;Images/Pets/&quot;</span>;
+        <span class="s5">$filename </span>= <span class="s5">$p</span>-&gt;getPetID().<span class="s2">&quot;.JPG&quot;</span>;
+        <span class="s0">if </span>(!file_exists(<span class="s5">$location</span>.<span class="s5">$filename</span>)){
+            <span class="s5">$location </span>= <span class="s2">&quot;Images/Pets/General/&quot;</span>;
+            <span class="s5">$filename </span>= <span class="s5">$p</span>-&gt;getPetType().<span class="s2">&quot;.png&quot;</span>;
+        }
+        <span class="s5">$altname </span>= <span class="s5">$p</span>-&gt;getPetName();
+
+        <span class="s5">$this</span>-&gt;disconnect();
+
+        <span class="s0">return </span><span class="s2">&quot;&lt;img src='</span><span class="s5">$location$filename</span><span class="s2">' alt='</span><span class="s5">$altname</span><span class="s2">' title='</span><span class="s5">$altname</span><span class="s2">' class='img-fluid img-thumbnail'&gt;&quot;</span>;
+    }
+    <span class="s3">//replaced with:</span>
+    <span class="s0">public function </span>getPetImageLocation(Pet <span class="s5">$p</span>)
+    {
+        <span class="s5">$this</span>-&gt;connect();
+        <span class="s5">$location </span>= <span class="s2">&quot;Images/Pets/&quot;</span>;
+        <span class="s5">$filename </span>= <span class="s5">$p</span>-&gt;getPetID().<span class="s2">&quot;.JPG&quot;</span>;
+        <span class="s0">if </span>(!file_exists(<span class="s5">$location</span>.<span class="s5">$filename</span>)){
+            <span class="s5">$location </span>= <span class="s2">&quot;Images/Pets/General/&quot;</span>;
+            <span class="s5">$filename </span>= <span class="s5">$p</span>-&gt;getPetType().<span class="s2">&quot;.png&quot;</span>;
+        }
+        <span class="s3">//$altname = $p-&gt;getPetName();</span>
+
+        <span class="s5">$this</span>-&gt;disconnect();
+
+        <span class="s0">return </span><span class="s5">$location</span>.<span class="s5">$filename</span>;
+    }
+
+
+
+
+
+    <span class="s3">//-----------------------------------------------------------------------------------</span>
+
+    <span class="s0">public function </span>sendMail(<span class="s5">$userEmail</span>, <span class="s5">$emlFileName</span>){
+
+        <span class="s5">$text</span>=<span class="s2">&quot;Welcome to petSitter!</span><span class="s0">\n</span><span class="s2">Please contact us with any question.</span><span class="s0">\n\n</span><span class="s2">&quot;</span>;
+        <span class="s5">$text</span>.=<span class="s2">&quot;Start by adding your pets, exploring existing help requests and add your own.</span><span class="s0">\n\n</span><span class="s2">&quot;</span>;
+        <span class="s5">$text</span>.=<span class="s2">&quot;*Please be careful when contacting people from across the web.&quot;</span>;
+        <span class="s5">$tpl</span>=file_get_contents(<span class="s2">&quot;mail</span><span class="s0">\\</span><span class="s2">&quot;</span>.<span class="s5">$emlFileName</span>.<span class="s2">&quot;.eml&quot;</span>);     <span class="s3">//gets email template from eml file</span>
+
+        <span class="s5">$mail</span>=<span class="s5">$tpl</span>;
+        <span class="s5">$mail</span>=strtr(<span class="s5">$mail</span>,<span class="s0">array</span>(<span class="s2">&quot;{TO}&quot;</span>=&gt;<span class="s5">$userEmail</span>,<span class="s2">&quot;{TEXT}&quot;</span>=&gt;<span class="s5">$text</span>,));
+        <span class="s0">list</span>(<span class="s5">$head</span>,<span class="s5">$body</span>)=preg_split(<span class="s2">&quot;/</span><span class="s0">\r</span><span class="s2">?</span><span class="s0">\n\r</span><span class="s2">?</span><span class="s0">\n</span><span class="s2">/s&quot;</span>,<span class="s5">$mail</span>,<span class="s6">2</span>);
+        mail(<span class="s2">&quot;&quot;</span>,<span class="s2">&quot;&quot;</span>,<span class="s5">$body</span>,<span class="s5">$head</span>);
+
+        <span class="s0">return </span><span class="s6">1</span>;
+    }
+
+    <span class="s0">public function </span>sendMail_ContactUs(<span class="s5">$emlFileName</span>, <span class="s5">$title</span>, <span class="s5">$message</span>, <span class="s5">$user_name</span>, <span class="s5">$user_email</span>, <span class="s5">$details</span>) {
+        <span class="s5">$tpl</span>=file_get_contents(<span class="s2">&quot;mail</span><span class="s0">\\</span><span class="s2">&quot;</span>.<span class="s5">$emlFileName</span>.<span class="s2">&quot;.eml&quot;</span>);     <span class="s3">//gets email template from eml file</span>
+        <span class="s5">$mail</span>=<span class="s5">$tpl</span>;
+        <span class="s5">$mail</span>=strtr(<span class="s5">$mail</span>,<span class="s0">array</span>(<span class="s2">&quot;{TO}&quot;</span>=&gt;<span class="s2">&quot;aloniado@gmail.com&quot;</span>,<span class="s2">&quot;{MESSAGE}&quot;</span>=&gt;<span class="s5">$message</span>, <span class="s2">&quot;{TOPIC}&quot;</span>=&gt;<span class="s5">$title</span>, <span class="s2">&quot;{EMAIL}&quot;</span>=&gt;<span class="s5">$user_email</span>, <span class="s2">&quot;{NAME}&quot;</span>=&gt;<span class="s5">$user_name</span>, <span class="s2">&quot;{USER_DETAILS}&quot;</span>=&gt;<span class="s5">$details</span>));
+
+
+        <span class="s0">list</span>(<span class="s5">$head</span>,<span class="s5">$body</span>)=preg_split(<span class="s2">&quot;/</span><span class="s0">\r</span><span class="s2">?</span><span class="s0">\n\r</span><span class="s2">?</span><span class="s0">\n</span><span class="s2">/s&quot;</span>,<span class="s5">$mail</span>,<span class="s6">2</span>);
+        mail(<span class="s2">&quot;&quot;</span>,<span class="s2">&quot;&quot;</span>,<span class="s5">$body</span>,<span class="s5">$head</span>);
+
+        <span class="s0">return </span><span class="s6">1</span>;
+    }
+<span class="s3">//-------------------------------------------------------------------------help requests:</span>
+
+
+
+//-----}
+}
+
+
+</pre>
+</body>
+</html>

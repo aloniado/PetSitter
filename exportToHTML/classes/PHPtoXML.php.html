@@ -1,0 +1,79 @@
+<html>
+<head>
+<title>PHPtoXML.php</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #000080; font-weight: bold;}
+.s1 { color: #000000;}
+.s2 { color: #000000;}
+.s3 { color: #808080; font-style: italic;}
+.s4 { color: #008000; font-weight: bold;}
+.s5 { color: #660000;}
+.s6 { color: #0000ff;}
+</style>
+</head>
+<body bgcolor="#ffffff">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#c0c0c0" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+PHPtoXML.php</font>
+</center></td></tr></table>
+<pre><span class="s0">&lt;?php</span>
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
+<span class="s3">//unset($_SESSION['refinement']);   //del</span>
+<span class="s0">require_once </span><span class="s4">&quot;../classes/dbClass.php&quot;</span>;
+<span class="s0">require_once </span><span class="s4">&quot;../classes/Pet.php&quot;</span>;
+<span class="s0">require_once </span><span class="s4">&quot;../classes/HelpRequest.php&quot;</span>;
+<span class="s0">require_once </span><span class="s4">&quot;../classes/Pet_HelpRequest.php&quot;</span>;
+<span class="s0">require_once </span><span class="s4">&quot;../classes/dbClassHelpRequestFunctions.php&quot;</span>;
+<span class="s0">require_once </span><span class="s4">&quot;../classes/dbClassPetsFunctions.php&quot;</span>;
+
+
+<span class="s3">//--------------------------------------------------------</span>
+<span class="s5">$db </span>= <span class="s0">new </span>dbClass();
+<span class="s5">$dbhr </span>= <span class="s0">new </span>dbClassHelpRequestFunctions();
+<span class="s5">$helpRequestsArr </span>= <span class="s5">$dbhr</span>-&gt;getAllActiveHelpRequests();
+
+
+<span class="s3">//----------</span>
+
+header(<span class="s4">&quot;Content-type: text/xml&quot;</span>);
+
+<span class="s3">// Start XML file, echo parent node</span>
+<span class="s0">echo </span><span class="s4">&quot;&lt;?xml version='1.0' encoding='UTF-8'?&gt;&quot;</span>;
+<span class="s0">echo </span><span class="s4">'&lt;markers&gt;'</span>;
+<span class="s5">$ind</span>=<span class="s6">0</span>;
+<span class="s3">// Iterate through the rows, printing XML nodes for each</span>
+
+<span class="s5">$dbp </span>= <span class="s0">new </span>dbClassPetsFunctions();
+<span class="s0">foreach </span>(<span class="s5">$helpRequestsArr </span><span class="s0">as </span><span class="s5">$k</span>=&gt;<span class="s5">$v</span>)
+{    <span class="s3">// Add to XML document node</span>
+
+
+    <span class="s5">$petTypesString </span>= <span class="s4">&quot;&quot;</span>;
+    <span class="s5">$petsInRequestArr </span>= <span class="s5">$dbp</span>-&gt;getPetsArrayByHelpID(<span class="s5">$v</span>-&gt;getHelpID());
+
+    <span class="s0">foreach </span>(<span class="s5">$petsInRequestArr </span><span class="s0">as </span><span class="s5">$k1</span>=&gt;<span class="s5">$v1</span>){
+        <span class="s5">$petTypesString </span>.= <span class="s4">&quot;&quot;</span>.<span class="s5">$v1</span>-&gt;getPetType().<span class="s4">&quot;, &quot;</span>;
+    }
+
+    <span class="s0">echo </span><span class="s4">'&lt;marker '</span>;
+    <span class="s0">echo </span><span class="s4">'id=&quot;' </span>. <span class="s5">$v</span>-&gt;getHelpID() . <span class="s4">'&quot; '</span>;
+    <span class="s0">echo </span><span class="s4">'name=&quot;' </span>. <span class="s5">$v</span>-&gt;getHelpType().<span class="s4">&quot;: &quot;</span>.<span class="s5">$petTypesString</span>.<span class="s4">'&quot; '</span>;
+    <span class="s3">//echo 'address=&quot;' . &quot;Help ID: &quot;.$link.'&quot; ';</span>
+    <span class="s0">echo </span><span class="s4">'address=&quot;' </span>. <span class="s4">&quot;ID: &quot;</span>.<span class="s5">$v</span>-&gt;getHelpID() .<span class="s4">'&quot; '</span>;
+    <span class="s0">echo </span><span class="s4">'lat=&quot;' </span>. <span class="s5">$v</span>-&gt;getHelpLocLat() . <span class="s4">'&quot; '</span>;
+    <span class="s0">echo </span><span class="s4">'lng=&quot;' </span>. <span class="s5">$v</span>-&gt;getHelpLocLng() . <span class="s4">'&quot; '</span>;
+    <span class="s0">echo </span><span class="s4">'type=&quot;' </span>. str_replace(<span class="s4">' '</span>, <span class="s4">''</span>, <span class="s5">$v</span>-&gt;getHelpType()) . <span class="s4">'&quot; '</span>; <span class="s3">//for label</span>
+    <span class="s0">echo </span><span class="s4">'/&gt;'</span>;
+    <span class="s5">$ind </span>= <span class="s5">$ind </span>+ <span class="s6">1</span>;
+}
+
+<span class="s3">// End XML file</span>
+<span class="s0">echo </span><span class="s4">'&lt;/markers&gt;'</span>;
+
+<span class="s0">?&gt;</span></pre>
+</body>
+</html>

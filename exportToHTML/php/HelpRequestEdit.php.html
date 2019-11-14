@@ -1,0 +1,213 @@
+<html>
+<head>
+<title>HelpRequestEdit.php</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #000080; font-weight: bold;}
+.s1 { color: #000000;}
+.s2 { color: #000000;}
+.s3 { color: #008000; font-weight: bold;}
+.s4 { color: #660000;}
+.s5 { color: #808080; font-style: italic;}
+.s6 { color: #0000ff;}
+.s7 { color: #000000;}
+.s8 { color: #000000;}
+.s9 { color: #000080; font-weight: bold;}
+.s10 { color: #808080; font-style: italic;}
+.s11 { color: #000080; font-weight: bold;}
+.s12 { color: #008000; font-weight: bold;}
+.s13 { color: #0000ff; font-weight: bold;}
+.s14 { color: #008000; font-weight: bold;}
+.s15 { color: #0000ff; font-weight: bold;}
+</style>
+</head>
+<body bgcolor="#ffffff">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#c0c0c0" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+HelpRequestEdit.php</font>
+</center></td></tr></table>
+<pre><span class="s0">&lt;?php</span>
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
+<span class="s0">require_once </span><span class="s3">&quot;classes/dbClass.php&quot;</span>;
+<span class="s0">require_once </span><span class="s3">&quot;classes/dbClassHelpRequestFunctions.php&quot;</span>;
+<span class="s0">require_once </span><span class="s3">&quot;classes/Pet.php&quot;</span>;
+<span class="s0">require_once </span><span class="s3">&quot;classes/HelpRequest.php&quot;</span>;
+<span class="s0">require_once </span><span class="s3">&quot;classes/dbClassPetsFunctions.php&quot;</span>;
+
+<span class="s4">$dbhr </span>= <span class="s0">new </span>dbClassHelpRequestFunctions();
+<span class="s4">$helpRequest </span>= <span class="s4">$dbhr</span>-&gt;getHelpRequestByID(<span class="s4">$_SESSION</span>[<span class="s3">'helpRequestToEdit'</span>]);
+<span class="s0">unset</span>(<span class="s4">$_SESSION</span>[<span class="s3">'helpRequestToEdit'</span>]);
+
+<span class="s4">$db </span>= <span class="s0">new </span>dbClass();
+<span class="s4">$signedInUser</span>=<span class="s4">$db</span>-&gt;getSignedInUserData();
+
+
+<span class="s5">//date and time:</span>
+<span class="s4">$today </span>= date(<span class="s3">&quot;Y-m-d H:i:s&quot;</span>);
+<span class="s4">$today </span>= substr(<span class="s4">$today</span>, <span class="s6">0</span>, <span class="s6">10</span>);
+<span class="s4">$oneyearfromnow </span>= (string)((int)substr(<span class="s4">$today</span>, <span class="s6">0</span>, <span class="s6">4</span>)+<span class="s6">1</span>).substr(<span class="s4">$today</span>, <span class="s6">4</span>, <span class="s6">6</span>);
+<span class="s5">//echo &quot;&lt;br&gt;&quot;.$oneyearfromnow;</span>
+//-----------------------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------if form information sent:
+
+<span class="s0">if </span>(<span class="s0">isset</span>(<span class="s4">$_POST</span>[<span class="s3">'helpRequestEditSent'</span>])) {
+
+    <span class="s0">echo </span><span class="s3">&quot;&lt;pre&gt;&quot;</span>;
+    var_dump(<span class="s4">$_POST</span>);
+    <span class="s0">echo </span><span class="s3">&quot;&lt;/pre&gt;&quot;</span>;
+
+    <span class="s0">if </span>(<span class="s0">isset</span>(<span class="s4">$_POST</span>[<span class="s3">'payment'</span>]))
+        <span class="s4">$pay </span>= <span class="s4">$_POST</span>[<span class="s3">'paym'</span>];
+    <span class="s0">else</span>
+        <span class="s4">$pay </span>= <span class="s6">0</span>;
+
+    <span class="s4">$help_data </span>= <span class="s0">array</span>(
+        <span class="s3">'helpStartTime' </span>=&gt; <span class="s4">$_POST</span>[<span class="s3">'startdate'</span>] . <span class="s3">&quot; &quot; </span>. <span class="s4">$_POST</span>[<span class="s3">'starttime'</span>],
+        <span class="s3">'helpEndTime' </span>=&gt; <span class="s4">$_POST</span>[<span class="s3">'enddate'</span>] . <span class="s3">&quot; &quot; </span>. <span class="s4">$_POST</span>[<span class="s3">'endtime'</span>],
+        <span class="s3">'helpPayment' </span>=&gt; <span class="s4">$_POST</span>[<span class="s3">'helpPayment'</span>],
+        <span class="s3">'helpAbout' </span>=&gt; <span class="s4">$_POST</span>[<span class="s3">'helpAbout'</span>],
+        <span class="s3">'helpType' </span>=&gt; <span class="s4">$_POST</span>[<span class="s3">'type'</span>],
+        <span class="s3">'userPhone' </span>=&gt; <span class="s4">$_POST</span>[<span class="s3">'phone'</span>],
+        <span class="s3">'helpStatus' </span>=&gt; <span class="s6">1</span>
+    );
+
+    <span class="s4">$dbhr</span>-&gt;updateHelpRequest(<span class="s4">$_POST</span>[<span class="s3">'helpID'</span>], <span class="s4">$help_data</span>);
+
+    <span class="s4">$_SESSION</span>[<span class="s3">'userMessage'</span>]=<span class="s3">&quot;Help request edited successfully.&quot;</span>;
+    <span class="s4">$_SESSION</span>[<span class="s3">'nextPage'</span>]=<span class="s3">&quot;myHelpRequests.php&quot;</span>;
+    header(<span class="s3">&quot;Location: main.php&quot;</span>);
+    <span class="s0">die</span>();
+}
+
+
+
+<span class="s5">//---------------------------------------------pets in help request:</span>
+<span class="s4">$dbp </span>= <span class="s0">new </span>dbClassPetsFunctions();
+<span class="s4">$hr_petsArray </span>= <span class="s4">$dbp</span>-&gt;getPetsArrayByHelpID(<span class="s4">$helpRequest</span>-&gt;getHelpID());  <span class="s5">//array of pets_helprequests</span>
+
+<span class="s4">$petsInRequestStr</span>=<span class="s3">&quot;&lt;table&gt;&lt;tr&gt;&quot;</span>;
+<span class="s0">foreach </span>(<span class="s4">$hr_petsArray </span><span class="s0">as </span><span class="s4">$p_hr</span>) <span class="s5">//each $p_hr is a Pet_HelpRequest object</span>
+{
+    <span class="s4">$p </span>= <span class="s4">$db</span>-&gt;getObjectsGeneral(<span class="s3">&quot;pets&quot;</span>, <span class="s3">&quot; WHERE `petID`='&quot;</span>.<span class="s4">$p_hr</span>-&gt;getPetID().<span class="s3">&quot;'&quot;</span>, <span class="s3">&quot;Pet&quot;</span>);
+    <span class="s5">//$p is an array containing one pet</span>
+    <span class="s4">$petsInRequestStr</span>.=<span class="s3">&quot;&lt;td align='center'&gt;&quot;</span>;
+    <span class="s4">$petsInRequestStr</span>.=<span class="s4">$p</span>[<span class="s6">0</span>]-&gt;getPetName().<span class="s3">&quot;&lt;br&gt;&quot;</span>;
+    <span class="s4">$petsInRequestStr</span>.=<span class="s4">$db</span>-&gt;getPetImageString(<span class="s4">$p</span>[<span class="s6">0</span>]).<span class="s3">&quot;&lt;br&gt;&quot;</span>;
+    <span class="s4">$petsInRequestStr</span>.=<span class="s3">&quot;&lt;/td&gt;&quot;</span>;
+}
+<span class="s4">$petsInRequestStr</span>.=<span class="s3">&quot;&lt;/tr&gt;&lt;/table&gt;&quot;</span>;
+
+
+
+<span class="s5">//echo $helpRequest-&gt;getHelpStartTime().&quot;&lt;br&gt;&quot;;</span>
+//echo substr($helpRequest-&gt;getHelpStartTime(), 0, 10);
+<span class="s0">?&gt;</span>
+
+&lt;<span class="s9">script</span>&gt;    <span class="s10">&lt;!-- </span>form validation --&gt;
+    <span class="s11">function </span>validateForm() {
+        <span class="s11">var </span>errorMsg = <span class="s12">&quot;&quot;</span>;
+        <span class="s10">//--------------------------------------------dates:</span>
+        d1 = <span class="s11">new </span>Date(document.getElementById(<span class="s12">&quot;datestart&quot;</span>).value);
+        d2 = <span class="s11">new </span>Date(document.getElementById(<span class="s12">&quot;dateend&quot;</span>).value);
+        <span class="s11">if </span>(d2&lt;d1)
+            errorMsg += <span class="s12">&quot;End date must be left empty, or be after start date.</span><span class="s11">\n</span><span class="s12">&quot;</span>;
+
+        <span class="s10">//--------------------------------------------error message:</span>
+        <span class="s11">if </span>(errorMsg !== <span class="s12">&quot;&quot;</span>){
+            alert(errorMsg);
+            <span class="s11">return false</span>;
+        }
+    }
+&lt;/<span class="s9">script</span>&gt;
+
+
+
+&lt;<span class="s9">form </span><span class="s13">action=</span><span class="s14">&quot;HelpRequestEdit.php&quot; </span><span class="s13">method=</span><span class="s14">post </span><span class="s13">id=</span><span class="s14">&quot;newHelpForm&quot; </span><span class="s13">onsubmit=</span><span class="s14">&quot;</span><span class="s11">return </span>validateForm()<span class="s14">&quot; </span>&gt;
+    &lt;<span class="s9">h3</span>&gt;Editing help request:&lt;/<span class="s9">h3</span>&gt;&lt;<span class="s9">br</span>&gt;
+    &lt;<span class="s9">label</span>&gt;Pets in this help request:&lt;/<span class="s9">label</span>&gt;
+    <span class="s0">&lt;?php</span>
+    echo <span class="s4">$petsInRequestStr</span>;
+    <span class="s0">?&gt;</span>
+
+    &lt;<span class="s9">div </span><span class="s13">class=</span><span class="s14">&quot;form-group&quot;</span>&gt;
+        &lt;<span class="s9">label</span>&gt;Address of help request:&lt;/<span class="s9">label</span>&gt;
+        &lt;<span class="s9">div </span><span class="s13">class=</span><span class="s14">&quot;form-row&quot;</span>&gt;
+            &lt;<span class="s9">div </span><span class="s13">class=</span><span class="s14">&quot;col&quot;</span>&gt;
+                &lt;<span class="s9">input </span><span class="s13">type=</span><span class="s14">&quot;text&quot; </span><span class="s13">name=</span><span class="s14">&quot;address&quot; </span><span class="s13">class=</span><span class="s14">&quot;form-control&quot; </span><span class="s13">value=</span><span class="s14">&quot;</span><span class="s0">&lt;?php echo </span><span class="s4">$helpRequest</span>-&gt;getHelpLocCity().<span class="s3">&quot;, &quot;</span>.<span class="s4">$helpRequest</span>-&gt;getHelpLocStreet().<span class="s3">&quot;, &quot;</span>.<span class="s4">$helpRequest</span>-&gt;getHelpLocNum()<span class="s0">?&gt;</span><span class="s14">&quot; </span><span class="s13">readonly</span>&gt;
+            &lt;/<span class="s9">div</span>&gt;
+        &lt;/<span class="s9">div</span>&gt;
+    &lt;/<span class="s9">div</span>&gt;
+
+    &lt;<span class="s9">div </span><span class="s13">class=</span><span class="s14">&quot;form-group&quot;</span>&gt;
+        &lt;<span class="s9">div </span><span class="s13">class=</span><span class="s14">&quot;form-row&quot;</span>&gt;
+            &lt;<span class="s9">div </span><span class="s13">class=</span><span class="s14">&quot;col&quot;</span>&gt;
+                &lt;<span class="s9">label</span>&gt;Help type:&lt;/<span class="s9">label</span>&gt;
+                &lt;<span class="s9">select </span><span class="s13">class=</span><span class="s14">&quot;form-control&quot; </span><span class="s13">name=</span><span class="s14">&quot;type&quot;</span>&gt;
+                    &lt;<span class="s9">option </span><span class="s13">value=</span><span class="s14">&quot;Feeding&quot;</span>&gt;Feeding&lt;/<span class="s9">option</span>&gt;
+                    &lt;<span class="s9">option </span><span class="s13">value=</span><span class="s14">&quot;Walk&quot;</span>&gt;Walk&lt;/<span class="s9">option</span>&gt;
+                    &lt;<span class="s9">option </span><span class="s13">value=</span><span class="s14">&quot;House Sitting&quot;</span>&gt;House Sitting&lt;/<span class="s9">option</span>&gt;
+                    &lt;<span class="s9">option </span><span class="s13">value=</span><span class="s14">&quot;Other&quot;</span>&gt;Other&lt;/<span class="s9">option</span>&gt;
+                &lt;/<span class="s9">select</span>&gt;
+            &lt;/<span class="s9">div</span>&gt;
+        &lt;/<span class="s9">div</span>&gt;
+    &lt;/<span class="s9">div</span>&gt;
+
+
+    <span class="s10">&lt;!------------------------------------------------------------------------------------------time:   --&gt;</span>
+    &lt;!--
+            &lt;fieldset id=&quot;dates&quot;&gt; 
+            &lt;label class=&quot;radio-inline&quot;&gt;&lt;input type=&quot;radio&quot; name=&quot;radiot&quot; value=&quot;1&quot; id=&quot;r1&quot;&gt;One day&lt;/label&gt; 
+            &lt;label class=&quot;radio-inline&quot;&gt;&lt;input type=&quot;radio&quot; name=&quot;radiot&quot; value=&quot;2&quot; id=&quot;r2&quot;&gt;multiple days&lt;/label&gt;&lt;br&gt; 
+            &lt;/fieldset&gt; 
+            --&gt;
+
+
+
+    &lt;<span class="s9">div </span><span class="s13">class=</span><span class="s14">&quot;form-group&quot;</span>&gt;
+
+        &lt;<span class="s9">div </span><span class="s13">class=</span><span class="s14">&quot;row&quot;</span>&gt;
+            &lt;<span class="s9">div </span><span class="s13">class=</span><span class="s14">&quot;col&quot;</span>&gt;
+                &lt;<span class="s9">label</span>&gt;Help start date:&lt;/<span class="s9">label</span>&gt;
+                &lt;<span class="s9">input </span><span class="s13">type=</span><span class="s14">&quot;date&quot; </span><span class="s13">class=</span><span class="s14">&quot;form-control&quot; </span><span class="s13">id=</span><span class="s14">&quot;datestart&quot; </span><span class="s13">placeholder=</span><span class="s14">&quot;Start date&quot; </span><span class="s13">name=</span><span class="s14">&quot;startdate&quot; </span><span class="s13">value =</span><span class="s14">'</span><span class="s0">&lt;?php echo </span>substr(<span class="s4">$helpRequest</span>-&gt;getHelpStartTime(), <span class="s6">0</span>, <span class="s6">10</span>)<span class="s0">?&gt;</span><span class="s14">' </span><span class="s13">min=</span><span class="s14">'</span><span class="s0">&lt;?php echo </span><span class="s4">$today</span>;<span class="s0">?&gt;</span><span class="s14">' </span><span class="s13">max=</span><span class="s14">&quot;</span><span class="s0">&lt;?php echo </span><span class="s4">$oneyearfromnow</span><span class="s0">?&gt;</span><span class="s14">&quot; </span><span class="s13">required</span>&gt;
+            &lt;/<span class="s9">div</span>&gt;
+            &lt;<span class="s9">div </span><span class="s13">class=</span><span class="s14">&quot;col&quot;</span>&gt;
+                &lt;<span class="s9">label</span>&gt;Help end date:&lt;/<span class="s9">label</span>&gt;
+                &lt;<span class="s9">input </span><span class="s13">type=</span><span class="s14">&quot;date&quot; </span><span class="s13">class=</span><span class="s14">&quot;form-control&quot; </span><span class="s13">id=</span><span class="s14">&quot;dateend&quot; </span><span class="s13">placeholder=</span><span class="s14">&quot;End date date&quot; </span><span class="s13">name=</span><span class="s14">&quot;enddate&quot; </span><span class="s13">value =</span><span class="s14">'</span><span class="s0">&lt;?php echo </span>substr(<span class="s4">$helpRequest</span>-&gt;getHelpEndTime(), <span class="s6">0</span>, <span class="s6">10</span>)<span class="s0">?&gt;</span><span class="s14">' </span><span class="s13">min=</span><span class="s14">'</span><span class="s0">&lt;?php echo </span><span class="s4">$today</span>;<span class="s0">?&gt;</span><span class="s14">' </span><span class="s13">max=</span><span class="s14">&quot;</span><span class="s0">&lt;?php echo </span><span class="s4">$oneyearfromnow</span><span class="s0">?&gt;</span><span class="s14">&quot;</span>&gt;
+                &lt;<span class="s9">input </span><span class="s13">type=</span><span class="s14">&quot;time&quot; </span><span class="s13">class=</span><span class="s14">&quot;form-control&quot; </span><span class="s13">placeholder=</span><span class="s14">&quot;Start time&quot; </span><span class="s13">name=</span><span class="s14">&quot;starttime&quot; </span><span class="s13">hidden</span>&gt;
+            &lt;/<span class="s9">div</span>&gt;
+        &lt;/<span class="s9">div</span>&gt;
+    &lt;/<span class="s9">div</span>&gt;
+
+
+
+
+
+
+    <span class="s10">&lt;!------------------------------------------------------------------------------------------time\   --&gt;</span>
+    &lt;<span class="s9">div </span><span class="s13">class=</span><span class="s14">&quot;form-group&quot;</span>&gt;
+        &lt;<span class="s9">label</span>&gt;Payment offerd:&lt;/<span class="s9">label</span>&gt;
+        &lt;<span class="s9">div </span><span class="s13">class=</span><span class="s14">&quot;form-row&quot;</span>&gt;
+            &lt;<span class="s9">div </span><span class="s13">class=</span><span class="s14">&quot;col&quot;</span>&gt;
+                &lt;<span class="s9">input </span><span class="s13">type=</span><span class="s14">&quot;text&quot; </span><span class="s13">name=</span><span class="s14">&quot;helpPayment&quot; </span><span class="s13">class=</span><span class="s14">&quot;form-control&quot; </span><span class="s13">value=</span><span class="s14">&quot;</span><span class="s0">&lt;?php echo </span><span class="s4">$helpRequest</span>-&gt;getHelpPayment()<span class="s0">?&gt;</span><span class="s14">&quot;</span>&gt;
+            &lt;/<span class="s9">div</span>&gt;
+        &lt;/<span class="s9">div</span>&gt;
+    &lt;/<span class="s9">div</span>&gt;
+    &lt;<span class="s9">div </span><span class="s13">class=</span><span class="s14">&quot;form-group&quot;</span>&gt;
+        &lt;<span class="s9">label</span>&gt;Help description:&lt;/<span class="s9">label</span>&gt;
+        &lt;<span class="s9">textarea </span><span class="s13">class=</span><span class="s14">&quot;form-control&quot; </span><span class="s13">id=</span><span class="s14">&quot;exampleFormControlTextarea1&quot; </span><span class="s13">name=</span><span class="s14">&quot;helpAbout&quot; </span><span class="s13">rows=</span><span class="s14">&quot;3&quot;</span>&gt;<span class="s0">&lt;?php echo </span><span class="s4">$helpRequest</span>-&gt;getHelpAbout()<span class="s0">?&gt;</span>&lt;/<span class="s9">textarea</span>&gt;
+    &lt;/<span class="s9">div</span>&gt;
+    &lt;<span class="s9">div </span><span class="s13">class=</span><span class="s14">&quot;form-group&quot;</span>&gt;
+        &lt;<span class="s9">label</span>&gt;Phone number for contact:&lt;/<span class="s9">label</span>&gt;
+        &lt;<span class="s9">div </span><span class="s13">class=</span><span class="s14">&quot;form-group&quot;</span>&gt;
+            &lt;<span class="s9">input </span><span class="s13">type=</span><span class="s14">&quot;tel&quot; </span><span class="s13">class=</span><span class="s14">&quot;form-control&quot; </span><span class="s13">id=</span><span class="s14">&quot;exampleInputPhone1&quot; </span><span class="s13">aria-describedby=</span><span class="s14">&quot;emailHelp&quot; </span><span class="s13">placeholder=</span><span class="s14">&quot;Enter Phone Number&quot;  </span><span class="s13">name=</span><span class="s14">&quot;phone&quot; </span><span class="s13">value=</span><span class="s14">&quot;</span><span class="s0">&lt;?php echo </span><span class="s4">$helpRequest</span>-&gt;getUserPhone()<span class="s0">?&gt;</span><span class="s14">&quot;</span>&gt;
+        &lt;/<span class="s9">div</span>&gt;
+    &lt;/<span class="s9">div</span>&gt;
+    &lt;<span class="s9">input </span><span class="s13">type=</span><span class="s14">&quot;text&quot; </span><span class="s13">name=</span><span class="s14">&quot;helpID&quot; </span><span class="s13">value=</span><span class="s14">&quot;</span><span class="s0">&lt;?php echo </span><span class="s4">$helpRequest</span>-&gt;getHelpID()<span class="s0">?&gt;</span><span class="s14">&quot;  </span><span class="s13">style=</span><span class="s14">&quot;</span><span class="s15">display</span>:<span class="s12">none</span><span class="s14">&quot;</span>&gt;
+
+    &lt;<span class="s9">button </span><span class="s13">type=</span><span class="s14">&quot;submit&quot; </span><span class="s13">class=</span><span class="s14">&quot;btn btn-primary&quot; </span><span class="s13">name=</span><span class="s14">&quot;helpRequestEditSent&quot;</span>&gt;Update help request&lt;/<span class="s9">button</span>&gt;
+&lt;/<span class="s9">form</span>&gt;</pre>
+</body>
+</html>

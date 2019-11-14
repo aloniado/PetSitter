@@ -1,0 +1,217 @@
+<html>
+<head>
+<title>dbClassPetsFunctions.php</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #000080; font-weight: bold;}
+.s1 { color: #000000;}
+.s2 { color: #008000; font-weight: bold;}
+.s3 { color: #808080; font-style: italic;}
+.s4 { color: #000000;}
+.s5 { color: #660000;}
+.s6 { color: #0000ff;}
+.ls0 { height: 1px; border-width: 0; color: #c0c0c0; background-color:#c0c0c0}
+</style>
+</head>
+<body bgcolor="#ffffff">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#c0c0c0" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+dbClassPetsFunctions.php</font>
+</center></td></tr></table>
+<pre><span class="s0">&lt;?php</span>
+
+require_once <span class="s2">&quot;dbClass.php&quot;</span>;
+<span class="s0">require_once </span><span class="s2">&quot;Pet.php&quot;</span>;
+<span class="s0">require_once </span><span class="s2">&quot;Pet_HelpRequest.php&quot;</span>;
+
+
+<span class="s3">//class acts as an additional layer between dbClass and site files</span>
+//contains functions regarding &quot;pets&quot; table and uses functions in dbClass
+<span class="s0">class </span>dbClassPetsFunctions
+{
+
+    <span class="s0">public function </span>getPetsArrayByUserID(<span class="s5">$userID</span>){
+        <span class="s3">//gets user ID, returns array of User's Pets</span>
+        <span class="s5">$db </span>= <span class="s0">new </span>dbClass();
+        <span class="s5">$petsArray </span>= <span class="s5">$db</span>-&gt;getObjectsGeneral(<span class="s2">&quot;pets&quot;</span>, <span class="s2">&quot;WHERE userID='</span><span class="s5">$userID</span><span class="s2">'&quot;</span>, <span class="s2">&quot;Pet&quot;</span>);
+        <span class="s0">return </span><span class="s5">$petsArray</span>;
+    }
+
+
+    <span class="s0">public function </span>getPetsArrayByHelpID(<span class="s5">$helpID</span>){
+        <span class="s3">//gets help ID, returns array of Pets in Help Request</span>
+
+        <span class="s5">$db </span>= <span class="s0">new </span>dbClass();
+        <span class="s5">$p_hr </span>= <span class="s5">$db</span>-&gt;getObjectsGeneral(<span class="s2">&quot;pets_helprequests&quot;</span>, <span class="s2">&quot;WHERE helpID='</span><span class="s5">$helpID</span><span class="s2">'&quot;</span>, <span class="s2">&quot;Pet_HelpRequest&quot;</span>); <span class="s3">//array of Pet_HelpRequest</span>
+        /* <hr class="ls0">        echo &quot;&lt;pre&gt;&quot;; 
+        var_dump($p_hr); 
+        echo &quot;&lt;/pre&gt;&quot;; 
+        */
+        <span class="s5">$petsArray </span>= <span class="s0">array</span>();
+
+        <span class="s0">foreach </span>(<span class="s5">$p_hr </span><span class="s0">as </span><span class="s5">$k</span>=&gt;<span class="s5">$v</span>){
+            <span class="s5">$petID </span>= <span class="s5">$v</span>-&gt;getPetID();
+            <span class="s5">$pet </span>= <span class="s5">$db</span>-&gt;getObjectsGeneral(<span class="s2">&quot;pets&quot;</span>, <span class="s2">&quot;WHERE petID='</span><span class="s5">$petID</span><span class="s2">'&quot;</span>, <span class="s2">&quot;Pet&quot;</span>)[<span class="s6">0</span>];
+            array_push(<span class="s5">$petsArray</span>, <span class="s5">$pet</span>);
+        }
+
+        <span class="s0">return </span><span class="s5">$petsArray</span>;
+    }
+
+    <span class="s0">public function </span>getPetsArrayByType(<span class="s5">$type</span>){
+        <span class="s3">//gets help ID, returns array of Pets in Help Request</span>
+
+        <span class="s5">$db </span>= <span class="s0">new </span>dbClass();
+
+        <span class="s5">$petsArray </span>= <span class="s5">$db</span>-&gt;getObjectsGeneral(<span class="s2">&quot;pets&quot;</span>, <span class="s2">&quot;WHERE petType='</span><span class="s5">$type</span><span class="s2">'&quot;</span>, <span class="s2">&quot;Pet&quot;</span>);
+
+
+        <span class="s0">return </span><span class="s5">$petsArray</span>;
+    }
+
+    <span class="s3">//-----------------------------------------------------------------------------------------------</span>
+
+    //-----------------------------------------------------------------------------------------------Images:
+
+    <span class="s0">function </span>loadPetImageByID(<span class="s5">$petID</span>) {
+        <span class="s3">//uploads an image for pet with id given to function</span>
+
+        //todo: check size, more formats maybe?
+        //printing $_FILES array:
+        //echo &quot;loadPetImage function. ID = &quot;.$petID.&quot;&lt;br&gt;&quot;;
+        //echo &quot;&lt;pre&gt;&quot;;
+        //print_r($_FILES);
+        //echo &quot;&lt;/pre&gt;&quot;;
+        //echo &quot;Type: &quot;.$_FILES['load_user_file']['type'].&quot;&lt;br&gt;&quot;;
+
+        <span class="s0">if </span>(<span class="s5">$_FILES</span>[<span class="s2">'load_user_file'</span>][<span class="s2">'tmp_name'</span>] != <span class="s2">&quot;&quot;</span>)                                    <span class="s3">//if file was chosen</span>
+        {
+            <span class="s0">if </span>(file_exists(<span class="s5">$_FILES</span>[<span class="s2">'load_user_file'</span>][<span class="s2">'tmp_name'</span>]))                         <span class="s3">//if file exists</span>
+            {
+                <span class="s0">if </span>(strpos(<span class="s5">$_FILES</span>[<span class="s2">'load_user_file'</span>][<span class="s2">'type'</span>], <span class="s2">'image'</span>) !== false)       <span class="s3">//if image (v)</span>
+                {
+                    <span class="s3">//echo &quot;POST[id] = &quot;.$_POST['id'].&quot;&lt;br&gt;&quot;;</span>
+                    <span class="s5">$db </span>= <span class="s0">new </span>dbClass();
+                    <span class="s5">$p </span>= <span class="s5">$db</span>-&gt;getPetByID(<span class="s5">$petID</span>);
+                    <span class="s0">if </span>(<span class="s5">$p </span>!= null)                                                         <span class="s3">//if pet exists (v)</span>
+                    {
+                        <span class="s5">$location </span>= <span class="s2">&quot;Images/Pets/&quot;</span>;
+                        <span class="s5">$filename </span>= trim(<span class="s5">$petID</span>).<span class="s2">&quot;.jpg&quot;</span>;
+
+                        move_uploaded_file(<span class="s5">$_FILES</span>[<span class="s2">'load_user_file'</span>][<span class="s2">'tmp_name'</span>], <span class="s5">$location</span>.<span class="s5">$filename</span>);
+                    }
+                    <span class="s0">else</span>
+                        return <span class="s2">&quot;Pet not found in DB&quot;</span>;
+                }
+                <span class="s0">else</span>
+                    return <span class="s2">&quot;Unknown image format&quot;</span>;
+            }
+            <span class="s0">else</span>
+                return <span class="s2">&quot;File doesn't exist&quot;</span>;
+        }
+        <span class="s0">else</span>
+            return <span class="s2">&quot;No image was selected&quot;</span>;
+
+        <span class="s0">return </span><span class="s2">&quot;ok&quot;</span>;
+    }
+
+
+    <span class="s0">public function </span>deletePetImageByID(<span class="s5">$petID</span>){
+        <span class="s3">//removes image for pet with id given to function</span>
+        <span class="s5">$location </span>= <span class="s2">&quot;Images/Pets/&quot;</span>;
+        <span class="s5">$filename </span>= trim(<span class="s5">$petID</span>) . <span class="s2">&quot;.jpg&quot;</span>;
+        <span class="s0">if </span>(file_exists(<span class="s5">$location </span>. <span class="s5">$filename</span>)) {
+            unlink(<span class="s5">$location </span>. <span class="s5">$filename</span>);
+        }
+    }
+
+    <span class="s0">public function </span>doesPetHaveImage(<span class="s5">$petID</span>){
+        <span class="s5">$location </span>= <span class="s2">&quot;Images/Pets/&quot;</span>;
+        <span class="s5">$filename </span>= <span class="s5">$petID</span>.<span class="s2">&quot;.JPG&quot;</span>;
+        <span class="s5">$answer</span>=<span class="s6">0</span>;
+        <span class="s0">if </span>(file_exists(<span class="s5">$location</span>.<span class="s5">$filename</span>))
+            <span class="s5">$answer</span>=<span class="s6">1</span>;
+        <span class="s0">return </span><span class="s5">$answer</span>;
+    }
+
+
+    <span class="s0">function </span>loadPetTypeImage(<span class="s5">$petType</span>) {
+        <span class="s3">//uploads an image for pet with id given to function</span>
+
+        <span class="s0">if </span>(<span class="s5">$_FILES</span>[<span class="s2">'load_user_file'</span>][<span class="s2">'tmp_name'</span>] != <span class="s2">&quot;&quot;</span>)                                    <span class="s3">//if file was chosen</span>
+        {
+            <span class="s0">if </span>(file_exists(<span class="s5">$_FILES</span>[<span class="s2">'load_user_file'</span>][<span class="s2">'tmp_name'</span>]))                         <span class="s3">//if file exists</span>
+            {
+                <span class="s0">if </span>(strpos(<span class="s5">$_FILES</span>[<span class="s2">'load_user_file'</span>][<span class="s2">'type'</span>], <span class="s2">'image'</span>) !== false)       <span class="s3">//if image (v)</span>
+                {
+                        <span class="s5">$location </span>= <span class="s2">&quot;Images/Pets/General/&quot;</span>;
+                        <span class="s5">$filename </span>= trim(<span class="s5">$petType</span>).<span class="s2">&quot;.png&quot;</span>;
+
+                        move_uploaded_file(<span class="s5">$_FILES</span>[<span class="s2">'load_user_file'</span>][<span class="s2">'tmp_name'</span>], <span class="s5">$location</span>.<span class="s5">$filename</span>);
+                }
+                <span class="s0">else</span>
+                    return <span class="s2">&quot;Unknown image format&quot;</span>;
+            }
+            <span class="s0">else</span>
+                return <span class="s2">&quot;File doesn't exist&quot;</span>;
+        }
+        <span class="s0">else</span>
+            return <span class="s2">&quot;No image was selected&quot;</span>;
+        <span class="s0">return </span><span class="s2">&quot;ok&quot;</span>;
+    }
+
+    <span class="s0">public function </span>addPetType(<span class="s5">$typeString</span>){
+        <span class="s5">$str</span>=<span class="s2">&quot;&quot;</span>;
+        <span class="s5">$petTypes </span>= file_get_contents(<span class="s2">&quot;classes/petTypes.txt&quot;</span>);   <span class="s3">//$words now contains text from file</span>
+        <span class="s0">echo </span><span class="s5">$petTypes</span>.<span class="s2">&quot;&lt;br&gt;&quot;</span>;
+        <span class="s5">$words_arr </span>= explode(<span class="s2">&quot;</span><span class="s0">\n</span><span class="s2">&quot;</span>,<span class="s5">$petTypes</span>);
+        <span class="s0">echo </span><span class="s2">&quot;&lt;pre&gt;&quot;</span>;
+        var_dump(<span class="s5">$words_arr</span>);
+        <span class="s0">echo </span><span class="s2">&quot;&lt;/pre&gt;&quot;</span>;
+
+        <span class="s0">foreach </span>(<span class="s5">$words_arr </span><span class="s0">as </span><span class="s5">$k</span>=&gt;<span class="s5">$v</span>)
+        {
+            <span class="s0">if </span>(<span class="s5">$v</span>!=<span class="s2">&quot;Other&quot;</span>)
+                <span class="s5">$str</span>.=<span class="s5">$v</span>.<span class="s2">&quot;</span><span class="s0">\n</span><span class="s2">&quot;</span>;
+        }
+        <span class="s5">$str</span>.=<span class="s5">$typeString</span>.<span class="s2">&quot;</span><span class="s0">\n</span><span class="s2">&quot;</span>.<span class="s2">&quot;Other&quot;</span>;
+
+        <span class="s0">echo </span><span class="s5">$str</span>.<span class="s2">&quot;&lt;br&gt;&quot;</span>;
+        file_put_contents(<span class="s2">&quot;classes/petTypes.txt&quot; </span>, <span class="s5">$str</span>);
+
+        <span class="s0">echo </span>file_get_contents(<span class="s2">&quot;classes/petTypes.txt&quot;</span>);
+
+    }
+
+    <span class="s0">public function </span>removePetType(<span class="s5">$typeString</span>){
+        <span class="s5">$str</span>=<span class="s2">&quot;&quot;</span>;
+        <span class="s5">$petTypes </span>= file_get_contents(<span class="s2">&quot;classes/petTypes.txt&quot;</span>);   <span class="s3">//$words now contains text from file</span>
+
+        <span class="s0">if </span>(<span class="s5">$typeString </span>!= <span class="s2">&quot;Other&quot;</span>){
+            <span class="s5">$words_arr </span>= explode(<span class="s2">&quot;</span><span class="s0">\n</span><span class="s2">&quot;</span>,<span class="s5">$petTypes</span>);
+            <span class="s5">$key </span>= array_search(<span class="s5">$typeString</span>, <span class="s5">$words_arr</span>);
+            <span class="s0">unset</span>(<span class="s5">$words_arr</span>[<span class="s5">$key</span>]);
+
+            <span class="s0">foreach </span>(<span class="s5">$words_arr </span><span class="s0">as </span><span class="s5">$k</span>=&gt;<span class="s5">$v</span>) {
+                <span class="s5">$str</span>.=<span class="s5">$v</span>.<span class="s2">&quot;</span><span class="s0">\n</span><span class="s2">&quot;</span>;
+            }
+            <span class="s0">if </span>(<span class="s5">$this</span>-&gt;getPetsArrayByType(<span class="s5">$typeString</span>)==null){  <span class="s3">//if no pets of that type in db -&gt; deleting image</span>
+                //removes image for pet with id given to function
+                <span class="s5">$location </span>= <span class="s2">&quot;Images/Pets/General/&quot;</span>;
+                <span class="s5">$filename </span>= trim(<span class="s5">$typeString</span>) . <span class="s2">&quot;.png&quot;</span>;
+                <span class="s0">if </span>(file_exists(<span class="s5">$location </span>. <span class="s5">$filename</span>)) {
+                    unlink(<span class="s5">$location </span>. <span class="s5">$filename</span>);
+                }
+            }
+
+            file_put_contents(<span class="s2">&quot;classes/petTypes.txt&quot; </span>, <span class="s5">$str</span>);
+        }
+    }
+
+
+
+
+}</pre>
+</body>
+</html>

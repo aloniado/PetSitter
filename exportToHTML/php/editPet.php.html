@@ -1,0 +1,226 @@
+<html>
+<head>
+<title>editPet.php</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #000080; font-weight: bold;}
+.s1 { color: #000000;}
+.s2 { color: #000000;}
+.s3 { color: #008000; font-weight: bold;}
+.s4 { color: #660000;}
+.s5 { color: #808080; font-style: italic;}
+.s6 { color: #0000ff;}
+.s7 { color: #000000;}
+.s8 { color: #808080; font-style: italic;}
+.s9 { color: #000000;}
+.s10 { color: #000080; font-weight: bold;}
+.s11 { color: #0000ff; font-weight: bold;}
+.s12 { color: #008000; font-weight: bold;}
+</style>
+</head>
+<body bgcolor="#ffffff">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#c0c0c0" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+editPet.php</font>
+</center></td></tr></table>
+<pre><span class="s0">&lt;?php</span>
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
+<span class="s0">require_once </span><span class="s3">&quot;classes/dbClass.php&quot;</span>;
+<span class="s0">require_once </span><span class="s3">&quot;classes/User.php&quot;</span>;
+<span class="s0">require_once </span><span class="s3">&quot;classes/Pet.php&quot;</span>;
+
+<span class="s0">require_once </span><span class="s3">&quot;classes/dbClassPetsFunctions.php&quot;</span>;
+
+
+<span class="s4">$db </span>= <span class="s0">new </span>dbClass();
+
+<span class="s0">if </span>(<span class="s0">isset</span>(<span class="s4">$_SESSION</span>[<span class="s3">'petToEdit'</span>])){     <span class="s5">//editing pet</span>
+    <span class="s4">$tempPet </span>= <span class="s4">$db</span>-&gt;getPetByID(<span class="s4">$_SESSION</span>[<span class="s3">'petToEdit'</span>]);
+}
+<span class="s0">else</span>{                                   <span class="s5">//adding new pet</span>
+    <span class="s4">$tempPet </span>= <span class="s0">new </span>Pet();
+}
+
+<span class="s5">//----------------------------------------------------------------------------------------if form information sent:</span>
+/* 
+echo &quot;_POST:&lt;br&gt;&quot;; 
+echo &quot;&lt;pre&gt;&quot;; 
+var_dump($_POST); 
+echo &quot;&lt;/pre&gt;&quot;; 
+ 
+echo &quot;_SESSION:&lt;br&gt;&quot;; 
+echo &quot;&lt;pre&gt;&quot;; 
+var_dump($_SESSION); 
+echo &quot;&lt;/pre&gt;&quot;; 
+echo $first_key; 
+*/
+<span class="s0">if </span>(<span class="s0">isset</span>(<span class="s4">$_POST</span>[<span class="s3">'sent'</span>]))
+{
+    <span class="s4">$db </span>= <span class="s0">new </span>dbClass();
+    <span class="s4">$dbp </span>= <span class="s0">new </span>dbClassPetsFunctions();
+
+    <span class="s4">$data_arr </span>= <span class="s0">array</span>(
+        <span class="s3">'petName' </span>=&gt; <span class="s4">$_POST</span>[<span class="s3">'pname'</span>],
+        <span class="s3">'petType' </span>=&gt; <span class="s4">$_POST</span>[<span class="s3">'ptype'</span>],
+        <span class="s3">'petBirthday' </span>=&gt; <span class="s4">$_POST</span>[<span class="s3">'pbirth'</span>],
+        <span class="s3">'petSex' </span>=&gt; <span class="s4">$_POST</span>[<span class="s3">'psex'</span>],
+        <span class="s3">'petFood' </span>=&gt; <span class="s4">$_POST</span>[<span class="s3">'pfood'</span>],
+        <span class="s3">'petTemper' </span>=&gt; <span class="s4">$_POST</span>[<span class="s3">'ptemper'</span>],
+        <span class="s3">'petAbout' </span>=&gt; <span class="s4">$_POST</span>[<span class="s3">'pabout'</span>],
+        <span class="s3">'petStatus' </span>=&gt; <span class="s6">1</span>,
+        <span class="s3">'petRegisterTime' </span>=&gt; date(<span class="s3">&quot;Y-m-d H:i:s&quot;</span>),
+        <span class="s3">'userID' </span>=&gt; <span class="s4">$_SESSION</span>[<span class="s3">'user'</span>],
+    );
+
+    <span class="s0">if </span>(<span class="s0">isset</span>(<span class="s4">$_SESSION</span>[<span class="s3">'petToEdit'</span>])) {     <span class="s5">//editing pet</span>
+        <span class="s4">$db</span>-&gt;updateLine(<span class="s3">&quot;pets&quot;</span>, <span class="s3">&quot;petID&quot;</span>, <span class="s4">$tempPet</span>-&gt;getPetID(), <span class="s4">$data_arr</span>);  <span class="s5">//updating 'pet'</span>
+        <span class="s4">$dbp</span>-&gt;loadPetImageByID(<span class="s4">$tempPet</span>-&gt;getPetID());                                                 <span class="s5">//uploading new image</span>
+    }
+    <span class="s0">else</span>{
+        <span class="s4">$db</span>-&gt;insertLine(<span class="s3">&quot;pets&quot;</span>, <span class="s4">$data_arr</span>);                                             <span class="s5">//inserting new line to 'pets'</span>
+        <span class="s4">$petInserted </span>= <span class="s4">$db</span>-&gt;getObjectsGeneral(<span class="s3">&quot;pets&quot;</span>, <span class="s3">&quot; WHERE `userID`='&quot;</span>.<span class="s4">$_SESSION</span>[<span class="s3">'user'</span>].<span class="s3">&quot;'ORDER  BY `petRegisterTime` DESC LIMIT  1&quot;</span>, <span class="s3">&quot;Pet&quot;</span>);    <span class="s5">//getting last 'pet' inserted</span>
+        <span class="s4">$dbp</span>-&gt;loadPetImageByID(<span class="s4">$petInserted</span>[<span class="s6">0</span>]-&gt;getPetID());                                         <span class="s5">//uploading new image attached to ID of last pet inserted</span>
+    }
+
+    <span class="s4">$_SESSION</span>[<span class="s3">'userMessage'</span>]=<span class="s3">&quot;Pet Saved.&quot;</span>;
+    <span class="s4">$_SESSION</span>[<span class="s3">'nextPage'</span>]=<span class="s3">&quot;myPets.php&quot;</span>;
+    header(<span class="s3">&quot;Location: main.php&quot;</span>);
+    <span class="s0">die</span>();
+}
+
+
+<span class="s5">//function gets file's name (fileName) and referance to string array (line_arr)</span>
+//then exploads text from file to string array with each '\n'
+<span class="s0">function </span>readFileLines(<span class="s4">$fileName</span>, &amp;<span class="s4">$line_arr</span>) {
+    <span class="s4">$line </span>= file_get_contents(<span class="s4">$fileName</span>);   <span class="s5">//line now contains text from file</span>
+    <span class="s4">$line_arr </span>= explode(<span class="s3">&quot;</span><span class="s0">\n</span><span class="s3">&quot;</span>,<span class="s4">$line</span>);
+    <span class="s0">return</span>;
+}
+
+<span class="s5">//fills comboBox with items from string array 'items'</span>
+<span class="s0">function </span>selectItems(<span class="s4">$items</span>,<span class="s4">$selected</span>=<span class="s6">0</span>,<span class="s4">$existype</span>)
+{
+    <span class="s4">$text </span>= <span class="s3">&quot;&quot;</span>;
+    <span class="s0">if </span>(<span class="s0">isset</span>(<span class="s4">$_SESSION</span>[<span class="s3">'petToEdit'</span>]))
+        <span class="s4">$text</span>.=<span class="s3">&quot;&lt;option value='</span><span class="s4">$existype</span><span class="s3">'&gt;</span><span class="s4">$existype</span><span class="s3">&lt;/option&gt;</span><span class="s0">\n</span><span class="s3">&quot;</span>;
+    <span class="s0">else</span>
+        <span class="s4">$text</span>.=<span class="s3">&quot;&lt;option value=''&gt;Type:&lt;/option&gt;</span><span class="s0">\n</span><span class="s3">&quot;</span>;
+
+    <span class="s0">foreach</span>(<span class="s4">$items </span><span class="s0">as </span><span class="s4">$k</span>=&gt;<span class="s4">$v</span>)
+    {
+        <span class="s0">if </span>(<span class="s4">$v </span>!= <span class="s3">&quot;&quot;</span>)   <span class="s5">//skipping empty line at end of files</span>
+        {
+            <span class="s4">$text</span>.=<span class="s3">&quot;&lt;option value='</span><span class="s4">$v</span><span class="s3">'&gt;</span><span class="s4">$v</span><span class="s3">&lt;/option&gt;</span><span class="s0">\n</span><span class="s3">&quot;</span>;
+        }
+    }
+    <span class="s0">return </span><span class="s4">$text</span>;
+}
+<span class="s4">$pet_arr</span>=<span class="s0">array</span>();
+
+readFileLines(<span class="s3">&quot;classes/petTypes.txt&quot;</span>, <span class="s4">$pet_arr</span>);
+
+
+<span class="s0">if </span>(<span class="s0">isset</span>(<span class="s4">$_SESSION</span>[<span class="s3">'petToEdit'</span>])){
+    <span class="s4">$header </span>= <span class="s3">&quot;Editing &quot;</span>.<span class="s4">$tempPet</span>-&gt;getPetName();
+}
+<span class="s0">else</span>{
+    <span class="s4">$header </span>= <span class="s3">&quot;Adding new pet&quot;</span>;
+}
+
+<span class="s0">?&gt;</span>
+
+<span class="s8">&lt;!-------------------------------------------------------&gt;</span>
+&lt;<span class="s10">div </span><span class="s11">class=</span><span class="s12">&quot;d-flex justify-content-center&quot;</span>&gt;
+&lt;<span class="s10">div </span><span class="s11">class=</span><span class="s12">&quot;card&quot;</span>&gt;
+    &lt;<span class="s10">h5 </span><span class="s11">class=</span><span class="s12">&quot;card-header&quot;</span>&gt;<span class="s0">&lt;?php echo </span><span class="s4">$header</span><span class="s0">?&gt;</span>&lt;/<span class="s10">h5</span>&gt;
+            &lt;<span class="s10">form </span><span class="s11">action=</span><span class="s12">&quot;editPet.php&quot; </span><span class="s11">method=</span><span class="s12">&quot;post&quot; </span><span class="s11">enctype=</span><span class="s12">&quot;multipart/form-data&quot;</span>&gt;
+                &lt;<span class="s10">div </span><span class="s11">class=</span><span class="s12">&quot;form-group&quot;</span>&gt;
+                    &lt;<span class="s10">div </span><span class="s11">class=</span><span class="s12">&quot;form-row&quot;</span>&gt;
+                        &lt;<span class="s10">div </span><span class="s11">class=</span><span class="s12">&quot;col&quot;</span>&gt;
+                            &lt;<span class="s10">label</span>&gt;Name:&lt;/<span class="s10">label</span>&gt;
+                        &lt;/<span class="s10">div</span>&gt;
+                    &lt;/<span class="s10">div</span>&gt;
+
+                    &lt;<span class="s10">div </span><span class="s11">class=</span><span class="s12">&quot;form-row&quot;</span>&gt;
+                        &lt;<span class="s10">div </span><span class="s11">class=</span><span class="s12">&quot;col&quot;</span>&gt;
+                            &lt;<span class="s10">input </span><span class="s11">type=</span><span class="s12">&quot;text&quot; </span><span class="s11">class=</span><span class="s12">&quot;form-control form-control-lg&quot; </span><span class="s11">placeholder=</span><span class="s12">&quot;Pet's Name&quot; </span><span class="s11">name=</span><span class="s12">&quot;pname&quot; </span><span class="s11">value=</span><span class="s12">&quot;</span><span class="s0">&lt;?php echo </span><span class="s4">$tempPet</span>-&gt;getPetName()<span class="s0">?&gt;</span><span class="s12">&quot; </span><span class="s11">pattern=</span><span class="s12">&quot;[A-Za-z -']{2,30}&quot; </span><span class="s11">title=</span><span class="s12">&quot;Only letters, at least 2&quot; </span><span class="s11">required=</span><span class="s12">&quot;required&quot;</span>&gt;
+                        &lt;/<span class="s10">div</span>&gt;
+                    &lt;/<span class="s10">div</span>&gt;
+                &lt;/<span class="s10">div</span>&gt;
+                &lt;<span class="s10">div </span><span class="s11">class=</span><span class="s12">&quot;form-group&quot;</span>&gt;
+                    &lt;<span class="s10">div </span><span class="s11">class=</span><span class="s12">&quot;form-row&quot;</span>&gt;
+                        &lt;<span class="s10">div </span><span class="s11">class=</span><span class="s12">&quot;col&quot;</span>&gt;
+                            &lt;<span class="s10">label</span>&gt;Type:&lt;/<span class="s10">label</span>&gt;
+                        &lt;/<span class="s10">div</span>&gt;
+                        &lt;<span class="s10">div </span><span class="s11">class=</span><span class="s12">&quot;col&quot;</span>&gt;
+                            &lt;<span class="s10">label</span>&gt;Sex:&lt;/<span class="s10">label</span>&gt;
+                        &lt;/<span class="s10">div</span>&gt;
+
+                        &lt;<span class="s10">div </span><span class="s11">class=</span><span class="s12">&quot;col&quot;</span>&gt;
+                            &lt;<span class="s10">label</span>&gt;Birtyday:&lt;/<span class="s10">label</span>&gt;
+                        &lt;/<span class="s10">div</span>&gt;
+                    &lt;/<span class="s10">div</span>&gt;
+                    &lt;<span class="s10">div </span><span class="s11">class=</span><span class="s12">&quot;form-row&quot;</span>&gt;
+                        &lt;<span class="s10">div </span><span class="s11">class=</span><span class="s12">&quot;col&quot;</span>&gt;
+                            &lt;<span class="s10">select </span><span class="s11">class=</span><span class="s12">&quot;form-control&quot; </span><span class="s11">name=</span><span class="s12">ptype </span><span class="s11">required</span>&gt;<span class="s0">&lt;?=</span>selectItems(<span class="s4">$pet_arr</span>,<span class="s4">$_POST</span>[<span class="s3">'ptype'</span>],<span class="s4">$tempPet</span>-&gt;getPetType())<span class="s0">?&gt;</span>&lt;/<span class="s10">select</span>&gt;
+                            <span class="s8">&lt;!--&lt;small id=&quot;typeHelp&quot; class=&quot;form-text text-muted&quot;&gt;your pet type doesn't appear? select Other and contact us&lt;/small&gt;--&gt;</span>
+                        &lt;/<span class="s10">div</span>&gt;
+
+                        &lt;<span class="s10">div </span><span class="s11">class=</span><span class="s12">&quot;col&quot;</span>&gt;
+                            &lt;<span class="s10">input </span><span class="s11">type=</span><span class="s12">&quot;text&quot; </span><span class="s11">class=</span><span class="s12">&quot;form-control&quot; </span><span class="s11">placeholder=</span><span class="s12">&quot;Pet's Sex&quot; </span><span class="s11">name=</span><span class="s12">&quot;psex&quot; </span><span class="s11">value=</span><span class="s12">&quot;</span><span class="s0">&lt;?php echo </span><span class="s4">$tempPet</span>-&gt;getPetSex()<span class="s0">?&gt;</span><span class="s12">&quot;</span>&gt;
+                        &lt;/<span class="s10">div</span>&gt;
+
+                        &lt;<span class="s10">div </span><span class="s11">class=</span><span class="s12">&quot;col&quot;</span>&gt;
+                            &lt;<span class="s10">input </span><span class="s11">type=</span><span class="s12">&quot;date&quot; </span><span class="s11">class=</span><span class="s12">&quot;form-control&quot; </span><span class="s11">placeholder=</span><span class="s12">&quot;Pet's Birthday&quot; </span><span class="s11">name=</span><span class="s12">&quot;pbirth&quot; </span><span class="s11">value=</span><span class="s12">&quot;</span><span class="s0">&lt;?php echo </span><span class="s4">$tempPet</span>-&gt;getPetBirthday()<span class="s0">?&gt;</span><span class="s12">&quot;</span>&gt;
+                        &lt;/<span class="s10">div</span>&gt;
+                    &lt;/<span class="s10">div</span>&gt;
+                &lt;/<span class="s10">div</span>&gt;
+                &lt;<span class="s10">br</span>&gt;
+                &lt;<span class="s10">div </span><span class="s11">class=</span><span class="s12">&quot;form-group&quot;</span>&gt;
+                    &lt;<span class="s10">div </span><span class="s11">class=</span><span class="s12">&quot;form-row&quot;</span>&gt;
+                        &lt;<span class="s10">div </span><span class="s11">class=</span><span class="s12">&quot;col&quot;</span>&gt;
+                            &lt;<span class="s10">label</span>&gt;Food habits:&lt;/<span class="s10">label</span>&gt;&lt;<span class="s10">br</span>&gt;
+                            &lt;<span class="s10">textarea </span><span class="s11">rows=</span><span class="s12">&quot;2&quot; </span><span class="s11">cols=</span><span class="s12">&quot;50&quot; </span><span class="s11">type=</span><span class="s12">&quot;text&quot; </span><span class="s11">class=</span><span class="s12">&quot;form-control&quot; </span><span class="s11">placeholder=</span><span class="s12">&quot;You may add special food habits&quot; </span><span class="s11">name=</span><span class="s12">&quot;pfood&quot;</span>&gt;<span class="s0">&lt;?php echo </span><span class="s4">$tempPet</span>-&gt;getPetFood()<span class="s0">?&gt;</span>&lt;/<span class="s10">textarea</span>&gt;
+                        &lt;/<span class="s10">div</span>&gt;
+                    &lt;/<span class="s10">div</span>&gt;
+                &lt;/<span class="s10">div</span>&gt;
+
+<span class="s8">&lt;!--</span>
+                    &lt;div class=&quot;form-row&quot;&gt; 
+                        &lt;div class=&quot;col&quot;&gt; 
+                            &lt;input type=&quot;text&quot; class=&quot;form-control&quot; placeholder=&quot;Temper and general behaviour&quot; name=&quot;ptemper&quot; value=&quot;<span class="s0">&lt;?php echo </span><span class="s4">$tempPet</span>-&gt;getPetTemper()<span class="s0">?&gt;</span><span class="s8">&quot;&gt; 
+                        &lt;/div&gt; 
+                    &lt;/div&gt; 
+--&gt;</span>
+                &lt;<span class="s10">div </span><span class="s11">class=</span><span class="s12">&quot;form-group&quot;</span>&gt;
+                &lt;<span class="s10">div </span><span class="s11">class=</span><span class="s12">&quot;form-row&quot;</span>&gt;
+                        &lt;<span class="s10">div </span><span class="s11">class=</span><span class="s12">&quot;col&quot;</span>&gt;
+                            &lt;<span class="s10">label</span>&gt;About:&lt;/<span class="s10">label</span>&gt;&lt;<span class="s10">br</span>&gt;
+                            &lt;<span class="s10">textarea </span><span class="s11">rows=</span><span class="s12">&quot;4&quot; </span><span class="s11">cols=</span><span class="s12">&quot;50&quot; </span><span class="s11">type=</span><span class="s12">&quot;text&quot; </span><span class="s11">class=</span><span class="s12">&quot;form-control&quot; </span><span class="s11">placeholder=</span><span class="s12">&quot;a few words about your pet&quot; </span><span class="s11">name=</span><span class="s12">&quot;pabout&quot;  </span><span class="s11">required=</span><span class="s12">&quot;required&quot;</span>&gt;<span class="s0">&lt;?php echo </span><span class="s4">$tempPet</span>-&gt;getPetAbout()<span class="s0">?&gt;</span>&lt;/<span class="s10">textarea</span>&gt;
+                        &lt;/<span class="s10">div</span>&gt;
+                    &lt;/<span class="s10">div</span>&gt;
+                &lt;/<span class="s10">div</span>&gt;
+
+                &lt;<span class="s10">div </span><span class="s11">class=</span><span class="s12">&quot;form-group&quot;</span>&gt;
+                    &lt;<span class="s10">input </span><span class="s11">type=</span><span class="s12">&quot;file&quot; </span><span class="s11">class=</span><span class="s12">&quot;form-control-file&quot; </span><span class="s11">name=</span><span class="s12">&quot;load_user_file&quot;</span>&gt;
+                &lt;/<span class="s10">div</span>&gt;
+
+
+                &lt;<span class="s10">button </span><span class="s11">type=</span><span class="s12">&quot;submit&quot; </span><span class="s11">class=</span><span class="s12">&quot;btn btn-primary&quot; </span><span class="s11">name=</span><span class="s12">&quot;sent&quot;</span>&gt;Save Pet&lt;/<span class="s10">button</span>&gt;
+            &lt;/<span class="s10">form</span>&gt;
+&lt;/<span class="s10">div</span>&gt;
+&lt;/<span class="s10">div</span>&gt;
+
+
+
+
+
+
+
+
+</pre>
+</body>
+</html>

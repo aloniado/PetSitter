@@ -1,0 +1,338 @@
+<html>
+<head>
+<title>myHelpRequests.php</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #000080; font-weight: bold;}
+.s1 { color: #000000;}
+.s2 { color: #000000;}
+.s3 { color: #008000; font-weight: bold;}
+.s4 { color: #660000;}
+.s5 { color: #808080; font-style: italic;}
+.s6 { color: #0000ff;}
+</style>
+</head>
+<body bgcolor="#ffffff">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#c0c0c0" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+myHelpRequests.php</font>
+</center></td></tr></table>
+<pre><span class="s0">&lt;?php</span>
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
+<span class="s0">require_once </span><span class="s3">&quot;classes/dbClass.php&quot;</span>;
+<span class="s0">require_once </span><span class="s3">&quot;classes/dbClassInterested.php&quot;</span>;
+<span class="s0">require_once </span><span class="s3">&quot;classes/Pet.php&quot;</span>;
+<span class="s0">require_once </span><span class="s3">&quot;classes/Interested.php&quot;</span>;
+<span class="s0">require_once </span><span class="s3">&quot;classes/HelpRequest.php&quot;</span>;
+<span class="s0">require_once </span><span class="s3">&quot;classes/Pet_HelpRequest.php&quot;</span>;
+<span class="s0">require_once </span><span class="s3">&quot;classes/dbClassUserFunctions.php&quot;</span>;
+<span class="s0">require_once </span><span class="s3">&quot;classes/dbClassRankingFunctions.php&quot;</span>;
+<span class="s4">$db </span>= <span class="s0">new </span>dbClass();
+
+<span class="s5">//-----------------------------------------------------form handling:</span>
+reset(<span class="s4">$_POST</span>);
+<span class="s4">$first_key </span>= key(<span class="s4">$_POST</span>);   <span class="s5">//command + ID of request</span>
+//echo $first_key.&quot;&lt;br&gt;&quot;;
+
+<span class="s0">if </span>(<span class="s0">isset</span>(<span class="s4">$_POST</span>[<span class="s3">'addhr'</span>]))                                    <span class="s5">//if add help request clicked</span>
+{
+    <span class="s4">$_SESSION</span>[<span class="s3">'nextPage'</span>]=<span class="s3">&quot;helpRequestAdd.php&quot;</span>;
+    header(<span class="s3">&quot;Location: main.php&quot;</span>);
+    <span class="s0">die</span>();
+}
+<span class="s0">else if </span>(substr(<span class="s4">$first_key</span>, <span class="s6">0</span>, <span class="s6">6</span>) === <span class="s3">&quot;delete&quot;</span>)       <span class="s5">//if delete button is pressed</span>
+{
+    <span class="s4">$first_key </span>= substr(<span class="s4">$first_key</span>, <span class="s6">6</span>);
+    <span class="s0">echo </span><span class="s4">$first_key</span>;
+
+
+    <span class="s5">//delete from table pets_helprequests:</span>
+    <span class="s4">$db</span>-&gt;deleteLine(<span class="s3">&quot;pets_helprequests&quot;</span>, <span class="s3">&quot;helpID&quot;</span>, <span class="s4">$first_key</span>);
+    <span class="s5">//delete interested:</span>
+    <span class="s4">$dbi</span>=<span class="s0">new </span>dbClassInterested();
+    <span class="s4">$dbi</span>-&gt;RemoveInterestedRecordByHelpID(<span class="s4">$first_key</span>);
+    <span class="s5">//delete from table helprequests:</span>
+    <span class="s4">$db</span>-&gt;deleteLine(<span class="s3">&quot;helprequests&quot;</span>, <span class="s3">&quot;helpID&quot;</span>, <span class="s4">$first_key</span>);
+
+    <span class="s4">$_SESSION</span>[<span class="s3">'nextPage'</span>]=<span class="s3">&quot;myHelpRequests.php&quot;</span>;
+    header(<span class="s3">&quot;Location: main.php&quot;</span>);
+    <span class="s0">die</span>();
+}
+<span class="s0">else if </span>(substr(<span class="s4">$first_key</span>, <span class="s6">0</span>, <span class="s6">4</span>) === <span class="s3">&quot;view&quot;</span>)       <span class="s5">//if view button is pressed</span>
+{
+    <span class="s4">$first_key </span>= substr(<span class="s4">$first_key</span>, <span class="s6">4</span>);
+    <span class="s0">echo </span><span class="s4">$first_key</span>;
+
+    <span class="s4">$_SESSION</span>[<span class="s3">'helpRequestView'</span>]=<span class="s4">$first_key</span>;
+    <span class="s4">$_SESSION</span>[<span class="s3">'nextPage'</span>]=<span class="s3">&quot;helpRequestView.php&quot;</span>;
+    header(<span class="s3">&quot;Location: main.php&quot;</span>);
+    <span class="s0">die</span>();
+}
+<span class="s0">else if </span>(substr(<span class="s4">$first_key</span>, <span class="s6">0</span>, <span class="s6">8</span>) === <span class="s3">&quot;editHelp&quot;</span>)       <span class="s5">//if view button is pressed</span>
+{
+    <span class="s4">$first_key </span>= substr(<span class="s4">$first_key</span>, <span class="s6">8</span>);
+    <span class="s5">//echo $first_key;</span>
+
+    <span class="s4">$_SESSION</span>[<span class="s3">'helpRequestToEdit'</span>]=<span class="s4">$first_key</span>;
+    <span class="s4">$_SESSION</span>[<span class="s3">'nextPage'</span>]=<span class="s3">&quot;helpRequestEdit.php&quot;</span>;
+    header(<span class="s3">&quot;Location: main.php&quot;</span>);
+    <span class="s0">die</span>();
+}
+<span class="s0">else if </span>(substr(<span class="s4">$first_key</span>, <span class="s6">0</span>, <span class="s6">4</span>) === <span class="s3">&quot;rate&quot;</span>)       <span class="s5">//if dismiss and rate button is pressed</span>
+{
+    <span class="s4">$first_key </span>= substr(<span class="s4">$first_key</span>, <span class="s6">4</span>);
+    <span class="s4">$keysArr</span>=explode(<span class="s3">&quot;-&quot;</span>,<span class="s4">$first_key</span>);
+    <span class="s4">$helpID</span>=<span class="s4">$keysArr</span>[<span class="s6">1</span>];
+    <span class="s4">$userToBeRanked</span>=<span class="s4">$keysArr</span>[<span class="s6">0</span>];
+
+    <span class="s4">$_SESSION</span>[<span class="s3">'RankedUser'</span>]=<span class="s4">$keysArr</span>[<span class="s6">0</span>];
+    <span class="s4">$_SESSION</span>[<span class="s3">'RankedOnHelp'</span>]=<span class="s4">$keysArr</span>[<span class="s6">1</span>];
+
+    <span class="s4">$_SESSION</span>[<span class="s3">'nextPage'</span>]=<span class="s3">&quot;UserRanking.php&quot;</span>;
+    header(<span class="s3">&quot;Location: main.php&quot;</span>);
+    <span class="s0">die</span>();
+}
+<span class="s0">else if </span>(substr(<span class="s4">$first_key</span>, <span class="s6">0</span>, <span class="s6">17</span>) === <span class="s3">&quot;UserProfileToShow&quot;</span>)       <span class="s5">//if a name was clicked -&gt; refering to user's page</span>
+{
+    <span class="s4">$first_key </span>= substr(<span class="s4">$first_key</span>, <span class="s6">17</span>);
+    <span class="s0">echo </span><span class="s3">&quot;&lt;br&gt;userID clicked: &quot;</span>.<span class="s4">$first_key</span>;
+
+    <span class="s4">$_SESSION</span>[<span class="s3">'UserProfileToShow'</span>]=<span class="s4">$first_key</span>;
+    <span class="s4">$_SESSION</span>[<span class="s3">'nextPage'</span>]=<span class="s3">&quot;ProfileUser.php&quot;</span>;
+
+    header(<span class="s3">&quot;Location: main.php&quot;</span>);
+    <span class="s0">die</span>();
+}
+
+<span class="s5">//---------------------------------------------------------------------</span>
+
+<span class="s0">echo </span><span class="s3">&quot;&lt;h3&gt;My Help Requests:&lt;/h3&gt;&quot;</span>;
+<span class="s0">echo </span><span class="s3">&quot;&lt;form action='myHelpRequests.php' method=post&gt;&quot;</span>;
+<span class="s0">echo </span><span class="s3">&quot;&lt;button type='submit' class='btn btn-primary' name='addhr'&gt;Add Help Request&lt;/button&gt;&quot;</span>;
+<span class="s0">echo </span><span class="s3">&quot;&lt;/form&gt;&lt;br&gt;&quot;</span>;
+
+<span class="s5">//$myHR_Array = $db-&gt;getObjectsGeneral(&quot;helprequests&quot;,&quot; WHERE `userID`='&quot;.$_SESSION['user'].&quot;'&quot;,&quot;HelpRequest&quot;);</span>
+
+<span class="s4">$dbhr </span>= <span class="s0">new </span>dbClassHelpRequestFunctions();
+<span class="s4">$myHR_Array </span>= <span class="s4">$dbhr</span>-&gt;getHelpRequestsByUserID(<span class="s4">$_SESSION</span>[<span class="s3">'user'</span>]);
+
+<span class="s5">/* 
+echo &quot;&lt;pre&gt;&quot;; 
+var_dump($myHR_Array); 
+echo &quot;&lt;/pre&gt;&quot;; 
+*/</span>
+
+<span class="s0">if </span>(<span class="s4">$myHR_Array </span>== null)
+    <span class="s0">echo </span><span class="s3">&quot;no Help requests found in DB.&quot;</span>;
+<span class="s0">else </span>{
+    <span class="s0">foreach </span>(<span class="s4">$myHR_Array </span><span class="s0">as </span><span class="s4">$k</span>) <span class="s5">//each %k is a helpRequest</span>
+    {
+
+        <span class="s5">//getting array of pets_helprequests for each help:</span>
+        <span class="s4">$HRpetsArray </span>= <span class="s4">$db</span>-&gt;getObjectsGeneral(<span class="s3">&quot;pets_helprequests&quot;</span>, <span class="s3">&quot; WHERE `helpID`='&quot; </span>. <span class="s4">$k</span>-&gt;getHelpID() . <span class="s3">&quot;'&quot;</span>, <span class="s3">&quot;Pet_HelpRequest&quot;</span>);
+        <span class="s5">/* 
+        echo &quot;&lt;pre&gt;&quot;; 
+        var_dump($HRpetsArray); 
+        echo &quot;&lt;/pre&gt;&quot;; 
+        */</span>
+/* 
+        if ($HRpetsArray == null) { 
+            $petsInRequest = &quot;No pets in request&quot;; 
+        } else { 
+            $petsInRequest = &quot;&lt;table&gt;&lt;tr&gt;&quot;; 
+            foreach ($HRpetsArray as $p_hr) //each $p_hr is a Pet_HelpRequest object 
+            { 
+                $p = $db-&gt;getObjectsGeneral(&quot;pets&quot;, &quot; WHERE `petID`='&quot; . $p_hr-&gt;getPetID() . &quot;'&quot;, &quot;Pet&quot;); 
+                //$p is an array containing one pet 
+                $petsInRequest .= &quot;&lt;td align='center'&gt;&quot;; 
+                $petsInRequest .= $p[0]-&gt;getPetName() . &quot;&lt;br&gt;&quot;; 
+                $petsInRequest .= $db-&gt;getPetImageString($p[0]) . &quot;&lt;br&gt;&quot;; 
+                $petsInRequest .= &quot;&lt;/td&gt;&quot;; 
+            } 
+            $petsInRequest .= &quot;&lt;/tr&gt;&lt;/table&gt;&quot;; 
+        } 
+        if ($k-&gt;getHelpStatus() == 1) 
+            $str = &quot;&lt;div class='card'&gt;&quot;; 
+        else 
+            $str = &quot;&lt;div class='cardNotActiveHelp'&gt;&quot;; 
+ 
+        $str .= &quot;&lt;table&gt;&lt;tr&gt;&lt;td width='30%'&gt;&quot;; 
+        $str .= &quot;Help ID: &quot; . $k-&gt;getHelpID() . &quot;&lt;br&gt;&quot;; 
+        $str .= &quot;Type: &quot; . $k-&gt;getHelpType() . &quot;&lt;br&gt;&quot;; 
+        $str .= &quot;Starts on: &quot; . substr($k-&gt;getHelpStartTime(), 0, 10) . &quot;&lt;br&gt;&quot;; 
+        $str .= &quot;Ends on: &quot; . substr($k-&gt;getHelpEndTime(), 0, 10) . &quot;&lt;br&gt;&quot;; 
+        $str .= &quot;Location: &quot; . $k-&gt;getHelpLocCity() . &quot;, &quot; . $k-&gt;getHelpLocStreet() . &quot;&lt;br&gt;&quot;; 
+        $str .= &quot;Payment offered: &quot; . $k-&gt;getHelpPayment() . &quot;[NIS]&lt;br&gt;&quot;; 
+        $str .= &quot;&lt;/td&gt;&lt;td align='center'&gt;&quot;; 
+        $str .= $petsInRequest; 
+        $str .= &quot;&lt;/td&gt;&lt;td width='10%'&gt;&quot;; 
+        if ($k-&gt;getHelpStatus() == 1) { 
+            $str .= &quot;&lt;form action='myHelpRequests.php' method=post&gt;&lt;button type='submit' class='btn btn-primary' name='&quot; . &quot;delete&quot; . $k-&gt;getHelpID() . &quot;'&gt;Delete&lt;/button&gt;&lt;/form&gt;&quot;; 
+            $str .= &quot;&lt;form action='myHelpRequests.php' method=post&gt;&lt;button type='submit' class='btn btn-primary' name='&quot; . &quot;editHelp&quot; . $k-&gt;getHelpID() . &quot;'&gt;Edit&lt;/button&gt;&lt;/form&gt;&quot;; 
+        } 
+        $str .= &quot;&lt;form action='myHelpRequests.php' method=post&gt;&lt;button type='submit' class='btn btn-primary' name='&quot; . &quot;view&quot; . $k-&gt;getHelpID() . &quot;'&gt;View&lt;/button&gt;&lt;/form&gt;&quot;; 
+        $str .= &quot;&lt;/tr&gt;&lt;/table&gt;&lt;/div&gt;&quot;; 
+ 
+        echo $str; 
+ 
+        //-----------------------------------------------------------------------Interested: 
+        $dbi = new dbClassInterested(); 
+        $interestedArr = $dbi-&gt;GetInterestedByhelpID($k-&gt;getHelpID()); 
+        if ($k-&gt;getHelpStatus() == 1) { 
+            $str = &quot;&lt;div class='card'&gt;&quot;; 
+            if (!empty($interestedArr)) {        //there are interested people: 
+                $str .= &quot;&lt;b&gt;People are interested, and left you their details:&lt;/b&gt;&quot;; 
+                $str .= &quot;&lt;table&gt;&quot;; 
+                $dbu = new dbClassUserFunctions(); 
+                foreach ($interestedArr as $k =&gt; $v) { 
+                    $str .= &quot;&lt;tr&gt;&lt;td&gt;&quot;; 
+                    $user = $dbu-&gt;getUserByID($v-&gt;getInterestedUserID()); 
+                    $str .= $user-&gt;getUserFName() . &quot; &quot; . $user-&gt;getUserLName() . &quot; - &quot; . $user-&gt;getUserPhone(); 
+                    $str .= &quot;&lt;/td&gt;&lt;td&gt;&quot;; 
+                    $str .= &quot;&lt;form action='myHelpRequests.php' method=post&gt;&lt;button type='submit' class='btn btn-primary' name='UserProfileToShow&quot; . $user-&gt;getUserID() . &quot;'&gt;&quot; . $user-&gt;getUserFName() . &quot;'s Profile&lt;/button&gt;&lt;/form&gt;&quot;; 
+                    $str .= &quot;&lt;/td&gt;&lt;td&gt;&quot;; 
+                    $str .= &quot;&lt;form action='myHelpRequests.php' method=post&gt;&lt;button type='submit' class='btn btn-primary' name='rate&quot; . $user-&gt;getUserID() . &quot;-&quot; . $v-&gt;getHelpID() . &quot;'&gt;Dismiss HelpRequest and rate &quot; . $user-&gt;getUserFName() . &quot;&lt;/button&gt;&lt;/form&gt;&quot;; 
+                    $str .= &quot;&lt;/td&gt;&quot;; 
+                } 
+                $str .= &quot;&lt;/tr&gt;&lt;/table&gt;&quot;; 
+                $str .= &quot;&lt;small id='emailHelp' class='form-text text-muted'&gt;you can give them a call to set up a meeting :)&lt;/small&gt;&quot;; 
+            } else { 
+                $str = &quot;&lt;div class='card'&gt;&quot;; 
+                $str .= &quot;no one is interested yet&lt;br&gt;&quot;; 
+            } 
+ 
+        } else if ($k-&gt;getHelpStatus() == 2)//help request is done 
+        { 
+            $dbr = new dbClassRankingFunctions(); 
+            $dbu = new dbClassUserFunctions(); 
+            $userWhoDoneHelp = $dbu-&gt;getUserByID($dbr-&gt;getRankedUserIdByHelpID($k-&gt;getHelpID())); 
+ 
+            $str = &quot;&lt;div class='cardNotActiveHelp'&gt;&quot;; 
+            $str .= &quot;&lt;form action='HelpRequestsAll.php' method=post&gt;&lt;button type='submit' class='buttonLooksLikeLink' name='UserProfileToShow&quot; . $userWhoDoneHelp-&gt;getUserID() . &quot;'&gt;&lt;b&gt;You've marked this help request as done by &quot; . $userWhoDoneHelp-&gt;getUserFName() . &quot; &quot; . $userWhoDoneHelp-&gt;getUserLName() . &quot; (&quot; . $userWhoDoneHelp-&gt;getUserPhone() . &quot;)&quot; . &quot;&lt;/b&gt;&lt;/button&gt;&lt;/form&gt;&quot;; 
+            $str .= &quot;&quot;; 
+        } 
+ 
+        $str .= &quot;&lt;/div&gt;&lt;br&gt;&quot;; 
+        echo $str; 
+ 
+*/
+        //-------------------------------------new card:
+        <span class="s0">if </span>(<span class="s4">$k</span>-&gt;getHelpStatus() == <span class="s6">1</span>)
+            <span class="s4">$cardCssId </span>= <span class="s3">&quot;helpRequestCard&quot;</span>;
+        <span class="s0">else</span>
+            <span class="s4">$cardCssId </span>= <span class="s3">&quot;helpRequestCard_Done&quot;</span>;
+
+
+        <span class="s4">$str </span>= <span class="s3">&quot;&quot;</span>;
+        <span class="s4">$str </span>.= <span class="s3">&quot;&lt;div class='d-flex justify-content-center'&gt;&quot;</span>;
+        <span class="s4">$str </span>.= <span class="s3">&quot;&lt;div class='card-group' id='helpRequestCard'&gt;&quot;</span>;
+        <span class="s4">$str </span>.= <span class="s3">&quot;&lt;div class='card text-center' id='&quot;</span>.<span class="s4">$cardCssId</span>.<span class="s3">&quot;'&gt;&quot;</span>;
+        <span class="s4">$str </span>.= <span class="s3">&quot;&lt;div class='card-body'&gt;&quot;</span>;
+        <span class="s4">$str </span>.= <span class="s3">&quot;&lt;h5 class='card-title'&gt;&quot; </span>. <span class="s4">$k</span>-&gt;getHelpType() . <span class="s3">&quot;&lt;/h5&gt;&quot;</span>;
+        <span class="s4">$str </span>.= <span class="s3">&quot;&lt;p class='card-text'&gt;&quot;</span>;
+        <span class="s5">//$str .= &quot;Help ID: &quot; . $k-&gt;getHelpID() . &quot;&lt;br&gt;&quot;;</span>
+        <span class="s4">$helpTimeStr </span>= <span class="s3">&quot;&quot;</span>;
+
+        <span class="s0">if </span>(<span class="s4">$k</span>-&gt;getHelpEndTime() == <span class="s3">&quot;0000-00-00 00:00:00&quot;</span>) {
+            <span class="s0">if </span>(<span class="s4">$k</span>-&gt;getHelpStartTime() == <span class="s3">&quot;0000-00-00 00:00:00&quot;</span>) {
+                <span class="s4">$helpTimeStr </span>.= <span class="s3">&quot;Time not specified&lt;br&gt;&quot;</span>;
+            } <span class="s0">else</span>
+                <span class="s4">$helpTimeStr </span>.= <span class="s3">&quot;One day help: &quot; </span>. substr(<span class="s4">$k</span>-&gt;getHelpStartTime(), <span class="s6">0</span>, <span class="s6">10</span>) . <span class="s3">&quot;&lt;br&gt;&quot;</span>;
+        } <span class="s0">else</span>
+            <span class="s4">$helpTimeStr </span>.= <span class="s3">&quot;Time: &quot; </span>. substr(<span class="s4">$k</span>-&gt;getHelpStartTime(), <span class="s6">0</span>, <span class="s6">10</span>) . <span class="s3">&quot; - &quot; </span>. substr(<span class="s4">$k</span>-&gt;getHelpEndTime(), <span class="s6">0</span>, <span class="s6">10</span>) . <span class="s3">&quot;&lt;br&gt;&quot;</span>;
+        <span class="s4">$str </span>.= <span class="s4">$helpTimeStr</span>;
+
+        <span class="s4">$str </span>.= <span class="s3">&quot;Location: &quot; </span>. <span class="s4">$k</span>-&gt;getHelpLocCity() . <span class="s3">&quot;, &quot; </span>. <span class="s4">$k</span>-&gt;getHelpLocStreet() . <span class="s3">&quot;&lt;br&gt;&quot;</span>;
+        <span class="s4">$str </span>.= <span class="s3">&quot;Payment offered: &quot; </span>. <span class="s4">$k</span>-&gt;getHelpPayment() . <span class="s3">&quot;[NIS]&quot;</span>;
+
+        <span class="s4">$str </span>.= <span class="s3">&quot;&lt;form action='myHelpRequests.php' method=post&gt;&quot;</span>;
+        <span class="s0">if </span>(<span class="s4">$k</span>-&gt;getHelpStatus() == <span class="s6">1</span>) {
+            <span class="s4">$str </span>.= <span class="s3">&quot;&lt;button type='submit' class='btn btn-primary' name='&quot; </span>. <span class="s3">&quot;delete&quot; </span>. <span class="s4">$k</span>-&gt;getHelpID() . <span class="s3">&quot;'&gt;Delete&lt;/button&gt;&quot;</span>;
+            <span class="s4">$str </span>.= <span class="s3">&quot;&lt;button type='submit' class='btn btn-primary' name='&quot; </span>. <span class="s3">&quot;editHelp&quot; </span>. <span class="s4">$k</span>-&gt;getHelpID() . <span class="s3">&quot;'&gt;Edit&lt;/button&gt;&quot;</span>;
+        }
+        <span class="s4">$str </span>.= <span class="s3">&quot;&lt;button type='submit' class='btn btn-primary' name='&quot; </span>. <span class="s3">&quot;view&quot; </span>. <span class="s4">$k</span>-&gt;getHelpID() . <span class="s3">&quot;'&gt;View&lt;/button&gt;&lt;/form&gt;&quot;</span>;
+
+
+        <span class="s5">//interested:</span>
+        //-----------------------------------------------------------------------Interested:
+        <span class="s4">$dbi </span>= <span class="s0">new </span>dbClassInterested();
+        <span class="s4">$interestedArr </span>= <span class="s4">$dbi</span>-&gt;GetInterestedByhelpID(<span class="s4">$k</span>-&gt;getHelpID());
+        <span class="s0">if </span>(<span class="s4">$k</span>-&gt;getHelpStatus() == <span class="s6">1</span>)
+        {
+            <span class="s0">if </span>(!<span class="s0">empty</span>(<span class="s4">$interestedArr</span>)) {        <span class="s5">//there are interested people:</span>
+                <span class="s4">$str </span>.= <span class="s3">&quot;&lt;br&gt;&lt;b&gt;People are interested, and left you their details:&lt;/b&gt;&lt;br&gt;&quot;</span>;
+                <span class="s4">$dbu </span>= <span class="s0">new </span>dbClassUserFunctions();
+                <span class="s0">foreach </span>(<span class="s4">$interestedArr </span><span class="s0">as </span><span class="s4">$k1 </span>=&gt; <span class="s4">$v</span>) {
+                    <span class="s4">$user </span>= <span class="s4">$dbu</span>-&gt;getUserByID(<span class="s4">$v</span>-&gt;getInterestedUserID());
+                    <span class="s4">$str </span>.= <span class="s3">&quot;&lt;div class='card text-center'&gt;&quot;</span>;
+                    <span class="s4">$str </span>.= <span class="s3">&quot;&lt;div class='card-body'&gt;&quot;</span>;
+                    <span class="s4">$str </span>.= <span class="s4">$user</span>-&gt;getUserFName() . <span class="s3">&quot; &quot; </span>. <span class="s4">$user</span>-&gt;getUserLName() . <span class="s3">&quot; - &quot; </span>. <span class="s4">$user</span>-&gt;getUserPhone();
+
+                    <span class="s4">$str </span>.= <span class="s3">&quot;&lt;form action='myHelpRequests.php' method=post&gt;&lt;button type='submit' class='btn btn-primary' name='UserProfileToShow&quot; </span>. <span class="s4">$user</span>-&gt;getUserID() . <span class="s3">&quot;'&gt;&quot; </span>. <span class="s4">$user</span>-&gt;getUserFName() . <span class="s3">&quot;'s Profile&lt;/button&gt;&quot;</span>;
+                    <span class="s4">$str </span>.= <span class="s3">&quot;&lt;button type='submit' class='btn btn-primary' name='rate&quot; </span>. <span class="s4">$user</span>-&gt;getUserID() . <span class="s3">&quot;-&quot; </span>. <span class="s4">$v</span>-&gt;getHelpID() . <span class="s3">&quot;'&gt;Mark as done by &quot; </span>. <span class="s4">$user</span>-&gt;getUserFName() . <span class="s3">&quot;&lt;/button&gt;&lt;/form&gt;&quot;</span>;
+                    <span class="s4">$str</span>.=<span class="s3">&quot;&lt;/div&gt;&lt;/div&gt;&quot;</span>;
+                }
+                <span class="s4">$str </span>.= <span class="s3">&quot;&lt;small id='emailHelp' class='form-text text-muted'&gt;you can give them a call to set up a meeting :)&lt;/small&gt;&quot;</span>;
+            }
+            <span class="s0">else</span>
+            {
+                <span class="s4">$str </span>.= <span class="s3">&quot;no one is interested yet&lt;br&gt;&quot;</span>;
+            }
+
+        }
+        <span class="s0">else if </span>(<span class="s4">$k</span>-&gt;getHelpStatus() == <span class="s6">2</span>)<span class="s5">//help request is done</span>
+        {
+            <span class="s4">$dbr </span>= <span class="s0">new </span>dbClassRankingFunctions();
+            <span class="s4">$dbu </span>= <span class="s0">new </span>dbClassUserFunctions();
+            <span class="s4">$userWhoDoneHelp </span>= <span class="s4">$dbu</span>-&gt;getUserByID(<span class="s4">$dbr</span>-&gt;getRankedUserIdByHelpID(<span class="s4">$k</span>-&gt;getHelpID()));
+
+            <span class="s4">$str </span>.= <span class="s3">&quot;&lt;form action='HelpRequestsAll.php' method=post&gt;&lt;button type='submit' class='buttonLooksLikeLink' name='UserProfileToShow&quot; </span>. <span class="s4">$userWhoDoneHelp</span>-&gt;getUserID() . <span class="s3">&quot;'&gt;&lt;b&gt;You've marked this help request as done by &quot; </span>. <span class="s4">$userWhoDoneHelp</span>-&gt;getUserFName() . <span class="s3">&quot; &quot; </span>. <span class="s4">$userWhoDoneHelp</span>-&gt;getUserLName() . <span class="s3">&quot; (&quot; </span>. <span class="s4">$userWhoDoneHelp</span>-&gt;getUserPhone() . <span class="s3">&quot;)&quot; </span>. <span class="s3">&quot;&lt;/b&gt;&lt;/button&gt;&lt;/form&gt;&quot;</span>;
+            <span class="s4">$str </span>.= <span class="s3">&quot;&quot;</span>;
+        }
+
+        <span class="s4">$str </span>.= <span class="s3">&quot;&lt;/p&gt;&lt;/div&gt;&quot;</span>;
+        <span class="s4">$str </span>.= <span class="s3">&quot;&lt;/div&gt;&lt;/div&gt;&quot;</span>;
+
+
+
+
+        <span class="s5">//Pets card:</span>
+        <span class="s4">$str </span>.= <span class="s3">&quot;&lt;div class='card text-center' id='&quot;</span>.<span class="s4">$cardCssId</span>.<span class="s3">&quot;'&gt;&quot;</span>;
+        <span class="s4">$str </span>.= <span class="s3">&quot;&lt;div class='card-body'&gt;&quot;</span>;
+
+        <span class="s5">//getting array of pets_helprequests for each help:</span>
+        <span class="s4">$HRpetsArray </span>= <span class="s4">$db</span>-&gt;getObjectsGeneral(<span class="s3">&quot;pets_helprequests&quot;</span>, <span class="s3">&quot; WHERE `helpID`='&quot; </span>. <span class="s4">$k</span>-&gt;getHelpID() . <span class="s3">&quot;'&quot;</span>, <span class="s3">&quot;Pet_HelpRequest&quot;</span>);
+        <span class="s0">if </span>(<span class="s4">$HRpetsArray </span>== null) {
+            <span class="s4">$petsInRequest </span>= <span class="s3">&quot;No pets in request&quot;</span>;
+        }
+        <span class="s0">else</span>
+        {
+            <span class="s4">$petsInRequest </span>= <span class="s3">&quot;&lt;br&gt;&lt;div class='card-deck'&gt;&quot;</span>;
+            <span class="s0">foreach </span>(<span class="s4">$HRpetsArray </span><span class="s0">as </span><span class="s4">$p_hr</span>) <span class="s5">//each $p_hr is a Pet_HelpRequest object</span>
+            {
+                <span class="s4">$p </span>= <span class="s4">$db</span>-&gt;getObjectsGeneral(<span class="s3">&quot;pets&quot;</span>, <span class="s3">&quot; WHERE `petID`='&quot; </span>. <span class="s4">$p_hr</span>-&gt;getPetID() . <span class="s3">&quot;'&quot;</span>, <span class="s3">&quot;Pet&quot;</span>);
+                <span class="s5">//$p is an array containing one pet</span>
+
+                <span class="s4">$petsInRequest </span>.= <span class="s3">&quot;&lt;div id='petCardinProfile' class='mt-lg-auto'&gt;&quot;</span>;
+                <span class="s4">$petsInRequest </span>.= <span class="s3">&quot;&lt;img class='card-img-top' src='&quot; </span>. <span class="s4">$db</span>-&gt;getPetImageLocation(<span class="s4">$p</span>[<span class="s6">0</span>]) . <span class="s3">&quot;' alt='&quot; </span>. <span class="s4">$p</span>[<span class="s6">0</span>]-&gt;getPetName() . <span class="s3">&quot;'&gt;&quot;</span>;
+                <span class="s5">//$petsStr.=&quot;&lt;div class='card-body'&gt;&quot;;</span>
+                <span class="s4">$petsInRequest </span>.= <span class="s3">&quot;&lt;div class='card-footer'&gt;&lt;small class='text-muted'&gt;&quot; </span>. <span class="s4">$p</span>[<span class="s6">0</span>]-&gt;getPetName() . <span class="s3">&quot;&lt;/small&gt;&lt;/div&gt;&quot;</span>;
+                <span class="s4">$petsInRequest </span>.= <span class="s3">&quot;&lt;/div&gt;&quot;</span>;
+            }
+            <span class="s4">$petsInRequest </span>.= <span class="s3">&quot;&lt;/div&gt;&quot;</span>;
+            <span class="s4">$str </span>.= <span class="s4">$petsInRequest</span>;
+            <span class="s4">$str </span>.= <span class="s3">&quot;&lt;/div&gt;&quot;</span>;
+            <span class="s4">$str </span>.= <span class="s3">&quot;&lt;/div&gt;&quot;</span>;
+        }
+        <span class="s4">$str </span>.= <span class="s3">&quot;&lt;/div&gt;&quot;</span>;
+        <span class="s4">$str </span>.= <span class="s3">&quot;&lt;/div&gt;&lt;br&gt;&lt;/div&gt;&quot;</span>;
+
+        <span class="s0">echo </span><span class="s4">$str</span>;
+    }
+}
+</pre>
+</body>
+</html>

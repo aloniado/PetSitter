@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<markers>
+    <marker id="69" name="Feeding" address="Haifa" lat="32.785973" lng="35.016254" type="Feeding"/>
+    <marker id="71" name="Walk" address="Haifa" lat="32.782860" lng="35.013046" type="Walk"/>
+    <marker id="73" name="House Sitting" address="Haifa" lat="32.782291" lng="35.012699" type="House Sitting"/>
+    <marker id="74" name="Feeding" address="Haifa" lat="32.785973" lng="35.016254" type="Feeding"/>
+    <marker id="79" name="House Sitting" address="Tiberias" lat="32.795860" lng="35.530972" type="House Sitting"/>
+    <marker id="83" name="Feeding" address="Rishon LeTsiyon" lat="31.968571" lng="34.798458" type="Feeding"/>
+    <marker id="84" name="House Sitting" address="Tel Aviv-Yafo" lat="32.072601" lng="34.792515" type="House Sitting"/>
+</markers>

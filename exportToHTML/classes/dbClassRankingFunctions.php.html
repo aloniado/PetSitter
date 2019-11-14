@@ -1,0 +1,80 @@
+<html>
+<head>
+<title>dbClassRankingFunctions.php</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #000080; font-weight: bold;}
+.s1 { color: #000000;}
+.s2 { color: #808080; font-style: italic;}
+.s3 { color: #008000; font-weight: bold;}
+.s4 { color: #000000;}
+.s5 { color: #660000;}
+.s6 { color: #0000ff;}
+.ls0 { height: 1px; border-width: 0; color: #c0c0c0; background-color:#c0c0c0}
+</style>
+</head>
+<body bgcolor="#ffffff">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#c0c0c0" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+dbClassRankingFunctions.php</font>
+</center></td></tr></table>
+<pre><span class="s0">&lt;?php</span>
+<span class="s2">/**</span>
+ * Created by PhpStorm.
+ * User: aloni
+ * Date: 8/16/2018
+ * Time: 10:33 AM
+ */
+<span class="s0">require_once </span><span class="s3">&quot;dbClass.php&quot;</span>;
+<span class="s0">require_once </span><span class="s3">&quot;dbClassHelpRequestFunctions.php&quot;</span>;
+
+<span class="s0">class </span>dbClassRankingFunctions
+{
+    <span class="s0">public function </span>insertRanking(<span class="s5">$data_arr</span>){
+        <span class="s5">$db </span>= <span class="s0">new </span>dbClass();
+        <span class="s5">$db</span>-&gt;insertLine(<span class="s3">&quot;rankings&quot;</span>, <span class="s5">$data_arr</span>);
+
+        <span class="s5">$changes_array </span>= <span class="s0">array</span>(
+                <span class="s3">'helpStatus' </span>=&gt; <span class="s6">2</span>,
+            );
+        <span class="s5">$db</span>-&gt;updateLine(<span class="s3">&quot;helprequests&quot;</span>, <span class="s3">&quot;helpID&quot;</span>, <span class="s5">$data_arr</span>[<span class="s3">'helpID'</span>], <span class="s5">$changes_array</span>);  <span class="s2">//setting helprequest status to 2: done</span>
+    }
+
+    <span class="s0">public function </span>getUserRankByID(<span class="s5">$userID</span>){
+
+
+
+
+
+        <span class="s2">//needs to be replaced with sql average function</span>
+        <span class="s5">$db </span>= <span class="s0">new </span>dbClass();
+        <span class="s2">/* <hr class="ls0">        $avrgRank = $db-&gt;getColumnAverage(&quot;rankings&quot;, &quot;rankRank&quot;, &quot;rankedUserID&quot;, $userID); 
+        return $avrgRank; 
+*/</span>
+
+        <span class="s5">$sum</span>=<span class="s5">$count</span>=<span class="s6">0</span>;
+        <span class="s5">$ranksArr </span>= <span class="s5">$db</span>-&gt;getObjectsGeneral(<span class="s3">&quot;rankings&quot;</span>, <span class="s3">&quot; WHERE `rankedUserID` = '&quot;</span>.<span class="s5">$userID</span>.<span class="s3">&quot;'&quot;</span>, <span class="s3">&quot;Ranking&quot;</span>);
+        <span class="s0">foreach </span>(<span class="s5">$ranksArr </span><span class="s0">as </span><span class="s5">$k</span>=&gt;<span class="s5">$v</span>){
+            <span class="s5">$sum</span>+=<span class="s5">$v</span>-&gt;getRankRank();
+            <span class="s5">$count</span>++;
+        }
+        <span class="s0">if </span>(<span class="s5">$count</span>!=<span class="s6">0</span>)
+            <span class="s0">return </span>(float)<span class="s5">$sum</span>/<span class="s5">$count</span>;
+        <span class="s0">else</span>
+            return null;
+
+    }
+
+    <span class="s0">public function </span>getRankedUserIdByHelpID(<span class="s5">$helpID</span>){
+        <span class="s5">$db </span>= <span class="s0">new </span>dbClass();
+        <span class="s5">$userID</span>=null;
+        <span class="s5">$ranksArr </span>= <span class="s5">$db</span>-&gt;getObjectsGeneral(<span class="s3">&quot;rankings&quot;</span>, <span class="s3">&quot; WHERE `helpID` = '&quot;</span>.<span class="s5">$helpID</span>.<span class="s3">&quot;'&quot;</span>, <span class="s3">&quot;Ranking&quot;</span>);
+        <span class="s0">if </span>(!<span class="s0">empty</span>(<span class="s5">$ranksArr</span>)){
+            <span class="s5">$userID </span>= <span class="s5">$ranksArr</span>[<span class="s6">0</span>]-&gt;getRankedUserID();
+        }
+        <span class="s0">return </span><span class="s5">$userID</span>;
+    }
+}</pre>
+</body>
+</html>

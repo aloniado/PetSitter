@@ -1,0 +1,183 @@
+<html>
+<head>
+<title>myPets.php</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #000080; font-weight: bold;}
+.s1 { color: #000000;}
+.s2 { color: #000000;}
+.s3 { color: #008000; font-weight: bold;}
+.s4 { color: #660000;}
+.s5 { color: #808080; font-style: italic;}
+.s6 { color: #0000ff;}
+</style>
+</head>
+<body bgcolor="#ffffff">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#c0c0c0" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+myPets.php</font>
+</center></td></tr></table>
+<pre><span class="s0">&lt;?php</span>
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
+<span class="s0">require_once </span><span class="s3">&quot;classes/dbClass.php&quot;</span>;
+<span class="s0">require_once </span><span class="s3">&quot;classes/dbClassPetsFunctions.php&quot;</span>;
+<span class="s0">require_once </span><span class="s3">&quot;classes/Pet.php&quot;</span>;
+
+
+<span class="s4">$db </span>= <span class="s0">new </span>dbClass();
+<span class="s4">$dbp </span>= <span class="s0">new </span>dbClassPetsFunctions();
+
+
+<span class="s5">//-----------------------------------------------------------------------------------------------------------------</span>
+//----------------------------------------------------------------------------------------if form information sent:
+reset(<span class="s4">$_POST</span>);
+<span class="s4">$first_key </span>= key(<span class="s4">$_POST</span>);   <span class="s5">//command + ID of pet to edit</span>
+
+//echo $first_key.&quot;&lt;br&gt;&quot;;
+<span class="s0">if </span>(<span class="s0">isset</span>(<span class="s4">$_POST</span>[<span class="s3">'addpet'</span>]))                                    <span class="s5">//if add pet clicked</span>
+{
+    <span class="s5">//checking number of user's pets in database:</span>
+    <span class="s4">$petsArr </span>= <span class="s4">$dbp</span>-&gt;getPetsArrayByUserID(<span class="s4">$_SESSION</span>[<span class="s3">'user'</span>]);
+    <span class="s0">if </span>(count(<span class="s4">$petsArr</span>) &gt;= <span class="s6">10</span>)
+    {
+        <span class="s4">$_SESSION</span>[<span class="s3">'userMessage'</span>]=<span class="s3">&quot;You've already reached maximum pets allowed.&quot;</span>;
+        <span class="s4">$_SESSION</span>[<span class="s3">'nextPage'</span>]=<span class="s3">&quot;myPets.php&quot;</span>;
+        header(<span class="s3">&quot;Location: main.php&quot;</span>);
+        <span class="s0">die</span>();
+    }
+    <span class="s0">else</span>
+    {
+        <span class="s4">$_SESSION</span>[<span class="s3">'nextPage'</span>]=<span class="s3">&quot;editPet.php&quot;</span>;
+        header(<span class="s3">&quot;Location: main.php&quot;</span>);
+        <span class="s0">die</span>();
+    }
+}
+
+<span class="s0">else if </span>(substr(<span class="s4">$first_key</span>, <span class="s6">0</span>, <span class="s6">4</span>) === <span class="s3">&quot;edit&quot;</span>)       <span class="s5">//if edit pet details button is pressed</span>
+{
+    <span class="s4">$first_key </span>= substr(<span class="s4">$first_key</span>, <span class="s6">4</span>);
+
+    <span class="s4">$_SESSION</span>[<span class="s3">'petToEdit'</span>]=<span class="s4">$first_key</span>;
+    <span class="s4">$_SESSION</span>[<span class="s3">'nextPage'</span>]=<span class="s3">&quot;editPet.php&quot;</span>;
+
+    header(<span class="s3">&quot;Location: main.php&quot;</span>);
+    <span class="s0">die</span>();
+}
+
+<span class="s0">else if </span>(substr(<span class="s4">$first_key</span>, <span class="s6">0</span>, <span class="s6">6</span>) === <span class="s3">&quot;delete&quot;</span>)     <span class="s5">//if delete pet button pressed</span>
+{
+    <span class="s4">$first_key </span>= substr(<span class="s4">$first_key</span>, <span class="s6">6</span>);
+<span class="s5">/* 
+    $db-&gt;deleteLine(&quot;pets&quot;, &quot;petID&quot;, $first_key); 
+    $_SESSION['nextPage']=&quot;myPets.php&quot;; 
+*/</span>
+
+    <span class="s4">$_SESSION</span>[<span class="s3">'petToDelete'</span>]=<span class="s4">$first_key</span>;
+    <span class="s4">$_SESSION</span>[<span class="s3">'nextPage'</span>]=<span class="s3">&quot;petDelete.php&quot;</span>;
+
+    header(<span class="s3">&quot;Location: main.php&quot;</span>);
+    <span class="s0">die</span>();
+}
+
+<span class="s0">else if </span>(substr(<span class="s4">$first_key</span>, <span class="s6">0</span>, <span class="s6">8</span>) === <span class="s3">&quot;delimage&quot;</span>)  <span class="s5">//if delete pet's image button pressed</span>
+{
+    <span class="s4">$petID </span>= substr(<span class="s4">$first_key</span>, <span class="s6">8</span>);
+    <span class="s4">$dbp </span>= <span class="s0">new </span>dbClassPetsFunctions();
+    <span class="s4">$dbp</span>-&gt;deletePetImageByID(<span class="s4">$petID</span>);
+
+    <span class="s4">$_SESSION</span>[<span class="s3">'nextPage'</span>]=<span class="s3">&quot;myPets.php&quot;</span>;
+    header(<span class="s3">&quot;Location: main.php&quot;</span>);
+    <span class="s0">die</span>();
+}
+<span class="s5">//-----------------------------------------------------------------------------------------------------------------</span>
+
+<span class="s0">unset</span>(<span class="s4">$_SESSION</span>[<span class="s3">'petToDelete'</span>]);
+<span class="s0">unset</span>(<span class="s4">$_SESSION</span>[<span class="s3">'petToEdit'</span>]);          <span class="s5">//$_SESSION['petToEdit'] is used in page to determine which pet to edit</span>
+
+<span class="s0">echo </span><span class="s3">&quot;&lt;h3&gt;My Pets&lt;/h3&gt;&quot;</span>;
+<span class="s0">echo </span><span class="s3">&quot;&lt;form action='myPets.php' method=post&gt;&quot;</span>;
+<span class="s0">echo </span><span class="s3">&quot;&lt;button type='submit' class='btn btn-primary' name='addpet'&gt;Add Pet&lt;/button&gt;&quot;</span>;
+<span class="s0">echo </span><span class="s3">&quot;&lt;/form&gt;&lt;br&gt;&quot;</span>;
+
+
+
+<span class="s5">//---*******************    changes (18.7.2018 evgenia example)</span>
+//$myPetsArray = $db-&gt;getPetsByEmail($_SESSION['user']);        //replaced with next line:
+<span class="s4">$dbp </span>= <span class="s0">new </span>dbClassPetsFunctions();
+<span class="s4">$myPetsArray </span>= <span class="s4">$dbp</span>-&gt;getPetsArrayByUserID(<span class="s4">$_SESSION</span>[<span class="s3">'user'</span>]);
+<span class="s5">//---*******************</span>
+
+
+
+
+<span class="s0">if </span>(<span class="s4">$myPetsArray </span>== null)
+    <span class="s0">echo </span><span class="s3">&quot;no pets found in DB.&quot;</span>;
+<span class="s0">else</span>
+{
+    <span class="s5">//echo &quot;&lt;table&gt;&lt;tr&gt;&lt;td&gt;Name&lt;/td&gt;&lt;td&gt;Type&lt;/td&gt;&lt;td&gt;Birthday&lt;/td&gt;&lt;td&gt;Sex&lt;/td&gt;&lt;td&gt;&lt;/td&gt;&lt;td&gt;&lt;/td&gt;&lt;/tr&gt;&quot;;</span>
+    <span class="s0">echo </span><span class="s3">&quot;&lt;div class='card-deck'&gt;&quot;</span>;
+    <span class="s0">foreach </span>(<span class="s4">$myPetsArray </span><span class="s0">as </span><span class="s4">$k</span>)
+    {
+        <span class="s4">$petstr</span>=<span class="s3">&quot;&quot;</span>;
+<span class="s5">/* 
+        $petstr=&quot;&lt;div class='card'&gt;&quot;; 
+        $petstr.=&quot;&lt;table&gt;&lt;tr&gt;&lt;td width='30%'&gt;&quot;; 
+        $petstr.=&quot;ID = &quot;.$k-&gt;getPetID().&quot;&lt;br&gt;&quot;; 
+        $petstr.=$db-&gt;printPetBasic($k); 
+        $petstr.=&quot;&lt;/td&gt;&lt;td width='30%'&gt;&quot;; 
+        $petstr.=$db-&gt;printPetExtra($k); 
+        $petstr.=&quot;&lt;/td&gt;&lt;td align='center'&gt;&quot;; 
+        $petstr.=$db-&gt;getPetImageString($k); 
+        $petstr.=&quot;&lt;/td&gt;&lt;td width='10%'&gt;&quot;; 
+        $petstr.=&quot;&lt;form action='myPets.php' method=post&gt;&quot;; 
+        $petstr.=&quot;&lt;button type='submit' class='btn btn-primary' name='&quot;.&quot;edit&quot;.$k-&gt;getPetID().&quot;'&gt;Edit Pet&lt;/button&gt;&quot;; 
+        $petstr.=&quot;&lt;br&gt;&lt;button type='submit' class='btn btn-primary' name='&quot;.&quot;delete&quot;.$k-&gt;getPetID().&quot;'&gt;Delete Pet&lt;/button&gt;&quot;; 
+        if ($dbp-&gt;doesPetHaveImage($k-&gt;getPetID())) 
+            $petstr.=&quot;&lt;br&gt;&lt;button type='submit' class='btn btn-primary' name='&quot;.&quot;delimage&quot;.$k-&gt;getPetID().&quot;'&gt;Delete Image&lt;/button&gt;&quot;; 
+        $petstr.=&quot;&lt;/form&gt;&quot;; 
+        $petstr.=&quot;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/div&gt;&lt;br&gt;&quot;; 
+        $petstr.=&quot;&lt;/div&gt;&quot;; 
+*/</span>
+        //-----------------------------------------------------------new card:
+
+        <span class="s4">$petstr</span>.=<span class="s3">&quot;&lt;div id='petCard' class='mt-lg-auto' &gt;&quot;</span>;
+        <span class="s4">$petstr</span>.=<span class="s3">&quot;&lt;img class='card-img-top' src='&quot;</span>.<span class="s4">$db</span>-&gt;getPetImageLocation(<span class="s4">$k</span>).<span class="s3">&quot;' alt='&quot;</span>.<span class="s4">$k</span>-&gt;getPetName().<span class="s3">&quot;'&gt;&quot;</span>;
+        <span class="s4">$petstr</span>.=<span class="s3">&quot;&lt;div class='card-body'&gt;&quot;</span>;
+        <span class="s4">$petstr</span>.=<span class="s3">&quot;&lt;h5 class='card-title'&gt;&quot;</span>.<span class="s4">$k</span>-&gt;getPetName().<span class="s3">&quot;  ( &quot;</span>.<span class="s4">$k</span>-&gt;getPetType().<span class="s3">&quot;)&lt;/h5&gt;&quot;</span>;
+        <span class="s4">$petstr</span>.=<span class="s3">&quot;&lt;p class='card-text'&gt;&quot;</span>;
+
+        <span class="s4">$petstr</span>.=<span class="s3">&quot;Sex: &quot;</span>.<span class="s4">$k</span>-&gt;getPetSex().<span class="s3">&quot;&lt;br&gt;&quot;</span>;
+        <span class="s4">$petstr</span>.=<span class="s3">&quot;Birthday: &quot;</span>.<span class="s4">$k</span>-&gt;getPetBirthday().<span class="s3">&quot;&lt;br&gt;&quot;</span>;
+        <span class="s4">$petstr</span>.=<span class="s3">&quot;Food habbits: &quot;</span>.<span class="s4">$k</span>-&gt;getPetFood().<span class="s3">&quot;&lt;br&gt;&lt;br&gt;&quot;</span>;
+        <span class="s4">$petstr</span>.=<span class="s4">$k</span>-&gt;getPetAbout();
+        <span class="s4">$petstr</span>.=<span class="s3">&quot;&lt;/p&gt;&quot;</span>;
+
+        <span class="s4">$petstr</span>.=<span class="s3">&quot;&lt;form action='myPets.php' method=post&gt;&quot;</span>;
+        <span class="s4">$petstr</span>.=<span class="s3">&quot;&lt;button type='submit' class='btn btn-group-sm btn-primary btn-block' name='&quot;</span>.<span class="s3">&quot;edit&quot;</span>.<span class="s4">$k</span>-&gt;getPetID().<span class="s3">&quot;'&gt;Edit Pet&lt;/button&gt;&quot;</span>;
+        <span class="s4">$petstr</span>.=<span class="s3">&quot;&lt;button type='submit' class='btn btn-group-sm btn-primary btn-block' name='&quot;</span>.<span class="s3">&quot;delete&quot;</span>.<span class="s4">$k</span>-&gt;getPetID().<span class="s3">&quot;'&gt;Delete Pet&lt;/button&gt;&quot;</span>;
+        <span class="s0">if </span>(<span class="s4">$dbp</span>-&gt;doesPetHaveImage(<span class="s4">$k</span>-&gt;getPetID()))
+            <span class="s4">$petstr</span>.=<span class="s3">&quot;&lt;button type='submit' class='btn btn-group-sm btn-primary btn-block' name='&quot;</span>.<span class="s3">&quot;delimage&quot;</span>.<span class="s4">$k</span>-&gt;getPetID().<span class="s3">&quot;'&gt;Delete Image&lt;/button&gt;&quot;</span>;
+        <span class="s4">$petstr</span>.=<span class="s3">&quot;&lt;/form&gt;&quot;</span>;
+
+
+        <span class="s4">$petstr</span>.=<span class="s3">&quot;&lt;/div&gt;&quot;</span>;
+        <span class="s4">$petstr</span>.=<span class="s3">&quot;&lt;/div&gt;&quot;</span>;
+
+
+
+        <span class="s0">echo </span><span class="s4">$petstr</span>;
+    }
+    <span class="s0">echo </span><span class="s3">&quot;&lt;/div&gt;&quot;</span>;
+}
+
+
+
+
+
+
+</pre>
+</body>
+</html>

@@ -1,0 +1,95 @@
+<html>
+<head>
+<title>signin.php</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #000080; font-weight: bold;}
+.s1 { color: #000000;}
+.s2 { color: #000000;}
+.s3 { color: #008000; font-weight: bold;}
+.s4 { color: #808080; font-style: italic;}
+.s5 { color: #660000;}
+.s6 { color: #0000ff;}
+.s7 { color: #000000;}
+.s8 { color: #808080; font-style: italic;}
+.s9 { color: #000000;}
+.s10 { color: #000080; font-weight: bold;}
+.s11 { color: #0000ff; font-weight: bold;}
+.s12 { color: #008000; font-weight: bold;}
+</style>
+</head>
+<body bgcolor="#ffffff">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#c0c0c0" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+signin.php</font>
+</center></td></tr></table>
+<pre><span class="s0">&lt;?php</span>
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
+<span class="s0">require_once </span><span class="s3">&quot;classes/dbClass.php&quot;</span>;
+<span class="s0">require_once </span><span class="s3">&quot;classes/User.php&quot;</span>;
+
+
+<span class="s4">//-----------------------------------------------------------------------------------------------------------------</span>
+//----------------------------------------------------------------------------------------if form information sent:
+<span class="s0">if </span>(<span class="s0">isset</span>(<span class="s5">$_POST</span>[<span class="s3">'SignInDataSent'</span>]))  <span class="s4">//if sign in form was submitted</span>
+{
+    <span class="s4">//TODO: js validation to fields</span>
+    <span class="s5">$db </span>= <span class="s0">new </span>dbClass();
+    <span class="s4">//$tempUser = new User($_POST['pass'], $_POST['fname'], $_POST['lname'], $_POST['mail']);</span>
+
+    <span class="s5">$pass</span>=<span class="s5">$_POST</span>[<span class="s3">'pass'</span>];
+    <span class="s5">$mail</span>=<span class="s5">$_POST</span>[<span class="s3">'mail'</span>];
+
+    <span class="s5">$ans </span>= <span class="s5">$db</span>-&gt;signinUser(<span class="s5">$mail</span>, <span class="s5">$pass</span>);
+    <span class="s0">if </span>(<span class="s5">$ans </span>==<span class="s6">1</span>){
+        <span class="s5">$_SESSION</span>[<span class="s3">'userMessage'</span>]=<span class="s3">&quot;Signed in successfully.&quot;</span>;
+        <span class="s5">$_SESSION</span>[<span class="s3">'nextPage'</span>]=<span class="s3">&quot;HelpRequestsAll.php&quot;</span>;
+    }
+    <span class="s0">else </span>{
+        <span class="s5">$_SESSION</span>[<span class="s3">'nextPage'</span>]=<span class="s3">&quot;signin.php&quot;</span>;
+        <span class="s5">$_SESSION</span>[<span class="s3">'userMessage'</span>]=<span class="s5">$ans</span>;
+    }
+    header(<span class="s3">&quot;Location: main.php&quot;</span>);
+    <span class="s0">exit</span>();
+}
+<span class="s0">else if </span>(<span class="s0">isset</span>(<span class="s5">$_POST</span>[<span class="s3">'signupLink'</span>])){
+    <span class="s5">$_SESSION</span>[<span class="s3">'nextPage'</span>]=<span class="s3">&quot;signup.php&quot;</span>;
+    header(<span class="s3">&quot;Location: main.php&quot;</span>);
+    <span class="s0">exit</span>();
+}
+
+
+
+<span class="s0">?&gt;</span>
+
+<span class="s8">&lt;!-------------------------------------------------------&gt;</span>
+&lt;<span class="s10">div </span><span class="s11">class=</span><span class="s12">&quot;text-center&quot; </span><span class="s11">id=</span><span class="s12">&quot;signin&quot;</span>&gt;
+&lt;<span class="s10">form </span><span class="s11">action=</span><span class="s12">&quot;signin.php&quot; </span><span class="s11">method=</span><span class="s12">post </span><span class="s11">class=</span><span class="s12">&quot;form-signin&quot;</span>&gt;
+    &lt;<span class="s10">img </span><span class="s11">class=</span><span class="s12">&quot;mb-4&quot; </span><span class="s11">src=</span><span class="s12">&quot;Images/Pets/General/Rabbit.png&quot; </span><span class="s11">alt=</span><span class="s12">&quot;&quot; </span><span class="s11">width=</span><span class="s12">&quot;111&quot; </span><span class="s11">height=</span><span class="s12">&quot;111&quot;</span>&gt;
+
+        &lt;<span class="s10">h1 </span><span class="s11">class=</span><span class="s12">&quot;h3 mb-3 font-weight-normal&quot;</span>&gt;Sign in&lt;/<span class="s10">h1</span>&gt;
+        &lt;<span class="s10">label </span><span class="s11">for=</span><span class="s12">&quot;inputEmail&quot; </span><span class="s11">class=</span><span class="s12">&quot;sr-only&quot;</span>&gt;Email address&lt;/<span class="s10">label</span>&gt;
+        &lt;<span class="s10">input </span><span class="s11">type=</span><span class="s12">&quot;email&quot; </span><span class="s11">id=</span><span class="s12">&quot;inputEmail&quot; </span><span class="s11">class=</span><span class="s12">&quot;form-control&quot; </span><span class="s11">placeholder=</span><span class="s12">&quot;Email address&quot; </span><span class="s11">required autofocus name=</span><span class="s12">&quot;mail&quot;</span>&gt;
+
+        &lt;<span class="s10">label </span><span class="s11">for=</span><span class="s12">&quot;inputPassword&quot; </span><span class="s11">class=</span><span class="s12">&quot;sr-only&quot;</span>&gt;Password&lt;/<span class="s10">label</span>&gt;
+        &lt;<span class="s10">input </span><span class="s11">type=</span><span class="s12">&quot;password&quot; </span><span class="s11">id=</span><span class="s12">&quot;inputPassword&quot; </span><span class="s11">class=</span><span class="s12">&quot;form-control&quot; </span><span class="s11">placeholder=</span><span class="s12">&quot;Password&quot; </span><span class="s11">required name=</span><span class="s12">&quot;pass&quot;</span>&gt;
+
+    &lt;<span class="s10">button </span><span class="s11">class=</span><span class="s12">&quot;btn btn-lg btn-primary btn-block&quot; </span><span class="s11">type=</span><span class="s12">&quot;submit&quot; </span><span class="s11">name=</span><span class="s12">&quot;SignInDataSent&quot;</span>&gt;Sign in&lt;/<span class="s10">button</span>&gt;
+
+&lt;/<span class="s10">form</span>&gt;
+&lt;<span class="s10">br</span>&gt;
+    <span class="s8">&lt;!--</span>
+&lt;form action=&quot;signin.php&quot; method=post&gt; 
+    &lt;label&gt;Don't have an account yet?&lt;/label&gt; 
+    &lt;button class=&quot;buttonLooksLikeLink&quot; type=&quot;submit&quot; name=&quot;signupLink&quot;&gt;&lt;b&gt;Sign Up!&lt;/b&gt;&lt;/button&gt; 
+&lt;/form&gt; 
+--&gt;
+    &lt;<span class="s10">label</span>&gt;Don't have an account yet?&lt;/<span class="s10">label</span>&gt;
+    &lt;<span class="s10">a </span><span class="s11">class=</span><span class="s12">&quot;nav-link&quot; </span><span class="s11">href=</span><span class="s12">&quot;?signUp&quot;</span>&gt;Sign Up!&lt;/<span class="s10">a</span>&gt;
+&lt;/<span class="s10">div</span>&gt;
+</pre>
+</body>
+</html>

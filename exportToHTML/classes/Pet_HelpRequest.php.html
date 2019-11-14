@@ -1,0 +1,98 @@
+<html>
+<head>
+<title>Pet_HelpRequest.php</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #000080; font-weight: bold;}
+.s1 { color: #000000;}
+.s2 { color: #000000;}
+.s3 { color: #660000;}
+.s4 { color: #808080; font-style: italic;}
+.s5 { color: #808080; font-weight: bold; font-style: italic;}
+.ls0 { height: 1px; border-width: 0; color: #c0c0c0; background-color:#c0c0c0}
+</style>
+</head>
+<body bgcolor="#ffffff">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#c0c0c0" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+Pet_HelpRequest.php</font>
+</center></td></tr></table>
+<pre><span class="s0">&lt;?php</span>
+
+
+class Pet_HelpRequest
+{
+    <span class="s0">private </span><span class="s3">$petID</span>;
+    <span class="s0">private </span><span class="s3">$helpID</span>;
+    <span class="s0">private </span><span class="s3">$userID</span>;
+    <span class="s0">private </span><span class="s3">$recordRegisterTime</span>;
+
+    <span class="s4">/**</span>
+     * <span class="s5">@return </span><span class="s4">mixed</span>
+     */
+    <span class="s0">public function </span>getPetID()
+    {
+        <span class="s0">return </span><span class="s3">$this</span>-&gt;petID;
+    }
+
+    <span class="s4">/**</span>
+     * <span class="s5">@param </span><span class="s4">mixed $petID</span>
+     */
+    <span class="s0">public function </span>setPetID(<span class="s3">$petID</span>): void
+    {
+        <span class="s3">$this</span>-&gt;petID = <span class="s3">$petID</span>;
+    }
+
+    <span class="s4">/**</span>
+     * <span class="s5">@return </span><span class="s4">mixed</span>
+     */
+    <span class="s0">public function </span>getHelpID()
+    {
+        <span class="s0">return </span><span class="s3">$this</span>-&gt;helpID;
+    }
+
+    <span class="s4">/**</span>
+     * <span class="s5">@param </span><span class="s4">mixed $helpID</span>
+     */
+    <span class="s0">public function </span>setHelpID(<span class="s3">$helpID</span>): void
+    {
+        <span class="s3">$this</span>-&gt;helpID = <span class="s3">$helpID</span>;
+    }
+
+    <span class="s4">/**</span>
+     * <span class="s5">@return </span><span class="s4">mixed</span>
+     */
+    <span class="s0">public function </span>getUserID()
+    {
+        <span class="s0">return </span><span class="s3">$this</span>-&gt;userID;
+    }
+
+    <span class="s4">/**</span>
+     * <span class="s5">@param </span><span class="s4">mixed $userID</span>
+     */
+    <span class="s0">public function </span>setUserID(<span class="s3">$userID</span>): void
+    {
+        <span class="s3">$this</span>-&gt;userID = <span class="s3">$userID</span>;
+    }
+
+    <span class="s4">/**</span>
+     * <span class="s5">@return </span><span class="s4">mixed</span>
+     */
+    <span class="s0">public function </span>getRecordRegisterTime()
+    {
+        <span class="s0">return </span><span class="s3">$this</span>-&gt;recordRegisterTime;
+    }
+
+    <span class="s4">/**</span>
+     * <span class="s5">@param </span><span class="s4">mixed $recordRegisterTime</span>
+     */
+    <span class="s0">public function </span>setRecordRegisterTime(<span class="s3">$recordRegisterTime</span>): void
+    {
+        <span class="s3">$this</span>-&gt;recordRegisterTime = <span class="s3">$recordRegisterTime</span>;
+    }
+
+
+}</pre>
+</body>
+</html>

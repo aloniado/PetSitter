@@ -1,0 +1,16 @@
+From:{NAME}<{EMAIL}>
+To:{TO}
+Subject:petSitter message - {TOPIC}
+Content-type:text/plain;
+		charset=UTF-8
+	
+Topic:	
+{TOPIC}
+
+Message:
+{MESSAGE}
+
+
+-----
+More: 
+{USER_DETAILS}

@@ -1,0 +1,100 @@
+<html>
+<head>
+<title>myPDF.php</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #000080; font-weight: bold;}
+.s1 { color: #000000;}
+.s2 { color: #008000; font-weight: bold;}
+.s3 { color: #000000;}
+.s4 { color: #660000;}
+.s5 { color: #0000ff;}
+.s6 { color: #808080; font-style: italic;}
+.ls0 { height: 1px; border-width: 0; color: #c0c0c0; background-color:#c0c0c0}
+</style>
+</head>
+<body bgcolor="#ffffff">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#c0c0c0" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+myPDF.php</font>
+</center></td></tr></table>
+<pre><span class="s0">&lt;?php</span>
+
+require_once (<span class="s2">&quot;../dbClass.php&quot;</span>);
+<span class="s0">require_once </span>(<span class="s2">&quot;fPDF.php&quot;</span>);
+
+<span class="s0">class </span>mypdf <span class="s0">extends </span>FPDF
+{
+    <span class="s0">function </span>createPageHeader()
+    {
+        <span class="s4">$this</span>-&gt;Ln(<span class="s5">20</span>);
+        <span class="s4">$this</span>-&gt;SetFont(<span class="s2">&quot;Arial&quot;</span>,<span class="s2">&quot;B&quot;</span>,<span class="s5">20</span>);
+        <span class="s4">$this</span>-&gt;Cell(<span class="s5">276</span>,<span class="s5">5</span>,<span class="s2">&quot;petSitter&quot;</span>,<span class="s5">0</span>,<span class="s5">0</span>,<span class="s2">'C'</span>);
+        <span class="s4">$this</span>-&gt;Ln();
+        <span class="s4">$this</span>-&gt;SetFont(<span class="s2">&quot;Times&quot;</span>,<span class="s2">''</span>,<span class="s5">12</span>);
+        <span class="s4">$this</span>-&gt;Cell(<span class="s5">276</span>,<span class="s5">10</span>, <span class="s2">&quot;Registered Users Details&quot;</span>,<span class="s5">0</span>,<span class="s5">0</span>,<span class="s2">'C'</span>);
+        <span class="s4">$this</span>-&gt;Ln(<span class="s5">10</span>);
+        <span class="s4">$this</span>-&gt;SetFont(<span class="s2">&quot;Times&quot;</span>,<span class="s2">''</span>,<span class="s5">8</span>);
+        <span class="s4">$this</span>-&gt;Cell(<span class="s5">276</span>,<span class="s5">10</span>, <span class="s2">&quot;Createn on: &quot; </span>. date(<span class="s2">&quot;Y-m-d h:i:sa&quot;</span>),<span class="s5">0</span>,<span class="s5">0</span>,<span class="s2">'C'</span>);
+        <span class="s4">$this</span>-&gt;Ln(<span class="s5">20</span>);
+
+    }
+
+    <span class="s0">function </span>footer()
+    {
+        <span class="s4">$this</span>-&gt;SetY(-<span class="s5">15</span>);
+        <span class="s4">$this</span>-&gt;SetFont(<span class="s2">&quot;Arial&quot;</span>,<span class="s2">''</span>,<span class="s5">8</span>);
+        <span class="s4">$this</span>-&gt;Cell(<span class="s5">0</span>,<span class="s5">10</span>,<span class="s2">'page'</span>.<span class="s4">$this</span>-&gt;PageNo().<span class="s2">'/{nb}'</span>,<span class="s5">0</span>,<span class="s5">0</span>,<span class="s2">'C'</span>);
+    }
+
+    <span class="s0">function </span>createTableHeader()
+    {
+
+        <span class="s4">$this</span>-&gt;SetFont(<span class="s2">'Times'</span>,<span class="s2">&quot;B&quot;</span>,<span class="s5">11</span>);
+        <span class="s4">$this</span>-&gt;Cell(<span class="s5">15</span>,<span class="s5">10</span>,<span class="s2">&quot;#&quot;</span>,<span class="s5">1</span>,<span class="s5">0</span>,<span class="s2">&quot;C&quot;</span>);
+        <span class="s4">$this</span>-&gt;Cell(<span class="s5">40</span>,<span class="s5">10</span>,<span class="s2">&quot;Name&quot;</span>,<span class="s5">1</span>,<span class="s5">0</span>,<span class="s2">&quot;C&quot;</span>);
+        <span class="s4">$this</span>-&gt;Cell(<span class="s5">60</span>,<span class="s5">10</span>,<span class="s2">&quot;Email&quot;</span>,<span class="s5">1</span>,<span class="s5">0</span>,<span class="s2">&quot;C&quot;</span>);
+        <span class="s4">$this</span>-&gt;Cell(<span class="s5">40</span>,<span class="s5">10</span>,<span class="s2">&quot;Phone&quot;</span>,<span class="s5">1</span>,<span class="s5">0</span>,<span class="s2">&quot;C&quot;</span>);
+        <span class="s4">$this</span>-&gt;Cell(<span class="s5">40</span>,<span class="s5">10</span>,<span class="s2">&quot;Register Time&quot;</span>,<span class="s5">1</span>,<span class="s5">0</span>,<span class="s2">&quot;C&quot;</span>);
+        <span class="s4">$this</span>-&gt;Cell(<span class="s5">40</span>,<span class="s5">10</span>,<span class="s2">&quot;Status&quot;</span>,<span class="s5">1</span>,<span class="s5">0</span>,<span class="s2">&quot;C&quot;</span>);
+        <span class="s4">$this</span>-&gt;Ln();
+    }
+
+
+    <span class="s0">function </span>createTableDetails(<span class="s4">$users</span>)
+    {
+        <span class="s4">$this</span>-&gt;SetFont(<span class="s2">'Times'</span>,<span class="s2">''</span>,<span class="s5">11</span>);
+        <span class="s4">$count</span>=<span class="s5">0</span>;
+        <span class="s0">foreach </span>(<span class="s4">$users </span><span class="s0">as </span><span class="s4">$k</span>)
+        {
+            <span class="s4">$count</span>++;
+            <span class="s4">$this</span>-&gt;Cell(<span class="s5">15</span>,<span class="s5">10</span>,<span class="s4">$count</span>,<span class="s5">1</span>,<span class="s5">0</span>,<span class="s2">&quot;C&quot;</span>);
+            <span class="s4">$this</span>-&gt;Cell(<span class="s5">40</span>,<span class="s5">10</span>,<span class="s4">$k</span>-&gt;getUserFName().<span class="s2">&quot; &quot;</span>.<span class="s4">$k</span>-&gt;getUserLName(),<span class="s5">1</span>,<span class="s5">0</span>,<span class="s2">&quot;L&quot;</span>);
+            <span class="s4">$this</span>-&gt;Cell(<span class="s5">60</span>,<span class="s5">10</span>,<span class="s4">$k</span>-&gt;getUserEmail(),<span class="s5">1</span>,<span class="s5">0</span>,<span class="s2">&quot;L&quot;</span>);
+            <span class="s4">$this</span>-&gt;Cell(<span class="s5">40</span>,<span class="s5">10</span>,<span class="s4">$k</span>-&gt;getUserPhone(),<span class="s5">1</span>,<span class="s5">0</span>,<span class="s2">&quot;L&quot;</span>);
+            <span class="s4">$this</span>-&gt;Cell(<span class="s5">40</span>,<span class="s5">10</span>,<span class="s4">$k</span>-&gt;getUserRegisterTime(),<span class="s5">1</span>,<span class="s5">0</span>,<span class="s2">&quot;L&quot;</span>);
+            <span class="s4">$this</span>-&gt;Cell(<span class="s5">40</span>,<span class="s5">10</span>,<span class="s4">$k</span>-&gt;getUserStatus(),<span class="s5">1</span>,<span class="s5">0</span>,<span class="s2">&quot;L&quot;</span>);
+            <span class="s4">$this</span>-&gt;Ln();
+
+        }
+    }
+}
+
+<span class="s6">//--------------------------------------------------------------------------------------------------</span>
+<span class="s4">$db </span>= <span class="s0">new </span>dbClass();
+
+<span class="s4">$users_arr_report </span>= <span class="s4">$db</span>-&gt;getObjectsGeneral(<span class="s2">&quot;users&quot;</span>, <span class="s2">&quot; WHERE 1 ORDER BY userStatus&quot;</span>, <span class="s2">&quot;User&quot;</span>);
+
+<span class="s4">$pdf</span>=<span class="s0">new </span>mypdf();
+<span class="s4">$pdf</span>-&gt;AliasNbPages();
+<span class="s4">$pdf</span>-&gt;AddPage(<span class="s2">'L'</span>,<span class="s2">'A4'</span>,<span class="s5">0</span>);
+<span class="s4">$pdf</span>-&gt;createPageHeader();
+<span class="s4">$pdf</span>-&gt;createTableHeader();
+<span class="s6">//$persons=$db-&gt;getPersons();</span>
+<span class="s4">$pdf</span>-&gt;createTableDetails(<span class="s4">$users_arr_report</span>);
+<span class="s4">$pdf</span>-&gt;Output();
+<span class="s4">$pdf</span>-&gt;Close();
+</pre>
+</body>
+</html>

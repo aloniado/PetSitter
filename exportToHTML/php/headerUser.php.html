@@ -1,0 +1,91 @@
+<html>
+<head>
+<title>headerUser.php</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #000080; font-weight: bold;}
+.s1 { color: #000000;}
+.s2 { color: #000000;}
+.s3 { color: #000000;}
+.s4 { color: #000000;}
+.s5 { color: #000080; font-weight: bold;}
+.s6 { color: #0000ff; font-weight: bold;}
+.s7 { color: #008000; font-weight: bold;}
+.s8 { color: #808080; font-style: italic;}
+.s9 { color: #008000; font-weight: bold;}
+.s10 { color: #660000;}
+.s11 { color: #0000ff;}
+</style>
+</head>
+<body bgcolor="#ffffff">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#c0c0c0" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+headerUser.php</font>
+</center></td></tr></table>
+<pre><span class="s0">&lt;?php</span>
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
+<span class="s0">?&gt;</span>
+
+&lt;<span class="s5">header</span>&gt;
+    &lt;<span class="s5">div </span><span class="s6">class=</span><span class="s7">&quot;fixed-top&quot;</span>&gt;
+
+        <span class="s8">&lt;!--------------------------------------------------------------------------&gt;</span>
+        &lt;<span class="s5">nav </span><span class="s6">class=</span><span class="s7">&quot;navbar navbar-expand-lg navbar-dark bg-dark&quot;</span>&gt;
+            &lt;<span class="s5">div </span><span class="s6">class=</span><span class="s7">&quot;navbar-brand&quot; </span><span class="s6">href=</span><span class="s7">&quot;#&quot;</span>&gt;petSitter&lt;/<span class="s5">div</span>&gt;
+            &lt;<span class="s5">button </span><span class="s6">class=</span><span class="s7">&quot;navbar-toggler&quot; </span><span class="s6">type=</span><span class="s7">&quot;button&quot; </span><span class="s6">data-toggle=</span><span class="s7">&quot;collapse&quot; </span><span class="s6">data-target=</span><span class="s7">&quot;#navbarNavDropdown&quot; </span><span class="s6">aria-controls=</span><span class="s7">&quot;navbarNavDropdown&quot; </span><span class="s6">aria-expanded=</span><span class="s7">&quot;false&quot; </span><span class="s6">aria-label=</span><span class="s7">&quot;Toggle navigation&quot;</span>&gt;
+                &lt;<span class="s5">span </span><span class="s6">class=</span><span class="s7">&quot;navbar-toggler-icon&quot;</span>&gt;&lt;/<span class="s5">span</span>&gt;
+            &lt;/<span class="s5">button</span>&gt;
+            &lt;<span class="s5">div </span><span class="s6">class=</span><span class="s7">&quot;collapse navbar-collapse&quot; </span><span class="s6">id=</span><span class="s7">&quot;navbarNavDropdown&quot;</span>&gt;
+                &lt;<span class="s5">ul </span><span class="s6">class=</span><span class="s7">&quot;navbar-nav mr-auto&quot;</span>&gt;
+                    &lt;<span class="s5">li </span><span class="s6">class=</span><span class="s7">&quot;nav-item&quot;</span>&gt;
+                        &lt;<span class="s5">a </span><span class="s6">class=</span><span class="s7">&quot;nav-link&quot; </span><span class="s6">href=</span><span class="s7">&quot;?myProfile&quot;</span>&gt;My profile&lt;/<span class="s5">a</span>&gt;
+                    &lt;/<span class="s5">li</span>&gt;
+                    &lt;<span class="s5">li </span><span class="s6">class=</span><span class="s7">&quot;nav-item&quot;</span>&gt;
+                        &lt;<span class="s5">a </span><span class="s6">class=</span><span class="s7">&quot;nav-link&quot; </span><span class="s6">href=</span><span class="s7">&quot;?myPets&quot;</span>&gt;My pets&lt;/<span class="s5">a</span>&gt;
+                    &lt;/<span class="s5">li</span>&gt;
+                    &lt;<span class="s5">li </span><span class="s6">class=</span><span class="s7">&quot;nav-item dropdown&quot;</span>&gt;
+                        &lt;<span class="s5">a </span><span class="s6">class=</span><span class="s7">&quot;nav-link dropdown-toggle&quot; </span><span class="s6">href=</span><span class="s7">&quot;#&quot; </span><span class="s6">id=</span><span class="s7">&quot;navbarDropdownMenuLink&quot; </span><span class="s6">data-toggle=</span><span class="s7">&quot;dropdown&quot; </span><span class="s6">aria-haspopup=</span><span class="s7">&quot;true&quot; </span><span class="s6">aria-expanded=</span><span class="s7">&quot;false&quot;</span>&gt;
+                            Help requests
+                        &lt;/<span class="s5">a</span>&gt;
+                        &lt;<span class="s5">div </span><span class="s6">class=</span><span class="s7">&quot;dropdown-menu&quot; </span><span class="s6">aria-labelledby=</span><span class="s7">&quot;Help Requests&quot;</span>&gt;
+                            &lt;<span class="s5">a </span><span class="s6">class=</span><span class="s7">&quot;dropdown-item&quot; </span><span class="s6">href=</span><span class="s7">&quot;?helpRequestsAll&quot;</span>&gt;All help requests&lt;/<span class="s5">a</span>&gt;
+                            &lt;<span class="s5">a </span><span class="s6">class=</span><span class="s7">&quot;dropdown-item&quot; </span><span class="s6">href=</span><span class="s7">&quot;?myHelpRequests&quot;</span>&gt;My Help requests&lt;/<span class="s5">a</span>&gt;
+                            &lt;<span class="s5">a </span><span class="s6">class=</span><span class="s7">&quot;dropdown-item&quot; </span><span class="s6">href=</span><span class="s7">&quot;?helpRequestAdd&quot;</span>&gt;Add a Help request&lt;/<span class="s5">a</span>&gt;
+                        &lt;/<span class="s5">div</span>&gt;
+                    &lt;/<span class="s5">li</span>&gt;
+                    <span class="s0">&lt;?php</span>
+                    require_once <span class="s9">&quot;classes/dbClass.php&quot;</span>;
+                    <span class="s0">require_once </span><span class="s9">&quot;classes/User.php&quot;</span>;
+                    <span class="s10">$db </span>= <span class="s0">new </span>dbClass();
+                    <span class="s10">$signedInUser </span>= <span class="s10">$db</span>-&gt;getObjectsGeneral(<span class="s9">&quot;users&quot;</span>, <span class="s9">&quot;WHERE `userID`='&quot;</span>.<span class="s10">$_SESSION</span>[<span class="s9">'user'</span>].<span class="s9">&quot;'&quot;</span>, <span class="s9">&quot;User&quot;</span>)[<span class="s11">0</span>];
+                    <span class="s0">if </span>(<span class="s10">$signedInUser</span>-&gt;getUserStatus()==<span class="s9">&quot;admin&quot;</span>)
+                        <span class="s0">echo </span><span class="s9">&quot;&lt;li class='nav-item'&gt;&lt;a class='nav-link' href='?admin'&gt;Admin page&lt;/a&gt;&lt;/li&gt;&quot;</span>;
+                    <span class="s0">?&gt;</span>
+
+                    &lt;<span class="s5">li </span><span class="s6">class=</span><span class="s7">&quot;nav-item&quot;</span>&gt;
+                        &lt;<span class="s5">a </span><span class="s6">class=</span><span class="s7">&quot;nav-link&quot; </span><span class="s6">href=</span><span class="s7">&quot;?contactUs&quot;</span>&gt;Contact us&lt;/<span class="s5">a</span>&gt;
+                    &lt;/<span class="s5">li</span>&gt;
+                    &lt;<span class="s5">li </span><span class="s6">class=</span><span class="s7">&quot;nav-item&quot;</span>&gt;
+                        &lt;<span class="s5">a </span><span class="s6">class=</span><span class="s7">&quot;nav-link&quot; </span><span class="s6">href=</span><span class="s7">&quot;?signOut&quot;</span>&gt;Sign out&lt;/<span class="s5">a</span>&gt;
+                    &lt;/<span class="s5">li</span>&gt;
+
+                &lt;/<span class="s5">ul</span>&gt;
+                &lt;<span class="s5">span </span><span class="s6">class=</span><span class="s7">&quot;navbar-text&quot;</span>&gt;
+                  <span class="s0">&lt;?php</span>
+                  if (<span class="s0">isset</span>(<span class="s10">$_SESSION</span>[<span class="s9">'user'</span>]))
+                      <span class="s0">echo </span><span class="s9">&quot;Signed in as &quot;</span>.<span class="s10">$signedInUser</span>-&gt;getUserFName().<span class="s9">&quot; &quot;</span>.<span class="s10">$signedInUser</span>-&gt;getUserLName();
+                  <span class="s0">else</span>
+                      echo <span class="s9">&quot;Not signed in&quot;</span>;
+                  <span class="s0">?&gt;</span>
+                &lt;/<span class="s5">span</span>&gt;
+            &lt;/<span class="s5">div</span>&gt;
+        &lt;/<span class="s5">nav</span>&gt;
+    &lt;/<span class="s5">div</span>&gt;
+&lt;/<span class="s5">header</span>&gt;
+
+</pre>
+</body>
+</html>

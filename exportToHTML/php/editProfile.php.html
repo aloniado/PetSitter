@@ -1,0 +1,166 @@
+<html>
+<head>
+<title>editProfile.php</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #000080; font-weight: bold;}
+.s1 { color: #000000;}
+.s2 { color: #000000;}
+.s3 { color: #008000; font-weight: bold;}
+.s4 { color: #660000;}
+.s5 { color: #808080; font-style: italic;}
+.s6 { color: #000000;}
+.s7 { color: #808080; font-style: italic;}
+.s8 { color: #000000;}
+.s9 { color: #000080; font-weight: bold;}
+.s10 { color: #0000ff; font-weight: bold;}
+.s11 { color: #008000; font-weight: bold;}
+</style>
+</head>
+<body bgcolor="#ffffff">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#c0c0c0" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+editProfile.php</font>
+</center></td></tr></table>
+<pre><span class="s0">&lt;?php</span>
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
+<span class="s0">require_once </span><span class="s3">&quot;classes/dbClass.php&quot;</span>;
+<span class="s0">require_once </span><span class="s3">&quot;classes/User.php&quot;</span>;
+
+<span class="s4">$db </span>= <span class="s0">new </span>dbClass();
+<span class="s4">$signedInUser</span>=<span class="s4">$db</span>-&gt;getSignedInUserData();
+<span class="s5">//-----------------------------------------------------------------------------------------------------------------</span>
+//----------------------------------------------------------------------------------------if form information sent:
+<span class="s0">if </span>(<span class="s0">isset</span>(<span class="s4">$_POST</span>[<span class="s3">'sent'</span>]))  <span class="s5">//if form was submitted</span>
+{
+    <span class="s5">//TODO: js validation to fields</span>
+
+    //$tempUser = new User($_POST['pass'], $_POST['fname'], $_POST['lname'], $_POST['mail']);
+
+    <span class="s4">$signedInUser</span>-&gt;setUserFName(<span class="s4">$_POST</span>[<span class="s3">'fname'</span>]);
+    <span class="s4">$signedInUser</span>-&gt;setUserLName(<span class="s4">$_POST</span>[<span class="s3">'lname'</span>]);
+    <span class="s4">$signedInUser</span>-&gt;setUserPhone(<span class="s4">$_POST</span>[<span class="s3">'phone'</span>]);
+    <span class="s4">$signedInUser</span>-&gt;setUserBirthday(<span class="s4">$_POST</span>[<span class="s3">'birth'</span>]);
+    <span class="s4">$signedInUser</span>-&gt;setUserAbout(<span class="s4">$_POST</span>[<span class="s3">'about'</span>]);
+
+    var_dump(<span class="s4">$signedInUser</span>);
+
+    <span class="s4">$db</span>-&gt;editUserData(<span class="s4">$signedInUser</span>);
+
+    <span class="s4">$_SESSION</span>[<span class="s3">'userMessage'</span>]=<span class="s3">&quot;Details saved successfully.&quot;</span>;
+    <span class="s4">$_SESSION</span>[<span class="s3">'nextPage'</span>]=<span class="s3">&quot;ProfileUser.php&quot;</span>;
+    <span class="s4">$_SESSION</span>[<span class="s3">'UserProfileToShow'</span>]=<span class="s4">$signedInUser</span>-&gt;getUserID();
+    header(<span class="s3">&quot;Location: main.php&quot;</span>);
+    <span class="s0">die</span>();
+
+
+    <span class="s5">//header(&quot;Location: main.php&quot;);</span>
+    //die();
+    /* 
+    echo &quot;&lt;pre&gt;&quot;; 
+    var_dump($signedInUser); 
+    echo &quot;&lt;/pre&gt;&quot;; 
+    */
+}
+
+
+<span class="s0">?&gt;</span>
+<span class="s7">&lt;!--------------------------------------------------------&gt;</span>
+&lt;<span class="s9">div </span><span class="s10">class=</span><span class="s11">&quot;card&quot;</span>&gt;
+    &lt;<span class="s9">h5 </span><span class="s10">class=</span><span class="s11">&quot;card-header&quot;</span>&gt;Edit Profile:&lt;/<span class="s9">h5</span>&gt;
+    &lt;<span class="s9">div </span><span class="s10">class=</span><span class="s11">&quot;card-body&quot;</span>&gt;
+        &lt;<span class="s9">form </span><span class="s10">action=</span><span class="s11">&quot;editProfile.php&quot; </span><span class="s10">method=</span><span class="s11">post</span>&gt;
+            &lt;<span class="s9">div </span><span class="s10">class=</span><span class="s11">&quot;form-group&quot;</span>&gt;
+                &lt;<span class="s9">div </span><span class="s10">class=</span><span class="s11">&quot;form-row&quot;</span>&gt;
+                    &lt;<span class="s9">div </span><span class="s10">class=</span><span class="s11">&quot;col&quot;</span>&gt;
+                        &lt;<span class="s9">label</span>&gt;Email Address:&lt;/<span class="s9">label</span>&gt;
+                    &lt;/<span class="s9">div</span>&gt;
+                &lt;/<span class="s9">div</span>&gt;
+                &lt;<span class="s9">div </span><span class="s10">class=</span><span class="s11">&quot;form-row&quot;</span>&gt;
+                    &lt;<span class="s9">div </span><span class="s10">class=</span><span class="s11">&quot;col&quot;</span>&gt;
+                        &lt;<span class="s9">input </span><span class="s10">type=</span><span class="s11">&quot;text&quot; </span><span class="s10">disabled class=</span><span class="s11">&quot;form-control&quot; </span><span class="s10">placeholder=</span><span class="s11">&quot;</span><span class="s0">&lt;?php echo </span><span class="s4">$signedInUser</span>-&gt;getUserEmail()<span class="s0">?&gt;</span><span class="s11">&quot; </span><span class="s10">name=</span><span class="s11">&quot;email&quot;</span>&gt;
+                    &lt;/<span class="s9">div</span>&gt;
+                &lt;/<span class="s9">div</span>&gt;
+            &lt;/<span class="s9">div</span>&gt;
+            &lt;<span class="s9">div </span><span class="s10">class=</span><span class="s11">&quot;form-group&quot;</span>&gt;
+                &lt;<span class="s9">div </span><span class="s10">class=</span><span class="s11">&quot;form-row&quot;</span>&gt;
+                    &lt;<span class="s9">div </span><span class="s10">class=</span><span class="s11">&quot;col&quot;</span>&gt;
+                        &lt;<span class="s9">label</span>&gt;First Name:&lt;/<span class="s9">label</span>&gt;
+                    &lt;/<span class="s9">div</span>&gt;
+                    &lt;<span class="s9">div </span><span class="s10">class=</span><span class="s11">&quot;col&quot;</span>&gt;
+                        &lt;<span class="s9">label</span>&gt;Last Name:&lt;/<span class="s9">label</span>&gt;
+                    &lt;/<span class="s9">div</span>&gt;
+                &lt;/<span class="s9">div</span>&gt;
+                &lt;<span class="s9">div </span><span class="s10">class=</span><span class="s11">&quot;form-row&quot;</span>&gt;
+                    &lt;<span class="s9">div </span><span class="s10">class=</span><span class="s11">&quot;col&quot;</span>&gt;
+                        &lt;<span class="s9">input </span><span class="s10">type=</span><span class="s11">&quot;text&quot; </span><span class="s10">class=</span><span class="s11">&quot;form-control&quot; </span><span class="s10">placeholder=</span><span class="s11">&quot;First name&quot; </span><span class="s10">name=</span><span class="s11">&quot;fname&quot; </span><span class="s10">value=</span><span class="s11">&quot;</span><span class="s0">&lt;?php echo </span><span class="s4">$signedInUser</span>-&gt;getUserFName()<span class="s0">?&gt;</span><span class="s11">&quot; </span><span class="s10">pattern=</span><span class="s11">&quot;[A-Za-z \- ']{2,30}&quot; </span><span class="s10">title=</span><span class="s11">&quot;Only letters, at least 2&quot; </span><span class="s10">required=</span><span class="s11">&quot;required&quot;</span>&gt;
+                    &lt;/<span class="s9">div</span>&gt;
+                    &lt;<span class="s9">div </span><span class="s10">class=</span><span class="s11">&quot;col&quot;</span>&gt;
+                        &lt;<span class="s9">input </span><span class="s10">type=</span><span class="s11">&quot;text&quot; </span><span class="s10">class=</span><span class="s11">&quot;form-control&quot; </span><span class="s10">placeholder=</span><span class="s11">&quot;Last name&quot; </span><span class="s10">name=</span><span class="s11">&quot;lname&quot; </span><span class="s10">value=</span><span class="s11">&quot;</span><span class="s0">&lt;?php echo </span><span class="s4">$signedInUser</span>-&gt;getUserLName()<span class="s0">?&gt;</span><span class="s11">&quot; </span><span class="s10">pattern=</span><span class="s11">&quot;[A-Za-z \- ']{2,30}&quot; </span><span class="s10">title=</span><span class="s11">&quot;Only letters, at least 2&quot; </span><span class="s10">required=</span><span class="s11">&quot;required&quot;</span>&gt;
+                    &lt;/<span class="s9">div</span>&gt;
+                &lt;/<span class="s9">div</span>&gt;
+            &lt;/<span class="s9">div</span>&gt;
+
+            &lt;<span class="s9">div </span><span class="s10">class=</span><span class="s11">&quot;form-group&quot;</span>&gt;
+                &lt;<span class="s9">div </span><span class="s10">class=</span><span class="s11">&quot;form-row&quot;</span>&gt;
+                    &lt;<span class="s9">div </span><span class="s10">class=</span><span class="s11">&quot;col&quot;</span>&gt;
+                        &lt;<span class="s9">label</span>&gt;Phone Number:&lt;/<span class="s9">label</span>&gt;
+                    &lt;/<span class="s9">div</span>&gt;
+                &lt;/<span class="s9">div</span>&gt;
+                &lt;<span class="s9">div </span><span class="s10">class=</span><span class="s11">&quot;form-row&quot;</span>&gt;
+                    &lt;<span class="s9">div </span><span class="s10">class=</span><span class="s11">&quot;col&quot;</span>&gt;
+                        &lt;<span class="s9">input </span><span class="s10">type=</span><span class="s11">&quot;tel&quot; </span><span class="s10">class=</span><span class="s11">&quot;form-control&quot; </span><span class="s10">id=</span><span class="s11">&quot;exampleInputPhone1&quot; </span><span class="s10">aria-describedby=</span><span class="s11">&quot;emailHelp&quot; </span><span class="s10">placeholder=</span><span class="s11">&quot;Enter Phone Number&quot;  </span><span class="s10">name=</span><span class="s11">&quot;phone&quot; </span><span class="s10">value=</span><span class="s11">&quot;</span><span class="s0">&lt;?php echo </span><span class="s4">$signedInUser</span>-&gt;getUserPhone()<span class="s0">?&gt;</span><span class="s11">&quot; </span><span class="s10">pattern=</span><span class="s11">&quot;[0-9]{9,10}&quot; </span><span class="s10">title=</span><span class="s11">&quot;please enter a valid phone number&quot;</span>&gt;
+                    &lt;/<span class="s9">div</span>&gt;
+                &lt;/<span class="s9">div</span>&gt;
+            &lt;/<span class="s9">div</span>&gt;
+
+
+
+            &lt;<span class="s9">div </span><span class="s10">class=</span><span class="s11">&quot;form-group&quot;</span>&gt;
+                &lt;<span class="s9">div </span><span class="s10">class=</span><span class="s11">&quot;form-row&quot;</span>&gt;
+                    &lt;<span class="s9">div </span><span class="s10">class=</span><span class="s11">&quot;col&quot;</span>&gt;
+                        &lt;<span class="s9">label</span>&gt;Birthday:&lt;/<span class="s9">label</span>&gt;
+                    &lt;/<span class="s9">div</span>&gt;
+                &lt;/<span class="s9">div</span>&gt;
+                &lt;<span class="s9">div </span><span class="s10">class=</span><span class="s11">&quot;form-row&quot;</span>&gt;
+                    &lt;<span class="s9">div </span><span class="s10">class=</span><span class="s11">&quot;col&quot;</span>&gt;
+                        &lt;<span class="s9">input </span><span class="s10">type=</span><span class="s11">&quot;date&quot; </span><span class="s10">class=</span><span class="s11">&quot;form-control&quot; </span><span class="s10">id=</span><span class="s11">&quot;exampleInputDate1&quot; </span><span class="s10">aria-describedby=</span><span class="s11">&quot;emailHelp&quot; </span><span class="s10">placeholder=</span><span class="s11">&quot;</span><span class="s0">&lt;?php echo </span><span class="s4">$signedInUser</span>-&gt;getUserBirthday()<span class="s0">?&gt;</span><span class="s11">&quot;  </span><span class="s10">name=</span><span class="s11">&quot;birth&quot; </span><span class="s10">value=</span><span class="s11">&quot;</span><span class="s0">&lt;?php echo </span><span class="s4">$signedInUser</span>-&gt;getUserBirthday()<span class="s0">?&gt;</span><span class="s11">&quot;</span>&gt;
+
+                    &lt;/<span class="s9">div</span>&gt;
+                &lt;/<span class="s9">div</span>&gt;
+            &lt;/<span class="s9">div</span>&gt;
+            &lt;<span class="s9">div </span><span class="s10">class=</span><span class="s11">&quot;form-group&quot;</span>&gt;
+                &lt;<span class="s9">div </span><span class="s10">class=</span><span class="s11">&quot;form-row&quot;</span>&gt;
+                    &lt;<span class="s9">div </span><span class="s10">class=</span><span class="s11">&quot;col&quot;</span>&gt;
+                        &lt;<span class="s9">label</span>&gt;About me:&lt;/<span class="s9">label</span>&gt;
+                    &lt;/<span class="s9">div</span>&gt;
+                &lt;/<span class="s9">div</span>&gt;
+                &lt;<span class="s9">div </span><span class="s10">class=</span><span class="s11">&quot;form-row&quot;</span>&gt;
+                    &lt;<span class="s9">div </span><span class="s10">class=</span><span class="s11">&quot;col&quot;</span>&gt;
+                        &lt;<span class="s9">input </span><span class="s10">type=</span><span class="s11">&quot;text&quot; </span><span class="s10">class=</span><span class="s11">&quot;form-control&quot; </span><span class="s10">id=</span><span class="s11">&quot;exampleInputAbout1&quot; </span><span class="s10">aria-describedby=</span><span class="s11">&quot;emailHelp&quot; </span><span class="s10">placeholder=</span><span class="s11">&quot;Tell People About Yourself&quot;  </span><span class="s10">name=</span><span class="s11">&quot;about&quot; </span><span class="s10">value=</span><span class="s11">&quot;</span><span class="s0">&lt;?php echo </span><span class="s4">$signedInUser</span>-&gt;getUserAbout()<span class="s0">?&gt;</span><span class="s11">&quot;</span>&gt;            &lt;/<span class="s9">div</span>&gt;
+                &lt;/<span class="s9">div</span>&gt;
+            &lt;/<span class="s9">div</span>&gt;
+
+
+
+            &lt;<span class="s9">div </span><span class="s10">class=</span><span class="s11">&quot;form-group&quot;</span>&gt;
+
+                &lt;<span class="s9">div </span><span class="s10">class=</span><span class="s11">&quot;form-row&quot;</span>&gt;
+                    &lt;<span class="s9">div </span><span class="s10">class=</span><span class="s11">&quot;col&quot;</span>&gt;
+                        &lt;<span class="s9">button </span><span class="s10">type=</span><span class="s11">&quot;submit&quot; </span><span class="s10">class=</span><span class="s11">&quot;btn btn-primary&quot; </span><span class="s10">name=</span><span class="s11">&quot;sent&quot;</span>&gt;Update profile&lt;/<span class="s9">button</span>&gt;
+                    &lt;/<span class="s9">div</span>&gt;
+                &lt;/<span class="s9">div</span>&gt;
+            &lt;/<span class="s9">div</span>&gt;
+
+        &lt;/<span class="s9">form</span>&gt;
+    &lt;/<span class="s9">div</span>&gt;
+&lt;/<span class="s9">div</span>&gt;
+<span class="s7">&lt;!-------------------------------------------------------&gt;</span>
+
+
+</pre>
+</body>
+</html>

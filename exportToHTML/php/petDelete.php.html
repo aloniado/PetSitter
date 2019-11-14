@@ -1,0 +1,166 @@
+<html>
+<head>
+<title>petDelete.php</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #000080; font-weight: bold;}
+.s1 { color: #000000;}
+.s2 { color: #000000;}
+.s3 { color: #008000; font-weight: bold;}
+.s4 { color: #660000;}
+.s5 { color: #808080; font-style: italic;}
+.s6 { color: #0000ff;}
+</style>
+</head>
+<body bgcolor="#ffffff">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#c0c0c0" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+petDelete.php</font>
+</center></td></tr></table>
+<pre><span class="s0">&lt;?php</span>
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
+<span class="s0">require_once </span><span class="s3">&quot;classes/dbClass.php&quot;</span>;
+<span class="s0">require_once </span><span class="s3">&quot;classes/HelpRequest.php&quot;</span>;
+<span class="s0">require_once </span><span class="s3">&quot;classes/Pet.php&quot;</span>;
+<span class="s0">require_once </span><span class="s3">&quot;classes/Pet_HelpRequest.php&quot;</span>;
+
+
+<span class="s0">require_once </span><span class="s3">&quot;classes/dbClassPetsFunctions.php&quot;</span>;
+<span class="s4">$db </span>= <span class="s0">new </span>dbClass();
+
+
+<span class="s5">//-----------------------------------------------------form handling (actual deletion):</span>
+reset(<span class="s4">$_POST</span>);
+<span class="s4">$first_key </span>= key(<span class="s4">$_POST</span>);
+<span class="s5">//echo $first_key.&quot;&lt;br&gt;&quot;;</span>
+
+<span class="s0">if </span>(substr(<span class="s4">$first_key</span>, <span class="s6">0</span>, <span class="s6">7</span>) === <span class="s3">&quot;deleteP&quot;</span>)       <span class="s5">//if verify deletion pressed</span>
+{
+    <span class="s4">$dbp </span>= <span class="s0">new </span>dbClassPetsFunctions();
+    <span class="s4">$petID </span>= substr(<span class="s4">$first_key</span>, <span class="s6">7</span>);
+
+    <span class="s0">echo </span><span class="s3">&quot;pet to delete: &quot;</span>.<span class="s4">$first_key</span>;
+    <span class="s0">echo </span><span class="s3">&quot;deletion verified.&lt;br&gt;&quot;</span>;
+
+
+    <span class="s5">//delete help requests where pet is only pet:</span>
+    <span class="s0">foreach</span>(<span class="s4">$_SESSION</span>[<span class="s3">'delete_request_id_arr'</span>] <span class="s0">as </span><span class="s4">$k</span>=&gt;<span class="s4">$v</span>){
+        <span class="s4">$db</span>-&gt;deleteObjectsGeneral(<span class="s3">&quot;pets_helprequests&quot;</span>, <span class="s3">&quot;WHERE `helpID`='&quot;</span>.<span class="s4">$v</span>.<span class="s3">&quot;'&quot;</span>);
+        <span class="s4">$db</span>-&gt;deleteObjectsGeneral(<span class="s3">&quot;helprequests&quot;</span>, <span class="s3">&quot;WHERE `helpID`='&quot;</span>.<span class="s4">$v</span>.<span class="s3">&quot;'&quot;</span>);
+    }
+
+    <span class="s5">//delete pet from help requests where pet is not the only one:</span>
+    <span class="s0">foreach</span>(<span class="s4">$_SESSION</span>[<span class="s3">'delete_pet_from_request_id_arr'</span>] <span class="s0">as </span><span class="s4">$k</span>=&gt;<span class="s4">$v</span>){
+        <span class="s4">$db</span>-&gt;deleteObjectsGeneral(<span class="s3">&quot;pets_helprequests&quot;</span>, <span class="s3">&quot;WHERE `helpID`='&quot;</span>.<span class="s4">$v</span>.<span class="s3">&quot;' AND `petID`='&quot;</span>.<span class="s4">$petID</span>.<span class="s3">&quot;'&quot;</span>);
+    }
+
+    <span class="s5">//delete pet's image if exists:</span>
+    <span class="s4">$dbp</span>-&gt;deletePetImageByID(<span class="s4">$petID</span>);
+
+
+    <span class="s5">//delete pet from db:</span>
+    <span class="s4">$db</span>-&gt;deleteObjectsGeneral(<span class="s3">&quot;pets&quot;</span>, <span class="s3">&quot;WHERE `petID`='&quot;</span>.<span class="s4">$petID</span>.<span class="s3">&quot;'&quot;</span>);
+
+
+    <span class="s0">unset</span>(<span class="s4">$_SESSION</span>[<span class="s3">'delete_request_id_arr'</span>]);
+    <span class="s0">unset</span>(<span class="s4">$_SESSION</span>[<span class="s3">'delete_pet_from_request_id_arr'</span>]);
+    <span class="s0">unset</span>(<span class="s4">$_SESSION</span>[<span class="s3">'petToDelete'</span>]);
+
+    <span class="s4">$_SESSION</span>[<span class="s3">'userMessage'</span>]=<span class="s3">&quot;Pet deleted successfully.&quot;</span>;
+    <span class="s4">$_SESSION</span>[<span class="s3">'nextPage'</span>]=<span class="s3">&quot;myPets.php&quot;</span>;
+    header(<span class="s3">&quot;Location: main.php&quot;</span>);
+    <span class="s0">die</span>();
+
+
+    <span class="s5">//$_SESSION['nextPage']=&quot;myHelpRequests.php&quot;;</span>
+}
+<span class="s5">/* 
+else if (!isset($_SESSION['petToDelete']) || $_SESSION['petToDelete']==&quot;&quot;){      //if pet to delete field is not set 
+    $_SESSION['nextPage']=&quot;myPets.php&quot;; 
+    header(&quot;Location: main.php&quot;); 
+    die(); 
+} 
+*/</span>
+//---------------------------------------------------------------
+
+<span class="s0">unset</span>(<span class="s4">$_SESSION</span>[<span class="s3">'delete_request_id_arr'</span>]);
+<span class="s0">unset</span>(<span class="s4">$_SESSION</span>[<span class="s3">'delete_pet_from_request_id_arr'</span>]);
+<span class="s4">$tempPet </span>= <span class="s4">$db</span>-&gt;getPetByID(<span class="s4">$_SESSION</span>[<span class="s3">'petToDelete'</span>]);
+
+
+<span class="s0">echo </span><span class="s3">&quot;&lt;h3&gt;Deleting &quot;</span>.<span class="s4">$tempPet</span>-&gt;getPetName().<span class="s3">&quot;:&lt;/h3&gt;&quot;</span>;
+<span class="s4">$petstr</span>=<span class="s3">&quot;&lt;div class='card'&gt;&quot;</span>;
+<span class="s4">$petstr</span>.=<span class="s3">&quot;&lt;table&gt;&lt;tr&gt;&lt;td width='30%'&gt;&quot;</span>;
+<span class="s4">$petstr</span>.=<span class="s4">$db</span>-&gt;printPetBasic(<span class="s4">$tempPet</span>);
+<span class="s4">$petstr</span>.=<span class="s3">&quot;&lt;/td&gt;&lt;td width='30%'&gt;&quot;</span>;
+<span class="s4">$petstr</span>.=<span class="s4">$db</span>-&gt;printPetExtra(<span class="s4">$tempPet</span>);
+<span class="s4">$petstr</span>.=<span class="s3">&quot;&lt;/td&gt;&lt;td align='center'&gt;&quot;</span>;
+<span class="s4">$petstr</span>.=<span class="s4">$db</span>-&gt;getPetImageString(<span class="s4">$tempPet</span>);
+<span class="s4">$petstr</span>.=<span class="s3">&quot;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/div&gt;&lt;br&gt;&quot;</span>;
+<span class="s0">echo </span><span class="s4">$petstr</span>;
+
+<span class="s5">//checking if Pet appears on help requests:</span>
+<span class="s4">$P_HR_Arr </span>= <span class="s4">$db</span>-&gt;getObjectsGeneral(<span class="s3">&quot;pets_helprequests&quot;</span>, <span class="s3">&quot; WHERE `petID`='&quot;</span>.<span class="s4">$tempPet</span>-&gt;getPetID().<span class="s3">&quot;'&quot;</span>, <span class="s3">&quot;Pet_HelpRequest&quot;</span>);
+<span class="s0">if </span>(<span class="s4">$P_HR_Arr </span>!= null){   <span class="s5">//$P_HR holds all Pet_HelpRequest where pet to delete appears on</span>
+    <span class="s4">$delete_request_id_arr</span>=<span class="s0">array</span>();
+    <span class="s4">$delete_pet_from_request_id_arr</span>=<span class="s0">array</span>();
+    <span class="s0">echo </span><span class="s3">&quot;&lt;h4&gt;&quot;</span>.<span class="s4">$tempPet</span>-&gt;getPetName().<span class="s3">&quot; appears on these Help Requests:&lt;/h4&gt;&quot;</span>;
+    <span class="s5">/* 
+    echo &quot;&lt;pre&gt;&quot;; 
+    var_dump($P_HR_Arr); 
+    echo &quot;&lt;/pre&gt;&quot;; 
+    */</span>
+    <span class="s0">foreach </span>(<span class="s4">$P_HR_Arr </span><span class="s0">as </span><span class="s4">$phr</span>){
+    <span class="s4">$HelpRequest </span>= <span class="s4">$db</span>-&gt;getObjectsGeneral(<span class="s3">&quot;helprequests&quot;</span>, <span class="s3">&quot; WHERE `helpID`='&quot;</span>.<span class="s4">$phr</span>-&gt;getHelpID().<span class="s3">&quot;'&quot;</span>, <span class="s3">&quot;HelpRequest&quot;</span>);
+        <span class="s4">$k </span>= <span class="s4">$HelpRequest</span>[<span class="s6">0</span>];    <span class="s5">//$k is now HelpRequest</span>
+
+        //todo: get and show pets in each HelpRequest!!
+
+        <span class="s4">$str</span>=<span class="s3">&quot;&lt;div class='card'&gt;&quot;</span>;
+        <span class="s4">$str</span>.=<span class="s3">&quot;&lt;table&gt;&lt;tr&gt;&lt;td width='30%'&gt;&quot;</span>;
+        <span class="s4">$str</span>.=<span class="s3">&quot;Help ID: &quot;</span>.<span class="s4">$k</span>-&gt;getHelpID().<span class="s3">&quot;&lt;br&gt;&quot;</span>;
+        <span class="s4">$str</span>.=<span class="s3">&quot;Type: &quot;</span>.<span class="s4">$k</span>-&gt;getHelpType().<span class="s3">&quot;&lt;br&gt;&quot;</span>;
+        <span class="s4">$str</span>.=<span class="s3">&quot;Starts on: &quot;</span>.<span class="s4">$k</span>-&gt;getHelpStartTime().<span class="s3">&quot;&lt;br&gt;&quot;</span>;
+        <span class="s4">$str</span>.=<span class="s3">&quot;Ends on: &quot;</span>.<span class="s4">$k</span>-&gt;getHelpEndTime().<span class="s3">&quot;&lt;br&gt;&quot;</span>;
+        <span class="s4">$str</span>.=<span class="s3">&quot;Location: &quot;</span>.<span class="s4">$k</span>-&gt;getHelpLocCity().<span class="s3">&quot;, &quot;</span>.<span class="s4">$k</span>-&gt;getHelpLocStreet().<span class="s3">&quot;&lt;br&gt;&quot;</span>;
+        <span class="s4">$str</span>.=<span class="s3">&quot;Payment offered: &quot;</span>.<span class="s4">$k</span>-&gt;getHelpPayment().<span class="s3">&quot;[NIS]&lt;br&gt;&quot;</span>;
+        <span class="s4">$str</span>.=<span class="s3">&quot;&lt;/td&gt;&lt;td align='center'&gt;&quot;</span>;
+        <span class="s5">//$str.=$petsInRequest;</span>
+        <span class="s4">$str</span>.=<span class="s3">&quot;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/div&gt;&quot;</span>;
+
+        <span class="s0">echo </span><span class="s4">$str</span>;
+
+        <span class="s4">$p_hr_byHelpID </span>= <span class="s4">$db</span>-&gt;getObjectsGeneral(<span class="s3">&quot;pets_helprequests&quot;</span>, <span class="s3">&quot; WHERE `helpID`='&quot;</span>.<span class="s4">$k</span>-&gt;getHelpID().<span class="s3">&quot;'&quot;</span>, <span class="s3">&quot;Pet_HelpRequest&quot;</span>);
+        <span class="s5">/* 
+        echo &quot;&lt;pre&gt;&quot;; 
+        var_dump($p_hr_byHelpID); 
+        echo &quot;&lt;/pre&gt;&quot;; 
+        */</span>
+        <span class="s0">if </span>(sizeof(<span class="s4">$p_hr_byHelpID</span>)==<span class="s6">1</span>){
+            <span class="s0">echo </span><span class="s3">&quot;*Help request will be deleted.&lt;br&gt;&lt;br&gt;&quot;</span>;
+            array_push(<span class="s4">$delete_request_id_arr</span>, <span class="s4">$k</span>-&gt;getHelpID());
+        }
+        <span class="s0">else if </span>(sizeof(<span class="s4">$p_hr_byHelpID</span>)&gt;<span class="s6">1</span>){
+            <span class="s0">echo </span><span class="s3">&quot;*&quot;</span>.<span class="s4">$tempPet</span>-&gt;getPetName().<span class="s3">&quot; will be deleted from request.&lt;br&gt;&lt;br&gt;&quot;</span>;
+            array_push(<span class="s4">$delete_pet_from_request_id_arr</span>, <span class="s4">$k</span>-&gt;getHelpID());
+        }
+    }
+
+    <span class="s4">$_SESSION</span>[<span class="s3">'delete_request_id_arr'</span>]=<span class="s4">$delete_request_id_arr</span>;
+    <span class="s4">$_SESSION</span>[<span class="s3">'delete_pet_from_request_id_arr'</span>]=<span class="s4">$delete_pet_from_request_id_arr</span>;
+}
+<span class="s0">else</span>
+    {
+    <span class="s0">echo </span><span class="s3">&quot;pet is clear for deletion&quot;</span>;
+}
+<span class="s0">echo </span><span class="s3">&quot;&lt;br&gt;&lt;form action='petDelete.php' method=post&gt;&lt;button type='submit' class='btn btn-primary' name='&quot;</span>.<span class="s3">&quot;deleteP&quot;</span>.<span class="s4">$tempPet</span>-&gt;getPetID().<span class="s3">&quot;'&gt;Verify Deletion&lt;/button&gt;&lt;/form&gt;&lt;br&gt;&quot;</span>;
+
+
+
+
+</pre>
+</body>
+</html>

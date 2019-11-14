@@ -1,0 +1,154 @@
+<html>
+<head>
+<title>User.php</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #000080; font-weight: bold;}
+.s1 { color: #000000;}
+.s2 { color: #008000; font-weight: bold;}
+.s3 { color: #000000;}
+.s4 { color: #660000;}
+.s5 { color: #808080; font-style: italic;}
+.ls0 { height: 1px; border-width: 0; color: #c0c0c0; background-color:#c0c0c0}
+</style>
+</head>
+<body bgcolor="#ffffff">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#c0c0c0" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+User.php</font>
+</center></td></tr></table>
+<pre><span class="s0">&lt;?php</span>
+require_once <span class="s2">&quot;dbClass.php&quot;</span>;
+
+<span class="s0">class </span>User
+{
+    <span class="s0">private </span><span class="s4">$userID</span>;
+    <span class="s0">private </span><span class="s4">$userEmail</span>;
+    <span class="s0">private </span><span class="s4">$userPassword</span>;
+    <span class="s0">private </span><span class="s4">$userFName</span>;
+    <span class="s0">private </span><span class="s4">$userLName</span>;
+    <span class="s0">private </span><span class="s4">$userPhone</span>;
+    <span class="s0">private </span><span class="s4">$userBirthday</span>;
+    <span class="s0">private </span><span class="s4">$userAbout</span>;
+    <span class="s0">private </span><span class="s4">$userRegisterTime</span>;
+    <span class="s0">private </span><span class="s4">$userStatus</span>;
+    <span class="s5">/* <hr class="ls0">    public function __construct($userPassword, $userFName, $userLName, $userEmail) 
+    {   //construct a new basic user 
+        //$this-&gt;userID = $userID; 
+        $this-&gt;userPassword = password_hash($userPassword,PASSWORD_DEFAULT); 
+        //$this-&gt;userRegisterTime = $userRegisterTime; 
+        $this-&gt;userFName = $userFName; 
+        $this-&gt;userLName = $userLName; 
+        $this-&gt;userEmail = $userEmail; 
+        //$this-&gt;userPhone = $userPhone; 
+        //$this-&gt;userBirthday = $userBirthday; 
+        //$this-&gt;userAbout = $userAbout; 
+        $this-&gt;userStatus = 1;              //indicates user's level 
+    } 
+    */</span>
+
+    <span class="s0">public function </span>getUserID()
+    {
+        <span class="s0">return </span><span class="s4">$this</span>-&gt;userID;
+    }
+
+    <span class="s0">public function </span>getUserRegisterTime()
+    {
+        <span class="s0">return </span><span class="s4">$this</span>-&gt;userRegisterTime;
+    }
+
+    <span class="s0">public function </span>getUserFName()
+    {
+        <span class="s4">$db </span>= <span class="s0">new </span>dbClass();
+        <span class="s0">return </span><span class="s4">$db</span>-&gt;xmlToString(<span class="s4">$this</span>-&gt;userFName);
+    }
+
+    <span class="s0">public function </span>setUserFName(<span class="s4">$userFName</span>): void
+    {
+        <span class="s4">$db </span>= <span class="s0">new </span>dbClass();
+        <span class="s4">$this</span>-&gt;userFName = <span class="s4">$db</span>-&gt;StringToXml(<span class="s4">$userFName</span>);
+    }
+
+    <span class="s0">public function </span>getUserLName()
+    {
+        <span class="s4">$db </span>= <span class="s0">new </span>dbClass();
+        <span class="s0">return </span><span class="s4">$db</span>-&gt;xmlToString(<span class="s4">$this</span>-&gt;userLName);
+    }
+
+    <span class="s0">public function </span>setUserLName(<span class="s4">$userLName</span>): void
+    {
+        <span class="s5">//$this-&gt;userLName = $userLName;</span>
+        <span class="s4">$db </span>= <span class="s0">new </span>dbClass();
+        <span class="s4">$this</span>-&gt;userLName = <span class="s4">$db</span>-&gt;StringToXml(<span class="s4">$userLName</span>);
+    }
+
+    <span class="s0">public function </span>getUserEmail()
+    {
+        <span class="s0">return </span><span class="s4">$this</span>-&gt;userEmail;
+    }
+
+    <span class="s0">public function </span>setUserEmail(<span class="s4">$userEmail</span>): void
+    {
+        <span class="s4">$this</span>-&gt;userEmail = <span class="s4">$userEmail</span>;
+    }
+
+    <span class="s0">public function </span>getUserPhone()
+    {
+        <span class="s0">return </span><span class="s4">$this</span>-&gt;userPhone;
+    }
+
+    <span class="s0">public function </span>setUserPhone(<span class="s4">$userPhone</span>): void
+    {
+        <span class="s4">$this</span>-&gt;userPhone = <span class="s4">$userPhone</span>;
+    }
+
+    <span class="s0">public function </span>getUserBirthday()
+    {
+        <span class="s0">return </span><span class="s4">$this</span>-&gt;userBirthday;
+    }
+
+    <span class="s0">public function </span>setUserBirthday(<span class="s4">$userBirthday</span>): void
+    {
+        <span class="s4">$this</span>-&gt;userBirthday = <span class="s4">$userBirthday</span>;
+    }
+
+    <span class="s0">public function </span>getUserAbout()
+    {
+        <span class="s4">$db </span>= <span class="s0">new </span>dbClass();
+        <span class="s0">return </span><span class="s4">$db</span>-&gt;xmlToString(<span class="s4">$this</span>-&gt;userAbout);
+    }
+
+    <span class="s0">public function </span>setUserAbout(<span class="s4">$userAbout</span>): void
+    {
+        <span class="s5">//$this-&gt;userAbout = $userAbout;</span>
+        <span class="s4">$db </span>= <span class="s0">new </span>dbClass();
+        <span class="s4">$this</span>-&gt;userAbout = <span class="s4">$db</span>-&gt;StringToXml(<span class="s4">$userAbout</span>);
+    }
+
+    <span class="s0">public function </span>getUserStatus()
+    {
+        <span class="s0">return </span><span class="s4">$this</span>-&gt;userStatus;
+    }
+
+    <span class="s0">public function </span>setUserStatus(<span class="s4">$userStatus</span>): void
+    {
+        <span class="s4">$this</span>-&gt;userStatus = <span class="s4">$userStatus</span>;
+    }
+
+
+    <span class="s0">public function </span>getUserPassword()
+    {
+        <span class="s0">return </span><span class="s4">$this</span>-&gt;userPassword;
+    }
+
+    <span class="s0">public function </span>setUserPassword(<span class="s4">$userPassword</span>): void
+    {
+        <span class="s4">$this</span>-&gt;userPassword = password_hash(<span class="s4">$userPassword</span>,PASSWORD_DEFAULT);
+        <span class="s5">//$this-&gt;userPassword=$userPassword;</span>
+    }
+
+
+}</pre>
+</body>
+</html>

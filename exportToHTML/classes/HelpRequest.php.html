@@ -1,0 +1,190 @@
+<html>
+<head>
+<title>HelpRequest.php</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #000080; font-weight: bold;}
+.s1 { color: #000000;}
+.s2 { color: #008000; font-weight: bold;}
+.s3 { color: #808080; font-style: italic;}
+.s4 { color: #000000;}
+.s5 { color: #660000;}
+.ls0 { height: 1px; border-width: 0; color: #c0c0c0; background-color:#c0c0c0}
+</style>
+</head>
+<body bgcolor="#ffffff">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#c0c0c0" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+HelpRequest.php</font>
+</center></td></tr></table>
+<pre><span class="s0">&lt;?php</span>
+require_once <span class="s2">&quot;dbClass.php&quot;</span>;
+
+<span class="s3">//class represents a HelpRequest</span>
+<span class="s0">class </span>HelpRequest
+{
+    <span class="s0">private </span><span class="s5">$helpID</span>;
+    <span class="s0">private </span><span class="s5">$userID</span>;
+
+    <span class="s0">private </span><span class="s5">$helpLocLat</span>;
+    <span class="s0">private </span><span class="s5">$helpLocLng</span>;
+    <span class="s0">private </span><span class="s5">$helpLocCity</span>;
+    <span class="s0">private </span><span class="s5">$helpLocStreet</span>;
+    <span class="s0">private </span><span class="s5">$helpLocNum</span>;
+    <span class="s0">private </span><span class="s5">$helpLocCountry</span>;
+
+    <span class="s0">private </span><span class="s5">$helpRegisterTime</span>;
+    <span class="s0">private </span><span class="s5">$helpStartTime</span>;
+    <span class="s0">private </span><span class="s5">$helpEndTime</span>;
+    <span class="s0">private </span><span class="s5">$helpPayment</span>;
+    <span class="s0">private </span><span class="s5">$helpAbout</span>;
+    <span class="s0">private </span><span class="s5">$helpType</span>;
+    <span class="s0">private </span><span class="s5">$userPhone</span>;
+    <span class="s0">private </span><span class="s5">$helpStatus</span>;
+
+
+    <span class="s0">public function </span>getUserPhone()
+    {
+        <span class="s0">return </span><span class="s5">$this</span>-&gt;userPhone;
+    }
+
+    <span class="s0">public function </span>setUserPhone(<span class="s5">$userPhone</span>): void
+    {
+        <span class="s5">$this</span>-&gt;userPhone = <span class="s5">$userPhone</span>;
+    }
+
+    <span class="s0">public function </span>getHelpID()
+    {
+        <span class="s0">return </span><span class="s5">$this</span>-&gt;helpID;
+    }
+    <span class="s0">public function </span>setHelpID(<span class="s5">$helpID</span>): void
+    {
+        <span class="s5">$this</span>-&gt;helpID = <span class="s5">$helpID</span>;
+    }
+    <span class="s0">public function </span>getUserID()
+    {
+        <span class="s0">return </span><span class="s5">$this</span>-&gt;userID;
+    }
+    <span class="s0">public function </span>setUserID(<span class="s5">$userID</span>): void
+    {
+        <span class="s5">$this</span>-&gt;userID = <span class="s5">$userID</span>;
+    }
+    <span class="s0">public function </span>getHelpLocLat()
+    {
+        <span class="s0">return </span><span class="s5">$this</span>-&gt;helpLocLat;
+    }
+    <span class="s0">public function </span>setHelpLocLat(<span class="s5">$helpLocLat</span>): void
+    {
+        <span class="s5">$this</span>-&gt;helpLocLat = <span class="s5">$helpLocLat</span>;
+    }
+    <span class="s0">public function </span>getHelpLocLng()
+    {
+        <span class="s0">return </span><span class="s5">$this</span>-&gt;helpLocLng;
+    }
+    <span class="s0">public function </span>setHelpLocLng(<span class="s5">$helpLocLng</span>): void
+    {
+        <span class="s5">$this</span>-&gt;helpLocLng = <span class="s5">$helpLocLng</span>;
+    }
+    <span class="s0">public function </span>getHelpLocCity()
+    {
+        <span class="s5">$db </span>= <span class="s0">new </span>dbClass();
+        <span class="s0">return </span><span class="s5">$db</span>-&gt;xmlToString(<span class="s5">$this</span>-&gt;helpLocCity);
+    }
+    <span class="s0">public function </span>setHelpLocCity(<span class="s5">$helpLocCity</span>): void
+    {
+        <span class="s5">$this</span>-&gt;helpLocCity = <span class="s5">$helpLocCity</span>;
+    }
+    <span class="s0">public function </span>getHelpLocStreet()
+    {
+        <span class="s5">$db </span>= <span class="s0">new </span>dbClass();
+        <span class="s0">return </span><span class="s5">$db</span>-&gt;xmlToString(<span class="s5">$this</span>-&gt;helpLocStreet);
+    }
+    <span class="s0">public function </span>setHelpLocStreet(<span class="s5">$helpLocStreet</span>): void
+    {
+        <span class="s5">$this</span>-&gt;helpLocStreet = <span class="s5">$helpLocStreet</span>;
+    }
+    <span class="s0">public function </span>getHelpLocNum()
+    {
+        <span class="s0">return </span><span class="s5">$this</span>-&gt;helpLocNum;
+    }
+    <span class="s0">public function </span>setHelpLocNum(<span class="s5">$helpLocNum</span>): void
+    {
+        <span class="s5">$this</span>-&gt;helpLocNum = <span class="s5">$helpLocNum</span>;
+    }
+    <span class="s0">public function </span>getHelpLocCountry()
+    {
+        <span class="s5">$db </span>= <span class="s0">new </span>dbClass();
+        <span class="s0">return </span><span class="s5">$db</span>-&gt;xmlToString(<span class="s5">$this</span>-&gt;helpLocCountry);
+    }
+    <span class="s0">public function </span>setHelpLocCountry(<span class="s5">$helpLocCountry</span>): void
+    {
+        <span class="s5">$this</span>-&gt;helpLocCountry = <span class="s5">$helpLocCountry</span>;
+    }
+    <span class="s0">public function </span>getHelpRegisterTime()
+    {
+        <span class="s0">return </span><span class="s5">$this</span>-&gt;helpRegisterTime;
+    }
+    <span class="s0">public function </span>setHelpRegisterTime(<span class="s5">$helpRegisterTime</span>): void
+    {
+        <span class="s5">$this</span>-&gt;helpRegisterTime = <span class="s5">$helpRegisterTime</span>;
+    }
+    <span class="s0">public function </span>getHelpStartTime()
+    {
+        <span class="s0">return </span><span class="s5">$this</span>-&gt;helpStartTime;
+    }
+    <span class="s0">public function </span>setHelpStartTime(<span class="s5">$helpStartTime</span>): void
+    {
+        <span class="s5">$this</span>-&gt;helpStartTime = <span class="s5">$helpStartTime</span>;
+    }
+    <span class="s0">public function </span>getHelpEndTime()
+    {
+        <span class="s0">return </span><span class="s5">$this</span>-&gt;helpEndTime;
+    }
+    <span class="s0">public function </span>setHelpEndTime(<span class="s5">$helpEndTime</span>): void
+    {
+        <span class="s5">$this</span>-&gt;helpEndTime = <span class="s5">$helpEndTime</span>;
+    }
+    <span class="s0">public function </span>getHelpPayment()
+    {
+        <span class="s0">return </span><span class="s5">$this</span>-&gt;helpPayment;
+    }
+    <span class="s0">public function </span>setHelpPayment(<span class="s5">$helpPayment</span>): void
+    {
+        <span class="s5">$this</span>-&gt;helpPayment = <span class="s5">$helpPayment</span>;
+    }
+    <span class="s0">public function </span>getHelpAbout()
+    {
+        <span class="s5">$db </span>= <span class="s0">new </span>dbClass();
+        <span class="s0">return </span><span class="s5">$db</span>-&gt;xmlToString(<span class="s5">$this</span>-&gt;helpAbout);
+    }
+    <span class="s0">public function </span>setHelpAbout(<span class="s5">$helpAbout</span>): void
+    {
+        <span class="s5">$this</span>-&gt;helpAbout = <span class="s5">$helpAbout</span>;
+    }
+    <span class="s0">public function </span>getHelpType()
+    {
+        <span class="s0">return </span><span class="s5">$this</span>-&gt;helpType;
+    }
+    <span class="s0">public function </span>setHelpType(<span class="s5">$helpType</span>): void
+    {
+        <span class="s5">$this</span>-&gt;helpType = <span class="s5">$helpType</span>;
+    }
+    <span class="s0">public function </span>getHelpStatus()
+    {
+        <span class="s0">return </span><span class="s5">$this</span>-&gt;helpStatus;
+    }
+    <span class="s0">public function </span>setHelpStatus(<span class="s5">$helpStatus</span>): void
+    {
+        <span class="s5">$this</span>-&gt;helpStatus = <span class="s5">$helpStatus</span>;
+    }
+
+
+
+
+
+}
+
+</pre>
+</body>
+</html>

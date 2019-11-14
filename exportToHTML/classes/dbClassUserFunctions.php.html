@@ -1,0 +1,98 @@
+<html>
+<head>
+<title>dbClassUserFunctions.php</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #000080; font-weight: bold;}
+.s1 { color: #000000;}
+.s2 { color: #008000; font-weight: bold;}
+.s3 { color: #808080; font-style: italic;}
+.s4 { color: #000000;}
+.s5 { color: #660000;}
+.s6 { color: #0000ff;}
+.ls0 { height: 1px; border-width: 0; color: #c0c0c0; background-color:#c0c0c0}
+</style>
+</head>
+<body bgcolor="#ffffff">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#c0c0c0" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+dbClassUserFunctions.php</font>
+</center></td></tr></table>
+<pre><span class="s0">&lt;?php</span>
+
+require_once <span class="s2">&quot;dbClass.php&quot;</span>;
+<span class="s0">require_once </span><span class="s2">&quot;Pet.php&quot;</span>;
+<span class="s0">require_once </span><span class="s2">&quot;Pet_HelpRequest.php&quot;</span>;
+
+
+<span class="s3">//class acts as an additional layer between dbClass and site files</span>
+//contains functions regarding &quot;pets&quot; table and uses functions in dbClass
+<span class="s0">class </span>dbClassUserFunctions
+{
+    <span class="s0">public function </span>insertUser(<span class="s5">$h</span>)
+    {
+        <span class="s5">$db </span>= <span class="s0">new </span>dbClass();
+        <span class="s3">/* <hr class="ls0">        foreach ($h as $k=&gt;$v) 
+        { 
+ 
+            if (is_string($v)){ 
+                $h[$k] = $db-&gt;stringToXml($h[$k]); 
+            } 
+ 
+        } 
+        */</span>
+        <span class="s5">$db</span>-&gt;insertLine(<span class="s2">&quot;users&quot;</span>,<span class="s5">$h</span>);
+    }
+
+    <span class="s0">public function </span>getUserByID(<span class="s5">$ID</span>){
+        <span class="s5">$db </span>= <span class="s0">new </span>dbClass();
+        <span class="s5">$uArr </span>= <span class="s5">$db</span>-&gt;getObjectsGeneral(<span class="s2">&quot;users&quot;</span>, <span class="s2">&quot; WHERE `userID`='&quot;</span>.<span class="s5">$ID</span>.<span class="s2">&quot;'&quot;</span>, <span class="s2">&quot;User&quot;</span>);
+        <span class="s5">$u </span>= null;
+        <span class="s0">if </span>(<span class="s5">$uArr </span>!= null)
+            <span class="s5">$u </span>= <span class="s5">$uArr</span>[<span class="s6">0</span>];
+        <span class="s0">return </span><span class="s5">$u</span>;
+    }
+
+    <span class="s0">public function </span>getUserByEmail(<span class="s5">$email</span>){
+        <span class="s5">$db </span>= <span class="s0">new </span>dbClass();
+        <span class="s5">$uArr </span>= <span class="s5">$db</span>-&gt;getObjectsGeneral(<span class="s2">&quot;users&quot;</span>, <span class="s2">&quot; WHERE `userEmail`='&quot;</span>.<span class="s5">$email</span>.<span class="s2">&quot;'&quot;</span>, <span class="s2">&quot;User&quot;</span>);
+        <span class="s5">$u </span>= null;
+        <span class="s0">if </span>(<span class="s5">$uArr </span>!= null)
+            <span class="s5">$u </span>= <span class="s5">$uArr</span>[<span class="s6">0</span>];
+        <span class="s0">return </span><span class="s5">$u</span>;
+    }
+
+    <span class="s0">public function </span>verifyPassword(<span class="s5">$entered</span>, <span class="s5">$userID</span>){
+        <span class="s5">$userFromDB </span>= <span class="s5">$this</span>-&gt;getUserByID(<span class="s5">$userID</span>);
+        <span class="s0">if </span>(<span class="s5">$userFromDB </span>== null)    <span class="s3">//user not found:</span>
+        {
+            <span class="s5">$ans </span>= -<span class="s6">1</span>;
+        }
+        <span class="s0">else                        </span><span class="s3">//user found:</span>
+        {
+            <span class="s3">//verifying password:</span>
+            <span class="s5">$realPassword </span>= <span class="s5">$userFromDB</span>-&gt;getUserPassword();
+            <span class="s5">$verify</span>=password_verify(<span class="s5">$entered</span>,<span class="s5">$realPassword</span>);
+
+            <span class="s0">if </span>(<span class="s5">$verify</span>)
+            {
+                <span class="s5">$ans </span>= <span class="s6">1</span>;
+            }
+            <span class="s0">else</span>
+            {
+                <span class="s5">$ans </span>= <span class="s6">0</span>;
+            }
+        }
+        <span class="s0">return </span><span class="s5">$ans</span>;
+    }
+
+    <span class="s0">public function </span>changePassword(<span class="s5">$newPassword</span>, <span class="s5">$userID</span>){
+
+    }
+
+
+
+}</pre>
+</body>
+</html>

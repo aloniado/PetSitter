@@ -1,0 +1,77 @@
+<html>
+<head>
+<title>dbClassInterested.php</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #000080; font-weight: bold;}
+.s1 { color: #000000;}
+.s2 { color: #808080; font-style: italic;}
+.s3 { color: #008000; font-weight: bold;}
+.s4 { color: #000000;}
+.s5 { color: #660000;}
+.s6 { color: #0000ff;}
+.ls0 { height: 1px; border-width: 0; color: #c0c0c0; background-color:#c0c0c0}
+</style>
+</head>
+<body bgcolor="#ffffff">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#c0c0c0" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+dbClassInterested.php</font>
+</center></td></tr></table>
+<pre><span class="s0">&lt;?php</span>
+<span class="s2">/**</span>
+ * Created by PhpStorm.
+ * User: aloni
+ * Date: 8/15/2018
+ * Time: 1:56 PM
+ */
+<span class="s0">require_once </span><span class="s3">&quot;dbClass.php&quot;</span>;
+<span class="s0">class </span>dbClassInterested
+{
+    <span class="s0">public function </span>GetInterestedByIDs(<span class="s5">$user</span>, <span class="s5">$help</span>)
+    {
+        <span class="s5">$db </span>= <span class="s0">new </span>dbClass();
+        <span class="s5">$int </span>= <span class="s5">$db</span>-&gt;getObjectsGeneral(<span class="s3">&quot;interested&quot;</span>, <span class="s3">&quot; WHERE `interestedUserID`='&quot;</span>.<span class="s5">$user</span>.<span class="s3">&quot;' AND `helpID`='&quot;</span>.<span class="s5">$help</span>.<span class="s3">&quot;'&quot;</span>, <span class="s3">&quot;Interested&quot;</span>);
+
+        <span class="s0">return </span><span class="s5">$int</span>;
+    }
+    <span class="s0">public function </span>GetInterestedByhelpID(<span class="s5">$help</span>)
+    {
+        <span class="s5">$db </span>= <span class="s0">new </span>dbClass();
+        <span class="s5">$int </span>= <span class="s5">$db</span>-&gt;getObjectsGeneral(<span class="s3">&quot;interested&quot;</span>, <span class="s3">&quot; WHERE `helpID`='&quot;</span>.<span class="s5">$help</span>.<span class="s3">&quot;'&quot;</span>, <span class="s3">&quot;Interested&quot;</span>);
+
+        <span class="s0">return </span><span class="s5">$int</span>;
+    }
+
+    <span class="s0">public function </span>insertInterestedRecord(<span class="s5">$help</span>, <span class="s5">$user</span>)
+    {
+        <span class="s5">$db </span>= <span class="s0">new </span>dbClass();
+        <span class="s5">$int </span>= <span class="s5">$db</span>-&gt;getObjectsGeneral(<span class="s3">&quot;interested&quot;</span>, <span class="s3">&quot; WHERE `interestedUserID`='&quot;</span>.<span class="s5">$user</span>.<span class="s3">&quot;' AND `helpID`='&quot;</span>.<span class="s5">$help</span>.<span class="s3">&quot;'&quot;</span>, <span class="s3">&quot;Interested&quot;</span>);
+        <span class="s0">if </span>(<span class="s5">$int </span>== null)
+        {
+            <span class="s5">$data_arr </span>= <span class="s0">array</span>(
+                <span class="s3">'helpID' </span>=&gt; (int)<span class="s5">$help</span>,
+                <span class="s3">'interestedUserID' </span>=&gt; (int)<span class="s5">$user</span>,
+                <span class="s3">'status' </span>=&gt; <span class="s6">1</span>,
+            );
+            <span class="s5">$db</span>-&gt;insertLine(<span class="s3">&quot;interested&quot;</span>,<span class="s5">$data_arr</span>);
+        }
+    }
+
+    <span class="s0">public function </span>RemoveInterestedRecord(<span class="s5">$help</span>, <span class="s5">$user</span>)    <span class="s2">//removes specific single interested record</span>
+    {
+        <span class="s5">$db </span>= <span class="s0">new </span>dbClass();
+        <span class="s5">$db</span>-&gt;deleteLineGeneral(<span class="s3">&quot;interested&quot;</span>,<span class="s3">&quot; WHERE `interestedUserID`='&quot;</span>.<span class="s5">$user</span>.<span class="s3">&quot;' AND `helpID`='&quot;</span>.<span class="s5">$help</span>.<span class="s3">&quot;'&quot;</span>);
+
+    }
+
+    <span class="s0">public function </span>RemoveInterestedRecordByHelpID(<span class="s5">$help</span>)   <span class="s2">//removes all interested records prior to help request deletion</span>
+    {
+        <span class="s5">$db </span>= <span class="s0">new </span>dbClass();
+        <span class="s5">$db</span>-&gt;deleteLineGeneral(<span class="s3">&quot;interested&quot;</span>,<span class="s3">&quot; WHERE `helpID`='&quot;</span>.<span class="s5">$help</span>.<span class="s3">&quot;'&quot;</span>);
+
+    }
+}</pre>
+</body>
+</html>

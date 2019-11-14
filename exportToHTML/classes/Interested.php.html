@@ -1,0 +1,82 @@
+<html>
+<head>
+<title>Interested.php</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #000080; font-weight: bold;}
+.s1 { color: #000000;}
+.s2 { color: #000000;}
+.s3 { color: #660000;}
+.s4 { color: #808080; font-style: italic;}
+.s5 { color: #808080; font-weight: bold; font-style: italic;}
+.ls0 { height: 1px; border-width: 0; color: #c0c0c0; background-color:#c0c0c0}
+</style>
+</head>
+<body bgcolor="#ffffff">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#c0c0c0" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+Interested.php</font>
+</center></td></tr></table>
+<pre><span class="s0">&lt;?php</span>
+
+class Interested
+{
+    <span class="s0">private </span><span class="s3">$helpID</span>;
+    <span class="s0">private </span><span class="s3">$interestedUserID</span>;
+    <span class="s0">private </span><span class="s3">$status</span>;
+
+    <span class="s4">/**</span>
+     * <span class="s5">@return </span><span class="s4">mixed</span>
+     */
+    <span class="s0">public function </span>getHelpID()
+    {
+        <span class="s0">return </span><span class="s3">$this</span>-&gt;helpID;
+    }
+
+    <span class="s4">/**</span>
+     * <span class="s5">@param </span><span class="s4">mixed $helpID</span>
+     */
+    <span class="s0">public function </span>setHelpID(<span class="s3">$helpID</span>): void
+    {
+        <span class="s3">$this</span>-&gt;helpID = <span class="s3">$helpID</span>;
+    }
+
+    <span class="s4">/**</span>
+     * <span class="s5">@return </span><span class="s4">mixed</span>
+     */
+    <span class="s0">public function </span>getInterestedUserID()
+    {
+        <span class="s0">return </span><span class="s3">$this</span>-&gt;interestedUserID;
+    }
+
+    <span class="s4">/**</span>
+     * <span class="s5">@param </span><span class="s4">mixed $interestedUserID</span>
+     */
+    <span class="s0">public function </span>setInterestedUserID(<span class="s3">$interestedUserID</span>): void
+    {
+        <span class="s3">$this</span>-&gt;interestedUserID = <span class="s3">$interestedUserID</span>;
+    }
+
+    <span class="s4">/**</span>
+     * <span class="s5">@return </span><span class="s4">mixed</span>
+     */
+    <span class="s0">public function </span>getStatus()
+    {
+        <span class="s0">return </span><span class="s3">$this</span>-&gt;status;
+    }
+
+    <span class="s4">/**</span>
+     * <span class="s5">@param </span><span class="s4">mixed $status</span>
+     */
+    <span class="s0">public function </span>setStatus(<span class="s3">$status</span>): void
+    {
+        <span class="s3">$this</span>-&gt;status = <span class="s3">$status</span>;
+    }
+
+
+
+
+}</pre>
+</body>
+</html>

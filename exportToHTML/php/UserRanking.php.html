@@ -1,0 +1,136 @@
+<html>
+<head>
+<title>UserRanking.php</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #000080; font-weight: bold;}
+.s1 { color: #000000;}
+.s2 { color: #000000;}
+.s3 { color: #008000; font-weight: bold;}
+.s4 { color: #808080; font-style: italic;}
+.s5 { color: #660000;}
+.s6 { color: #000000;}
+.s7 { color: #000000;}
+.s8 { color: #000080; font-weight: bold;}
+.s9 { color: #808080; font-style: italic;}
+.s10 { color: #0000ff; font-weight: bold;}
+.s11 { color: #008000; font-weight: bold;}
+</style>
+</head>
+<body bgcolor="#ffffff">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#c0c0c0" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+UserRanking.php</font>
+</center></td></tr></table>
+<pre><span class="s0">&lt;?php</span>
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
+<span class="s0">require_once </span><span class="s3">&quot;classes/dbClass.php&quot;</span>;
+<span class="s0">require_once </span><span class="s3">&quot;classes/dbClassRankingFunctions.php&quot;</span>;
+
+
+
+
+<span class="s4">//----------------------------------------------------------------------------------------if form information sent:</span>
+/* 
+echo &quot;_POST:&lt;br&gt;&quot;; 
+echo &quot;&lt;pre&gt;&quot;; 
+var_dump($_POST); 
+echo &quot;&lt;/pre&gt;&quot;; 
+ 
+echo &quot;_SESSION:&lt;br&gt;&quot;; 
+echo &quot;&lt;pre&gt;&quot;; 
+var_dump($_SESSION); 
+echo &quot;&lt;/pre&gt;&quot;; 
+echo $first_key; 
+*/
+<span class="s0">if </span>(<span class="s0">isset</span>(<span class="s5">$_POST</span>[<span class="s3">'sendRanking'</span>]))   <span class="s4">//if form was sent:</span>
+{
+    <span class="s5">$db </span>= <span class="s0">new </span>dbClass();
+    <span class="s5">$dbr </span>= <span class="s0">new </span>dbClassRankingFunctions();
+
+    <span class="s5">$data_arr </span>= <span class="s0">array</span>(
+        <span class="s3">'rankingUserID' </span>=&gt; (int)<span class="s5">$_SESSION</span>[<span class="s3">'user'</span>],
+        <span class="s3">'rankedUserID' </span>=&gt; (int)<span class="s5">$_POST</span>[<span class="s3">'rankedUserID'</span>],
+        <span class="s3">'helpID' </span>=&gt; (int)<span class="s5">$_POST</span>[<span class="s3">'helpID'</span>],
+        <span class="s3">'rankRank' </span>=&gt; (int)<span class="s5">$_POST</span>[<span class="s3">'rank'</span>],
+        <span class="s3">'rankAbout' </span>=&gt; <span class="s5">$_POST</span>[<span class="s3">'rabout'</span>],
+    );
+
+    <span class="s5">$dbr</span>-&gt;insertRanking(<span class="s5">$data_arr</span>);
+
+
+    <span class="s5">$_SESSION</span>[<span class="s3">'userMessage'</span>]=<span class="s3">&quot;You've successfully added a user ranking and dismissed a help request.&quot;</span>;
+
+    <span class="s5">$_SESSION</span>[<span class="s3">'UserProfileToShow'</span>]=(int)<span class="s5">$_POST</span>[<span class="s3">'rankedUserID'</span>];  <span class="s4">//***</span>
+    <span class="s5">$_SESSION</span>[<span class="s3">'nextPage'</span>]=<span class="s3">&quot;ProfileUser.php&quot;</span>;
+
+    header(<span class="s3">&quot;Location: main.php&quot;</span>);
+    <span class="s0">die</span>();
+}
+<span class="s0">else </span>{                              <span class="s4">//form was not yet sent</span>
+    <span class="s5">$rankedUser </span>= <span class="s5">$_SESSION</span>[<span class="s3">'RankedUser'</span>];
+    <span class="s5">$helpRequest </span>= <span class="s5">$_SESSION</span>[<span class="s3">'RankedOnHelp'</span>];
+
+    <span class="s0">unset</span>(<span class="s5">$_SESSION</span>[<span class="s3">'RankedUser'</span>]);
+    <span class="s0">unset</span>(<span class="s5">$_SESSION</span>[<span class="s3">'RankedOnHelp'</span>]);
+
+    <span class="s0">echo </span><span class="s3">&quot;ranking user: &quot;</span>.<span class="s5">$_SESSION</span>[<span class="s3">'user'</span>].<span class="s3">&quot;&lt;br&gt;&quot;</span>;
+    <span class="s0">echo </span><span class="s3">&quot;ranked user: &quot;</span>.<span class="s5">$rankedUser</span>.<span class="s3">&quot;&lt;br&gt;&quot;</span>;
+    <span class="s0">echo </span><span class="s3">&quot;help request done: &quot;</span>.<span class="s5">$helpRequest</span>.<span class="s3">&quot;&lt;br&gt;&quot;</span>;
+}
+
+
+
+<span class="s0">?&gt;</span>
+&lt;<span class="s8">h3</span>&gt;Ranking <span class="s0">&lt;?php echo </span><span class="s5">$rankedUser</span><span class="s0">?&gt;</span>:&lt;/<span class="s8">h3</span>&gt;
+
+
+<span class="s9">&lt;!-------------------------------------------------------&gt;</span>
+&lt;<span class="s8">div </span><span class="s10">class=</span><span class="s11">&quot;card&quot;</span>&gt;
+    &lt;<span class="s8">form </span><span class="s10">action=</span><span class="s11">&quot;UserRanking.php&quot; </span><span class="s10">method=</span><span class="s11">&quot;post&quot; </span><span class="s10">enctype=</span><span class="s11">&quot;multipart/form-data&quot;</span>&gt;
+        &lt;<span class="s8">div </span><span class="s10">class=</span><span class="s11">&quot;form-group&quot;</span>&gt;
+            &lt;<span class="s8">div </span><span class="s10">class=</span><span class="s11">&quot;form-row&quot;</span>&gt;
+                &lt;<span class="s8">div </span><span class="s10">class=</span><span class="s11">&quot;col&quot;</span>&gt;
+                    &lt;<span class="s8">label</span>&gt;Please rate your experience with <span class="s0">&lt;?php echo </span><span class="s5">$rankedUser</span><span class="s0">?&gt; </span>honestly:&lt;/<span class="s8">label</span>&gt;
+                &lt;/<span class="s8">div</span>&gt;
+            &lt;/<span class="s8">div</span>&gt;
+            &lt;<span class="s8">div </span><span class="s10">class=</span><span class="s11">&quot;form-row&quot;</span>&gt;
+                &lt;<span class="s8">div </span><span class="s10">class=</span><span class="s11">&quot;col&quot;</span>&gt;
+                    &lt;<span class="s8">select </span><span class="s10">name=</span><span class="s11">&quot;rank&quot; </span><span class="s10">required</span>&gt;
+                        &lt;<span class="s8">option </span><span class="s10">value=</span><span class="s11">&quot;&quot;</span>&gt;Select:&lt;/<span class="s8">option</span>&gt;
+                        &lt;<span class="s8">option </span><span class="s10">value=</span><span class="s11">&quot;2&quot;</span>&gt;Very poor&lt;/<span class="s8">option</span>&gt;
+                        &lt;<span class="s8">option </span><span class="s10">value=</span><span class="s11">&quot;4&quot;</span>&gt;Not good&lt;/<span class="s8">option</span>&gt;
+                        &lt;<span class="s8">option </span><span class="s10">value=</span><span class="s11">&quot;6&quot;</span>&gt;OK&lt;/<span class="s8">option</span>&gt;
+                        &lt;<span class="s8">option </span><span class="s10">value=</span><span class="s11">&quot;8&quot;</span>&gt;Very good&lt;/<span class="s8">option</span>&gt;
+                        &lt;<span class="s8">option </span><span class="s10">value=</span><span class="s11">&quot;10&quot;</span>&gt;Excellent&lt;/<span class="s8">option</span>&gt;
+                    &lt;/<span class="s8">select</span>&gt;
+                &lt;/<span class="s8">div</span>&gt;
+            &lt;/<span class="s8">div</span>&gt;
+        &lt;/<span class="s8">div</span>&gt;
+        &lt;<span class="s8">br</span>&gt;
+
+        &lt;<span class="s8">div </span><span class="s10">class=</span><span class="s11">&quot;form-group&quot;</span>&gt;
+            &lt;<span class="s8">div </span><span class="s10">class=</span><span class="s11">&quot;form-row&quot;</span>&gt;
+                &lt;<span class="s8">div </span><span class="s10">class=</span><span class="s11">&quot;col&quot;</span>&gt;
+                    &lt;<span class="s8">label</span>&gt;Elaborate and explain:&lt;/<span class="s8">label</span>&gt;&lt;<span class="s8">br</span>&gt;
+                    &lt;<span class="s8">textarea </span><span class="s10">rows=</span><span class="s11">&quot;4&quot; </span><span class="s10">cols=</span><span class="s11">&quot;50&quot; </span><span class="s10">type=</span><span class="s11">&quot;text&quot; </span><span class="s10">class=</span><span class="s11">&quot;form-control&quot; </span><span class="s10">placeholder=</span><span class="s11">&quot;Tell other people how was it&quot; </span><span class="s10">name=</span><span class="s11">&quot;rabout&quot;  </span><span class="s10">required=</span><span class="s11">&quot;required&quot;</span>&gt;&lt;/<span class="s8">textarea</span>&gt;
+                    &lt;<span class="s8">small </span><span class="s10">id=</span><span class="s11">&quot;emailHelp&quot; </span><span class="s10">class=</span><span class="s11">&quot;form-text text-muted&quot;</span>&gt;Your rating and experience are publicly posted, and are visible to everyone.&lt;/<span class="s8">small</span>&gt;
+                &lt;/<span class="s8">div</span>&gt;
+            &lt;/<span class="s8">div</span>&gt;
+        &lt;/<span class="s8">div</span>&gt;
+
+        <span class="s9">&lt;!-- passing additional information: --&gt;</span>
+        &lt;<span class="s8">input </span><span class="s10">type=</span><span class="s11">&quot;hidden&quot; </span><span class="s10">id=</span><span class="s11">&quot;rankedUserID&quot; </span><span class="s10">name=</span><span class="s11">&quot;rankedUserID&quot; </span><span class="s10">value=</span><span class="s11">&quot;</span><span class="s0">&lt;?php echo </span><span class="s5">$rankedUser</span><span class="s0">?&gt;</span><span class="s11">&quot;</span>&gt;
+        &lt;<span class="s8">input </span><span class="s10">type=</span><span class="s11">&quot;hidden&quot; </span><span class="s10">id=</span><span class="s11">&quot;helpID&quot; </span><span class="s10">name=</span><span class="s11">&quot;helpID&quot; </span><span class="s10">value=</span><span class="s11">&quot;</span><span class="s0">&lt;?php echo </span><span class="s5">$helpRequest</span><span class="s0">?&gt;</span><span class="s11">&quot;</span>&gt;
+
+
+        &lt;<span class="s8">button </span><span class="s10">type=</span><span class="s11">&quot;submit&quot; </span><span class="s10">class=</span><span class="s11">&quot;btn btn-primary&quot; </span><span class="s10">name=</span><span class="s11">&quot;sendRanking&quot;</span>&gt;Publicly post to <span class="s0">&lt;?php echo </span><span class="s5">$rankedUser</span><span class="s0">?&gt;</span>'s wall&lt;/<span class="s8">button</span>&gt;
+    &lt;/<span class="s8">form</span>&gt;
+&lt;/<span class="s8">div</span>&gt;
+
+</pre>
+</body>
+</html>

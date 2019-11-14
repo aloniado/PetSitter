@@ -1,0 +1,157 @@
+<html>
+<head>
+<title>Pet.php</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #000080; font-weight: bold;}
+.s1 { color: #000000;}
+.s2 { color: #000000;}
+.s3 { color: #660000;}
+.ls0 { height: 1px; border-width: 0; color: #c0c0c0; background-color:#c0c0c0}
+</style>
+</head>
+<body bgcolor="#ffffff">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#c0c0c0" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+Pet.php</font>
+</center></td></tr></table>
+<pre><span class="s0">&lt;?php</span>
+
+class Pet
+{
+    <span class="s0">private </span><span class="s3">$petID</span>;
+    <span class="s0">private </span><span class="s3">$userID</span>;
+
+    <span class="s0">private </span><span class="s3">$petRegisterTime</span>;
+    <span class="s0">private </span><span class="s3">$petName</span>;
+    <span class="s0">private </span><span class="s3">$petType</span>;
+    <span class="s0">private </span><span class="s3">$petBirthday</span>;
+    <span class="s0">private </span><span class="s3">$petFood</span>;
+    <span class="s0">private </span><span class="s3">$petTemper</span>;
+    <span class="s0">private </span><span class="s3">$petSex</span>;
+    <span class="s0">private </span><span class="s3">$petAbout</span>;
+    <span class="s0">private </span><span class="s3">$petStatus</span>;
+
+
+
+    <span class="s0">public function </span>getPetID()
+    {
+        <span class="s0">return </span><span class="s3">$this</span>-&gt;petID;
+    }
+
+    <span class="s0">public function </span>setPetID(<span class="s3">$petID</span>): void
+    {
+        <span class="s3">$this</span>-&gt;petID = <span class="s3">$petID</span>;
+    }
+
+    <span class="s0">public function </span>getPetRegisterTime()
+    {
+        <span class="s0">return </span><span class="s3">$this</span>-&gt;petRegisterTime;
+    }
+
+    <span class="s0">public function </span>getPetName()
+    {
+        <span class="s0">return </span><span class="s3">$this</span>-&gt;petName;
+    }
+
+    <span class="s0">public function </span>setPetName(<span class="s3">$petName</span>): void
+    {
+        <span class="s3">$this</span>-&gt;petName = <span class="s3">$petName</span>;
+    }
+
+    <span class="s0">public function </span>getPetType()
+    {
+        <span class="s0">return </span><span class="s3">$this</span>-&gt;petType;
+    }
+
+    <span class="s0">public function </span>setPetType(<span class="s3">$petType</span>): void
+    {
+        <span class="s3">$this</span>-&gt;petType = <span class="s3">$petType</span>;
+    }
+
+    <span class="s0">public function </span>getPetBirthday()
+    {
+        <span class="s0">return </span><span class="s3">$this</span>-&gt;petBirthday;
+    }
+
+    <span class="s0">public function </span>setPetBirthday(<span class="s3">$petBirthday</span>): void
+    {
+        <span class="s3">$this</span>-&gt;petBirthday = <span class="s3">$petBirthday</span>;
+    }
+
+    <span class="s0">public function </span>getPetFood()
+    {
+        <span class="s0">return </span><span class="s3">$this</span>-&gt;petFood;
+    }
+
+    <span class="s0">public function </span>setPetFood(<span class="s3">$petFood</span>): void
+    {
+        <span class="s3">$this</span>-&gt;petFood = <span class="s3">$petFood</span>;
+    }
+
+    <span class="s0">public function </span>getPetTemper()
+    {
+        <span class="s0">return </span><span class="s3">$this</span>-&gt;petTemper;
+    }
+
+    <span class="s0">public function </span>setPetTemper(<span class="s3">$petTemper</span>): void
+    {
+        <span class="s3">$this</span>-&gt;petTemper = <span class="s3">$petTemper</span>;
+    }
+
+    <span class="s0">public function </span>getPetSex()
+    {
+        <span class="s0">return </span><span class="s3">$this</span>-&gt;petSex;
+    }
+
+    <span class="s0">public function </span>setPetSex(<span class="s3">$petSex</span>): void
+    {
+        <span class="s3">$this</span>-&gt;petSex = <span class="s3">$petSex</span>;
+    }
+
+    <span class="s0">public function </span>getPetAbout()
+    {
+        <span class="s0">return </span><span class="s3">$this</span>-&gt;petAbout;
+    }
+
+    <span class="s0">public function </span>setPetAbout(<span class="s3">$petAbout</span>): void
+    {
+        <span class="s3">$this</span>-&gt;petAbout = <span class="s3">$petAbout</span>;
+    }
+
+    <span class="s0">public function </span>getPetStatus()
+    {
+        <span class="s0">return </span><span class="s3">$this</span>-&gt;petStatus;
+    }
+
+    <span class="s0">public function </span>setPetStatus(<span class="s3">$petStatus</span>): void
+    {
+        <span class="s3">$this</span>-&gt;petStatus = <span class="s3">$petStatus</span>;
+    }
+
+    <span class="s0">public function </span>getUserID()
+    {
+        <span class="s0">return </span><span class="s3">$this</span>-&gt;userID;
+    }
+    <span class="s0">public function </span>setUserID(<span class="s3">$userID</span>)
+    {
+        <span class="s3">$this</span>-&gt;userID = <span class="s3">$userID</span>;
+    }
+
+
+
+
+}
+
+
+
+
+
+
+
+
+
+</pre>
+</body>
+</html>

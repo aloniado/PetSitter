@@ -1,0 +1,50 @@
+<html>
+<head>
+<title>HelpRequestUnlike.php</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #000080; font-weight: bold;}
+.s1 { color: #000000;}
+.s2 { color: #000000;}
+.s3 { color: #808080; font-style: italic;}
+.s4 { color: #660000;}
+.s5 { color: #008000; font-weight: bold;}
+</style>
+</head>
+<body bgcolor="#ffffff">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#c0c0c0" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+HelpRequestUnlike.php</font>
+</center></td></tr></table>
+<pre><span class="s0">&lt;?php</span>
+
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
+<span class="s3">/* 
+echo &quot;&lt;pre&gt;&quot;; 
+var_dump($_POST); 
+echo &quot;&lt;/pre&gt;&quot;; 
+ 
+if (isset($_POST['user'])) 
+    $_SESSION['likesUser']=$_POST['user']; 
+if (isset($_POST['help'])) 
+    $_SESSION['likesRequest']=$_POST['help']; 
+if (isset($_POST['func'])) 
+    $_SESSION['likesFunc']=$_POST['func']; 
+ 
+$_SESSION['allset']=&quot;yes&quot;; 
+ 
+*/</span>
+
+<span class="s0">if </span>(<span class="s0">isset</span>(<span class="s4">$_POST</span>[<span class="s5">'user'</span>]) &amp;&amp; <span class="s0">isset</span>(<span class="s4">$_POST</span>[<span class="s5">'help'</span>])){
+    <span class="s3">//$_SESSION['done']=&quot;added&quot;;</span>
+
+    <span class="s0">require_once </span><span class="s5">&quot;../classes/dbClassInterested.php&quot;</span>;
+    <span class="s4">$dbi </span>= <span class="s0">new </span>dbClassInterested();
+    <span class="s4">$dbi</span>-&gt;RemoveInterestedRecord(<span class="s4">$_POST</span>[<span class="s5">'help'</span>], <span class="s4">$_POST</span>[<span class="s5">'user'</span>]);
+
+}</pre>
+</body>
+</html>

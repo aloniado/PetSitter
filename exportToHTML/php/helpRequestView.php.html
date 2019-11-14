@@ -1,0 +1,113 @@
+<html>
+<head>
+<title>helpRequestView.php</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #000080; font-weight: bold;}
+.s1 { color: #000000;}
+.s2 { color: #000000;}
+.s3 { color: #808080; font-style: italic;}
+.s4 { color: #008000; font-weight: bold;}
+.s5 { color: #660000;}
+.s6 { color: #0000ff;}
+</style>
+</head>
+<body bgcolor="#ffffff">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#c0c0c0" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+helpRequestView.php</font>
+</center></td></tr></table>
+<pre><span class="s0">&lt;?php</span>
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
+<span class="s3">//unset($_SESSION['refinement']);   //del</span>
+<span class="s0">require_once </span><span class="s4">&quot;classes/dbClass.php&quot;</span>;
+<span class="s0">require_once </span><span class="s4">&quot;classes/Pet.php&quot;</span>;
+<span class="s0">require_once </span><span class="s4">&quot;classes/HelpRequest.php&quot;</span>;
+<span class="s0">require_once </span><span class="s4">&quot;classes/Pet_HelpRequest.php&quot;</span>;
+<span class="s0">require_once </span><span class="s4">&quot;classes/dbClassPetsFunctions.php&quot;</span>;
+<span class="s0">require_once </span><span class="s4">&quot;classes/dbClassHelpRequestFunctions.php&quot;</span>;
+<span class="s0">require_once </span><span class="s4">&quot;classes/dbClassUserFunctions.php&quot;</span>;
+
+<span class="s3">//$db = new dbClass();</span>
+<span class="s5">$dbhr </span>= <span class="s0">new </span>dbClassHelpRequestFunctions();
+<span class="s5">$dbp </span>= <span class="s0">new </span>dbClassPetsFunctions();
+<span class="s5">$dbu </span>= <span class="s0">new </span>dbClassUserFunctions();
+<span class="s3">//------------------------------------------------------</span>
+
+//------------------------------------------------------extended help request:
+<span class="s0">if </span>(<span class="s0">isset</span>(<span class="s5">$_SESSION</span>[<span class="s4">'helpRequestView'</span>]))
+{
+    <span class="s5">$helpRequestID </span>= <span class="s5">$_SESSION</span>[<span class="s4">'helpRequestView'</span>];
+    <span class="s0">unset</span>(<span class="s5">$_SESSION</span>[<span class="s4">'helpRequestView'</span>]);
+
+
+    <span class="s5">$help </span>= <span class="s5">$dbhr</span>-&gt;getHelpRequestByID(<span class="s5">$helpRequestID</span>);  <span class="s3">//help request</span>
+    <span class="s5">$user </span>= <span class="s5">$dbu</span>-&gt;getUserByID(<span class="s5">$help</span>-&gt;getUserID());          <span class="s3">//user</span>
+    <span class="s5">$pets </span>= <span class="s5">$dbp</span>-&gt;getPetsArrayByHelpID(<span class="s5">$helpRequestID</span>); <span class="s3">//array of pets in help request</span>
+    <span class="s0">if </span>(<span class="s5">$pets </span>== null)
+    {
+        <span class="s5">$petsStr</span>=<span class="s4">&quot;No pets in request&quot;</span>;
+    }
+    <span class="s0">else</span>
+    {
+        <span class="s5">$petsStr</span>=<span class="s4">&quot;&lt;table&gt;&lt;tr&gt;&quot;</span>;
+        <span class="s0">foreach </span>(<span class="s5">$pets </span><span class="s0">as </span><span class="s5">$p_hr</span>) <span class="s3">//each $p_hr is a Pet_HelpRequest object</span>
+        {
+            <span class="s5">$p </span>= <span class="s5">$db</span>-&gt;getObjectsGeneral(<span class="s4">&quot;pets&quot;</span>, <span class="s4">&quot; WHERE `petID`='&quot;</span>.<span class="s5">$p_hr</span>-&gt;getPetID().<span class="s4">&quot;'&quot;</span>, <span class="s4">&quot;Pet&quot;</span>);
+            <span class="s3">//$p is an array containing one pet</span>
+            <span class="s5">$petsStr</span>.=<span class="s4">&quot;&lt;td align='center'&gt;&quot;</span>;
+            <span class="s5">$petsStr</span>.=<span class="s5">$p</span>[<span class="s6">0</span>]-&gt;getPetName().<span class="s4">&quot;&lt;br&gt;&quot;</span>;
+            <span class="s5">$petsStr</span>.=<span class="s5">$db</span>-&gt;getPetImageString(<span class="s5">$p</span>[<span class="s6">0</span>]).<span class="s4">&quot;&lt;br&gt;&quot;</span>;
+            <span class="s5">$petsStr</span>.=<span class="s4">&quot;&lt;/td&gt;&quot;</span>;
+        }
+        <span class="s5">$petsStr</span>.=<span class="s4">&quot;&lt;/tr&gt;&lt;/table&gt;&quot;</span>;
+    }
+
+    <span class="s5">$userName </span>= <span class="s5">$user</span>-&gt;getUserFName().<span class="s4">&quot; &quot;</span>.<span class="s5">$user</span>-&gt;getUserLName();
+
+    <span class="s5">$str</span>=<span class="s4">&quot;&lt;div class='card'&gt;&quot;</span>;
+    <span class="s5">$str</span>.=<span class="s4">&quot;&lt;table&gt;&lt;tr&gt;&lt;td width='30%'&gt;&quot;</span>;
+    <span class="s3">//$str.=&quot;Help ID: &quot;.$k-&gt;getHelpID().&quot;&lt;br&gt;&quot;;</span>
+
+
+
+    <span class="s5">$helpHeader</span>=<span class="s4">&quot;Request By: &quot;</span>.<span class="s5">$userName</span>;
+    <span class="s0">if </span>(<span class="s5">$_SESSION</span>[<span class="s4">'user'</span>]==<span class="s5">$help</span>-&gt;getUserID())
+        <span class="s5">$helpHeader</span>=<span class="s4">&quot;Requested By me&quot;</span>;
+
+    <span class="s5">$str</span>.=<span class="s4">&quot;&lt;form action='HelpRequestsAll.php' method=post&gt;&lt;button type='submit' class='buttonLooksLikeLink' name='UserProfileToShow&quot;</span>.<span class="s5">$user</span>-&gt;getUserID().<span class="s4">&quot;'&gt;&quot;</span>.<span class="s5">$helpHeader</span>.<span class="s4">&quot;&lt;/button&gt;&lt;/form&gt;&quot;</span>;
+    <span class="s5">$str</span>.=<span class="s4">&quot;Type: &quot;</span>.<span class="s5">$help</span>-&gt;getHelpType().<span class="s4">&quot;&lt;br&gt;&quot;</span>;
+
+    <span class="s5">$str</span>.=<span class="s4">&quot;Phone Number: &quot;</span>.<span class="s5">$help</span>-&gt;getUserPhone().<span class="s4">&quot;&lt;br&gt;&quot;</span>;
+
+    <span class="s3">//Help time handling:</span>
+    <span class="s5">$helpTimeStr</span>=<span class="s4">&quot;&quot;</span>;
+    <span class="s0">if </span>(<span class="s5">$help</span>-&gt;getHelpEndTime() == <span class="s4">&quot;0000-00-00 00:00:00&quot;</span>){
+        <span class="s0">if </span>(<span class="s5">$help</span>-&gt;getHelpStartTime() == <span class="s4">&quot;0000-00-00 00:00:00&quot;</span>){
+            <span class="s5">$helpTimeStr </span>.= <span class="s4">&quot;Time not specified&lt;br&gt;&quot;</span>;
+        }
+        <span class="s0">else</span>
+            <span class="s5">$helpTimeStr </span>.= <span class="s4">&quot;One day help: &quot;</span>.<span class="s5">$help</span>-&gt;getHelpStartTime().<span class="s4">&quot;&lt;br&gt;&quot;</span>;
+    }
+    <span class="s0">else</span>
+        <span class="s5">$helpTimeStr </span>.= <span class="s4">&quot;Time: &quot;</span>.<span class="s5">$help</span>-&gt;getHelpStartTime().<span class="s4">&quot; - &quot;</span>.<span class="s5">$help</span>-&gt;getHelpEndTime().<span class="s4">&quot;&lt;br&gt;&quot;</span>;
+    <span class="s5">$str</span>.=<span class="s5">$helpTimeStr</span>;
+
+    <span class="s5">$str</span>.=<span class="s4">&quot;Location: &quot;</span>.<span class="s5">$help</span>-&gt;getHelpLocCity().<span class="s4">&quot;, &quot;</span>.<span class="s5">$help</span>-&gt;getHelpLocStreet().<span class="s4">&quot;&lt;br&gt;&quot;</span>;
+    <span class="s5">$str</span>.=<span class="s4">&quot;Payment offered: &quot;</span>.<span class="s5">$help</span>-&gt;getHelpPayment().<span class="s4">&quot;[NIS]&lt;br&gt;&lt;br&gt;&quot;</span>;
+    <span class="s5">$str</span>.=<span class="s4">&quot;About:&lt;br&gt;&quot;</span>.<span class="s5">$help</span>-&gt;getHelpAbout().<span class="s4">&quot;&lt;br&gt;&quot;</span>;
+    <span class="s5">$str</span>.=<span class="s4">&quot;&lt;/td&gt;&lt;td align='center'&gt;&quot;</span>;
+    <span class="s5">$str</span>.=<span class="s5">$petsStr</span>;
+    <span class="s5">$str</span>.=<span class="s4">&quot;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/div&gt;&lt;br&gt;&quot;</span>;
+    <span class="s0">echo </span><span class="s5">$str</span>;
+
+<span class="s3">//------------------------------------------------------If help request is mine:</span>
+
+
+}
+</pre>
+</body>
+</html>

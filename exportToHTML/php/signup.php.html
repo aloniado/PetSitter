@@ -1,0 +1,131 @@
+<html>
+<head>
+<title>signup.php</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #000080; font-weight: bold;}
+.s1 { color: #000000;}
+.s2 { color: #000000;}
+.s3 { color: #008000; font-weight: bold;}
+.s4 { color: #808080; font-style: italic;}
+.s5 { color: #660000;}
+.s6 { color: #000000;}
+.s7 { color: #808080; font-style: italic;}
+.s8 { color: #000000;}
+.s9 { color: #000080; font-weight: bold;}
+.s10 { color: #0000ff; font-weight: bold;}
+.s11 { color: #008000; font-weight: bold;}
+.s12 { color: #000080; font-weight: bold;}
+</style>
+</head>
+<body bgcolor="#ffffff">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#c0c0c0" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+signup.php</font>
+</center></td></tr></table>
+<pre><span class="s0">&lt;?php</span>
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
+<span class="s0">require_once </span><span class="s3">&quot;classes/dbClass.php&quot;</span>;
+<span class="s0">require_once </span><span class="s3">&quot;classes/User.php&quot;</span>;
+<span class="s0">require_once </span><span class="s3">&quot;classes/dbClassUserFunctions.php&quot;</span>;
+
+<span class="s4">//-----------------------------------------------------------------------------------------------------------------</span>
+//----------------------------------------------------------------------------------------if form information sent:
+<span class="s0">if </span>(<span class="s0">isset</span>(<span class="s5">$_POST</span>[<span class="s3">'newUserSent'</span>]))  <span class="s4">//if sign up form was submitted</span>
+{
+    <span class="s5">$db </span>= <span class="s0">new </span>dbClass();
+    <span class="s5">$data_arr </span>= <span class="s0">array</span>(
+        <span class="s3">'userEmail' </span>=&gt; <span class="s5">$_POST</span>[<span class="s3">'mail'</span>],
+        <span class="s3">'userPassword' </span>=&gt; password_hash(<span class="s5">$_POST</span>[<span class="s3">'pass'</span>],PASSWORD_DEFAULT),
+        <span class="s3">'userFName' </span>=&gt; <span class="s5">$_POST</span>[<span class="s3">'fname'</span>],
+        <span class="s3">'userLName' </span>=&gt; <span class="s5">$_POST</span>[<span class="s3">'lname'</span>],
+        <span class="s3">'userPhone' </span>=&gt; <span class="s3">&quot;&quot;</span>,
+        <span class="s3">'userBirthday' </span>=&gt; <span class="s3">&quot;&quot;</span>,
+        <span class="s3">'userAbout' </span>=&gt; <span class="s3">&quot;&quot;</span>,
+        <span class="s3">'userRegisterTime' </span>=&gt; date(<span class="s3">&quot;Y-m-d H:i:s&quot;</span>),
+        <span class="s3">'userStatus' </span>=&gt; <span class="s3">&quot;user&quot;</span>,
+    );
+
+    <span class="s0">if </span>(<span class="s5">$db</span>-&gt;getObjects(<span class="s3">&quot;users&quot;</span>,<span class="s3">&quot;userEmail&quot;</span>, <span class="s5">$_POST</span>[<span class="s3">'mail'</span>], <span class="s3">&quot;User&quot;</span>) == null)                                   <span class="s4">//checking if user's mail already exists</span>
+    {
+        <span class="s4">//$db-&gt;insertLine(&quot;users&quot;, $data_arr);            //inserting new user</span>
+        <span class="s5">$dbu </span>= <span class="s0">new </span>dbClassUserFunctions();
+        <span class="s5">$dbu</span>-&gt;insertUser(<span class="s5">$data_arr</span>);
+
+        <span class="s5">$db</span>-&gt;signinUser(<span class="s5">$_POST</span>[<span class="s3">'mail'</span>], <span class="s5">$_POST</span>[<span class="s3">'pass'</span>]);           <span class="s4">//signing in user</span>
+
+        <span class="s5">$db</span>-&gt;sendMail(<span class="s5">$_POST</span>[<span class="s3">'mail'</span>],<span class="s3">&quot;welcomeMail&quot;</span>);    <span class="s4">//sending user a welcome mail</span>
+
+        <span class="s5">$_SESSION</span>[<span class="s3">'userMessage'</span>]=<span class="s3">&quot;Welcome to petSitter! You've signed up successfully.&quot;</span>;
+        header(<span class="s3">&quot;Location: main.php&quot;</span>);
+        <span class="s0">exit</span>();
+    }
+    <span class="s0">else</span>
+    {
+        <span class="s5">$_SESSION</span>[<span class="s3">'userMessage'</span>]=<span class="s3">&quot;email is already registered to petSitter. Please try again.&quot;</span>;
+        <span class="s5">$_SESSION</span>[<span class="s3">'nextPage'</span>]=<span class="s3">&quot;signup.php&quot;</span>;
+        header(<span class="s3">&quot;Location: main.php&quot;</span>);
+        <span class="s0">exit</span>();
+    }
+}
+<span class="s0">else if </span>(<span class="s0">isset</span>(<span class="s5">$_POST</span>[<span class="s3">'signinLink'</span>])){
+    <span class="s5">$_SESSION</span>[<span class="s3">'nextPage'</span>]=<span class="s3">&quot;signin.php&quot;</span>;
+    header(<span class="s3">&quot;Location: main.php&quot;</span>);
+    <span class="s0">exit</span>();
+}
+<span class="s0">?&gt;</span>
+
+
+<span class="s7">&lt;!-------------------------------------------------------&gt;</span>
+&lt;!-- signup validation: --&gt;
+&lt;<span class="s9">script </span><span class="s10">src=</span><span class="s11">&quot;scripts/signup.js&quot;</span>&gt;&lt;/<span class="s9">script</span>&gt;
+
+&lt;<span class="s9">div </span><span class="s10">class=</span><span class="s11">&quot;text-center&quot; </span><span class="s10">id=</span><span class="s11">&quot;signin&quot;</span>&gt;
+&lt;<span class="s9">form </span><span class="s10">name=</span><span class="s11">&quot;signupForm&quot; </span><span class="s10">action=</span><span class="s11">&quot;signup.php&quot; </span><span class="s10">method=</span><span class="s11">post </span><span class="s10">onsubmit=</span><span class="s11">&quot;</span><span class="s12">return </span>validateSignup(<span class="s12">this</span>)<span class="s11">&quot; </span><span class="s10">class=</span><span class="s11">&quot;form-signin&quot;</span>&gt;
+    &lt;<span class="s9">img </span><span class="s10">class=</span><span class="s11">&quot;mb-4&quot; </span><span class="s10">src=</span><span class="s11">&quot;Images/Pets/General/Rabbit.png&quot; </span><span class="s10">alt=</span><span class="s11">&quot;&quot; </span><span class="s10">width=</span><span class="s11">&quot;111&quot; </span><span class="s10">height=</span><span class="s11">&quot;111&quot;</span>&gt;
+    &lt;<span class="s9">h1 </span><span class="s10">class=</span><span class="s11">&quot;h3 mb-3 font-weight-normal&quot;</span>&gt;Sign up&lt;/<span class="s9">h1</span>&gt;
+    &lt;<span class="s9">div </span><span class="s10">class=</span><span class="s11">&quot;form-group&quot;</span>&gt;
+        &lt;<span class="s9">div </span><span class="s10">class=</span><span class="s11">&quot;form-row&quot;</span>&gt;
+            &lt;<span class="s9">div </span><span class="s10">class=</span><span class="s11">&quot;col&quot;</span>&gt;
+                &lt;<span class="s9">input </span><span class="s10">type=</span><span class="s11">&quot;text&quot; </span><span class="s10">id=</span><span class="s11">&quot;fname&quot; </span><span class="s10">name=</span><span class="s11">&quot;fname&quot; </span><span class="s10">class=</span><span class="s11">&quot;form-control&quot; </span><span class="s10">placeholder=</span><span class="s11">&quot;First name&quot;  </span><span class="s10">pattern=</span><span class="s11">&quot;[A-Za-z \- ']{2,30}&quot; </span><span class="s10">title=</span><span class="s11">&quot;Only letters, at least 2&quot; </span><span class="s10">required=</span><span class="s11">&quot;required&quot;</span>&gt;
+            &lt;/<span class="s9">div</span>&gt;
+            &lt;<span class="s9">div </span><span class="s10">class=</span><span class="s11">&quot;col&quot;</span>&gt;
+                &lt;<span class="s9">input </span><span class="s10">type=</span><span class="s11">&quot;text&quot; </span><span class="s10">class=</span><span class="s11">&quot;form-control&quot; </span><span class="s10">placeholder=</span><span class="s11">&quot;Last name&quot; </span><span class="s10">name=</span><span class="s11">&quot;lname&quot; </span><span class="s10">pattern=</span><span class="s11">&quot;[A-Za-z \- ']{2,30}&quot; </span><span class="s10">title=</span><span class="s11">&quot;Only letters, at least 2&quot; </span><span class="s10">required=</span><span class="s11">&quot;required&quot;</span>&gt;
+            &lt;/<span class="s9">div</span>&gt;
+        &lt;/<span class="s9">div</span>&gt;
+    &lt;/<span class="s9">div</span>&gt;
+    &lt;<span class="s9">div </span><span class="s10">class=</span><span class="s11">&quot;form-group&quot;</span>&gt;
+        &lt;<span class="s9">input </span><span class="s10">type=</span><span class="s11">&quot;email&quot; </span><span class="s10">class=</span><span class="s11">&quot;form-control&quot; </span><span class="s10">id=</span><span class="s11">&quot;exampleInputEmail1&quot; </span><span class="s10">aria-describedby=</span><span class="s11">&quot;emailHelp&quot; </span><span class="s10">placeholder=</span><span class="s11">&quot;Enter email&quot;  </span><span class="s10">name=</span><span class="s11">&quot;mail&quot; </span><span class="s10">pattern=</span><span class="s11">&quot;[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,3}$&quot; </span><span class="s10">required=</span><span class="s11">&quot;required&quot; </span><span class="s10">title=</span><span class="s11">&quot;Please enter a valid email address&quot;</span>&gt;
+        &lt;<span class="s9">small </span><span class="s10">id=</span><span class="s11">&quot;emailHelp&quot; </span><span class="s10">class=</span><span class="s11">&quot;form-text text-muted&quot;</span>&gt;We'll never share your email with anyone else.&lt;/<span class="s9">small</span>&gt;
+    &lt;/<span class="s9">div</span>&gt;
+    &lt;<span class="s9">div </span><span class="s10">class=</span><span class="s11">&quot;form-group&quot;</span>&gt;
+        &lt;<span class="s9">div </span><span class="s10">class=</span><span class="s11">&quot;form-row&quot;</span>&gt;
+            &lt;<span class="s9">div </span><span class="s10">class=</span><span class="s11">&quot;col&quot;</span>&gt;
+                &lt;<span class="s9">input </span><span class="s10">type=</span><span class="s11">&quot;password&quot; </span><span class="s10">class=</span><span class="s11">&quot;form-control&quot; </span><span class="s10">id=</span><span class="s11">&quot;pass&quot; </span><span class="s10">placeholder=</span><span class="s11">&quot;Password&quot; </span><span class="s10">name=</span><span class="s11">&quot;pass&quot; </span><span class="s10">pattern=</span><span class="s11">&quot;[a-zA-Z0-9]{4,30}&quot; </span><span class="s10">title=</span><span class="s11">&quot;at least 4 letters or numbers&quot; </span><span class="s10">onchange=</span><span class="s11">'</span>ValidatePassword();<span class="s11">' </span><span class="s10">required=</span><span class="s11">&quot;required&quot;</span>&gt;
+            &lt;/<span class="s9">div</span>&gt;
+            &lt;<span class="s9">div </span><span class="s10">class=</span><span class="s11">&quot;col&quot;</span>&gt;
+                &lt;<span class="s9">input </span><span class="s10">type=</span><span class="s11">&quot;password&quot; </span><span class="s10">class=</span><span class="s11">&quot;form-control&quot; </span><span class="s10">id=</span><span class="s11">&quot;passconf&quot; </span><span class="s10">placeholder=</span><span class="s11">&quot;Password Confirmation&quot; </span><span class="s10">name=</span><span class="s11">&quot;passconf&quot; </span><span class="s10">onchange=</span><span class="s11">'</span>ValidatePassword();<span class="s11">' </span><span class="s10">required=</span><span class="s11">&quot;required&quot;</span>&gt;
+            &lt;/<span class="s9">div</span>&gt;
+        &lt;/<span class="s9">div</span>&gt;
+    &lt;/<span class="s9">div</span>&gt;
+
+    &lt;<span class="s9">button </span><span class="s10">class=</span><span class="s11">&quot;btn btn-lg btn-primary btn-block&quot; </span><span class="s10">type=</span><span class="s11">&quot;submit&quot; </span><span class="s10">name=</span><span class="s11">&quot;newUserSent&quot; </span><span class="s10">id=</span><span class="s11">&quot;signupbutton&quot;</span>&gt;Sign up&lt;/<span class="s9">button</span>&gt;
+    &lt;<span class="s9">label </span><span class="s10">id=</span><span class="s11">&quot;message&quot;</span>&gt; &lt;/<span class="s9">label</span>&gt;
+&lt;/<span class="s9">form</span>&gt;
+    &lt;<span class="s9">br</span>&gt;
+    <span class="s7">&lt;!--</span>
+&lt;form action=&quot;signup.php&quot; method=post&gt; 
+    &lt;label&gt;Already have an account?&lt;/label&gt; 
+    &lt;button class=&quot;buttonLooksLikeLink&quot; type=&quot;submit&quot; name=&quot;signinLink&quot;&gt;&lt;b&gt;Sign In!&lt;/b&gt;&lt;/button&gt; 
+&lt;/form&gt; 
+--&gt;
+    &lt;<span class="s9">label</span>&gt;Already have an account?&lt;/<span class="s9">label</span>&gt;
+    &lt;<span class="s9">a </span><span class="s10">class=</span><span class="s11">&quot;nav-link&quot; </span><span class="s10">href=</span><span class="s11">&quot;?signIn&quot;</span>&gt;Sign in!&lt;/<span class="s9">a</span>&gt;
+&lt;/<span class="s9">div</span>&gt;
+
+</pre>
+</body>
+</html>
