@@ -83,7 +83,7 @@
         }
     }
 </script>
-<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDWfRbSTsQxwFkIlX2BuvQCgUglN8Hun-U&libraries=places&callback=initAutocomplete"
+<script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY-U&libraries=places&callback=initAutocomplete"
         async defer></script>
 
 
