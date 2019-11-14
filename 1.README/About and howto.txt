@@ -1,0 +1,14 @@
+Petsitter
+A Social Network for the Pet Owner. Designed using PHP, JS, SQL, JS, JQuery, Bootstrap, CSS and probably a little more.
+
+
+
+See screenshots for a general idea of it's functionalities.
+
+How to:
+1. Set up a virtual server using XAMPP.
+2. Using phpMyAdmin, deploy the database backup to a db named 'petsitterdb'
+
+
+Alon Laniado
+aloniado@gmail.com
