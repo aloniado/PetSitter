@@ -17,7 +17,7 @@
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>    <!-- AJAX -->
 
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDWfRbSTsQxwFkIlX2BuvQCgUglN8Hun-U&libraries=places&callback=initAutocomplete" async defer></script>  <!-- google maps -->
+    <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY-U&libraries=places&callback=initAutocomplete" async defer></script>  <!-- google maps -->
 
 
 
